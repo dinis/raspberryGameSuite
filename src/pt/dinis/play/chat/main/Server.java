@@ -1,3 +1,5 @@
+package pt.dinis.play.chat.main;
+
 import java.io.*;
 import java.net.*;
 import java.text.SimpleDateFormat;

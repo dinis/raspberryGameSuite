@@ -1,0 +1,19 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+
+group = 'pt.dinis'
+version = '0.0.1-SNAPSHOT'
+
+description = """raspberryGameSuite"""
+
+sourceCompatibility = 1.5
+targetCompatibility = 1.5
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version:'4.12'
+    compile group: 'log4j', name: 'log4j', version: '1.2.17'
+}

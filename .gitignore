@@ -1,6 +1,11 @@
 bin/
 target/
 log/
+build/
+gradle/
 .*
+*.iml
+*.ipr
+*.iws
 !.gitignore
 

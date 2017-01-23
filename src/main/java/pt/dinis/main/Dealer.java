@@ -16,19 +16,9 @@ import java.util.*;
  */
 public class Dealer {
 
-    public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_BLACK = "\u001B[30m";
-    public static final String ANSI_RED = "\u001B[31m";
-    public static final String ANSI_GREEN = "\u001B[32m";
-    public static final String ANSI_YELLOW = "\u001B[33m";
-    public static final String ANSI_BLUE = "\u001B[34m";
-    public static final String ANSI_PURPLE = "\u001B[35m";
-    public static final String ANSI_CYAN = "\u001B[36m";
-    public static final String ANSI_WHITE = "\u001B[37m";
-
     private final static Logger logger = Logger.getLogger(Dealer.class);
 
-    private final Integer DEFAULT_PORT = 1707;
+    private final Integer DEFAULT_PORT = 1500;
 
     private boolean running = false;
     private static Map<Integer, ClientCommunicationThread> clientCommunicationThreads;
@@ -99,10 +89,7 @@ public class Dealer {
     Displays a message in stdout
      */
     private boolean display(String message) {
-        DateTime time = new DateTime();
-        DateTimeFormatter formatter = DateTimeFormat.shortDateTime();
-        System.out.println(ANSI_GREEN + formatter.print(time) + ": " + ANSI_RESET + message);
-        return true;
+        return Display.display(message);
     }
 
     /*
@@ -118,6 +105,9 @@ public class Dealer {
     }
 
     private Integer generateUniqueId() {
+        if (clientCommunicationThreads.isEmpty()) {
+            return 1;
+        }
         return Collections.max(clientCommunicationThreads.keySet()) + 1;
     }
 

@@ -33,6 +33,12 @@ public class Dealer {
         this.port = (port == null ? DEFAULT_PORT : port);
     }
 
+    public boolean start() {
+      run();
+
+      return true;
+    }
+
     /*
     This creates a socket server to wait for a client,
     and creates a new socket and ClientCommunicationThread
@@ -58,9 +64,10 @@ public class Dealer {
 
                 if(!addClient(id, client)) {
                     client.close();
+                    removeClient(id);
+                } else {
+                  client.start();
                 }
-
-                client.run();
             }
 
             try {

@@ -63,7 +63,7 @@ public class SimpleClient {
         running = true;
 
         SimpleClientScanner scanner = new SimpleClientScanner();
-        scanner.run();
+        scanner.start();
 
         while(running) {
             try {

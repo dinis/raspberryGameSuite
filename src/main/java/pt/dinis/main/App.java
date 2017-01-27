@@ -9,7 +9,7 @@ public class App {
 		garbage();
 
 		Dealer dealer = new Dealer();
-		dealer.run();
+		dealer.start();
     }
 
 	private static void garbage(){

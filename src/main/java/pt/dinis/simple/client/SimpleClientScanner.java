@@ -14,6 +14,7 @@ public class SimpleClientScanner extends Thread {
     public SimpleClientScanner() {
     }
 
+    @override
     public void run() {
         Scanner scanner = new Scanner(System.in);
         while(running) {

@@ -14,12 +14,12 @@ public class SimpleClientScanner extends Thread {
     public SimpleClientScanner() {
     }
 
-    @override
+    @Override
     public void run() {
         Scanner scanner = new Scanner(System.in);
+        running = true;
         while(running) {
             String message = scanner.nextLine();
-
             if(message.equals("logout")) {
                 running = false;
                 scanner.close();

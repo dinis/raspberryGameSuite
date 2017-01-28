@@ -104,10 +104,12 @@ public class SimpleClient {
     public static boolean sendMessage(String message) {
         if (!socket.isConnected()) {
             close();
+            Display.alert("Failed to send message " + message);
             return false;
         }
 
         out.println(message);
+        Display.alert("Sent message " + message);
         return true;
     }
 }

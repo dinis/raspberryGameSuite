@@ -31,6 +31,8 @@ public class WorkerThread extends Thread {
            Dealer.sendMessage(clients, "others");
        } else if (message.equals("server")) {
            Display.display("client " + id + " said: " + message);
+       } else if (message.equals("logout")) {
+           Dealer.closeClient(id);
        } else {
            Display.alert("client " + id + " said: " + message);
        }

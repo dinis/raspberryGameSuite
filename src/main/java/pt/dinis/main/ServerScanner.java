@@ -11,6 +11,7 @@ import java.util.Scanner;
  */
 public class ServerScanner extends Thread {
 
+    private Scanner scanner;
     private boolean running;
     static private final String MESSAGE = "message";
     static private final String ALL = "all";
@@ -23,7 +24,7 @@ public class ServerScanner extends Thread {
 
     @Override
     public void run() {
-        Scanner scanner = new Scanner(System.in);
+        scanner = new Scanner(System.in);
         running = true;
 
         while (running) {
@@ -34,7 +35,8 @@ public class ServerScanner extends Thread {
 
     public boolean close() {
         running = false;
-        Display.display("Server is closed.");
+        scanner.close();
+        Display.display("Server scanner is closed.");
 
         return true;
     }
@@ -69,13 +71,9 @@ public class ServerScanner extends Thread {
                 Display.display("id: " + id);
             }
         } else if (splittedMessage[0].equals(END)) {
-            end();
+            Dealer.stop();
         } else {
-            //erro
+            Display.alert("Unknown message " +  message);
         }
-    }
-
-    public static boolean end() {
-        return true;
     }
 }

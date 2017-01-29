@@ -17,10 +17,11 @@ public class Dealer {
 
     private final Integer DEFAULT_PORT = 1500;
 
-    private boolean running = false;
+    private static boolean running = false;
     private static Map<Integer, ClientCommunicationThread> clientCommunicationThreads;
+    private static ServerScanner serverScanner;
     private final int port;
-    private ServerSocket serverSocket;
+    private static ServerSocket serverSocket;
 
     public Dealer() {
         this(null);
@@ -32,8 +33,8 @@ public class Dealer {
     }
 
     public boolean start() {
-        ServerScanner scanner = new ServerScanner();
-        scanner.start();
+        serverScanner = new ServerScanner();
+        serverScanner.start();
         run();
         return true;
     }
@@ -95,8 +96,9 @@ public class Dealer {
     /*
     Sends a message to stop the server
      */
-    public void stop() {
+    public static void stop() {
         running = false;
+        serverScanner.close();
         try {
             serverSocket.close();
         } catch (IOException e) {

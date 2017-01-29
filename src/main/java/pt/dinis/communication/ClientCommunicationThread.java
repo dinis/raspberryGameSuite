@@ -2,6 +2,7 @@ package pt.dinis.communication;
 
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
+import pt.dinis.main.Dealer;
 import pt.dinis.temporary.WorkerThread;
 
 import java.io.*;
@@ -41,6 +42,9 @@ public class ClientCommunicationThread extends Thread{
                 WorkerThread temporaryThread = new WorkerThread(message, id);
                 temporaryThread.run();
             } catch (IOException e) {
+                if(!toContinue()) {
+                    Dealer.closeClient(id);
+                }
                 logger.warn("Problem receiving message", e);
             }
         }
@@ -71,9 +75,20 @@ public class ClientCommunicationThread extends Thread{
         return result;
     }
 
+    private boolean toContinue() {
+        if(!socket.isConnected()) {
+            return false;
+        }
+        try {
+            return in.ready();
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
     public boolean sendMessage(String message) {
-        if (!socket.isConnected()) {
-            close();
+        if (!toContinue()) {
+            Dealer.closeClient(id);
             return false;
         }
 

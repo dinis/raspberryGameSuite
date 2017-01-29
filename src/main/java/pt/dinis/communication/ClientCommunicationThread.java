@@ -79,11 +79,8 @@ public class ClientCommunicationThread extends Thread{
         if(!socket.isConnected()) {
             return false;
         }
-        try {
-            return in.ready();
-        } catch (IOException e) {
-            return false;
-        }
+
+        return true;
     }
 
     public boolean sendMessage(String message) {

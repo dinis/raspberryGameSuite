@@ -47,7 +47,7 @@ public class SimpleClient {
         Display.info("Socket created.");
 
         try {
-            out = new PrintWriter(socket.getOutputStream());
+            out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         } catch (IOException e) {
             logger.error("Problem opening streams for server.", e);

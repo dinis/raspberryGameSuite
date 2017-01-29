@@ -81,12 +81,14 @@ public class Dealer {
                 logger.error("Problem closing server socket", e);
             }
 
-            for (ClientCommunicationThread client: clientCommunicationThreads.values()) {
-                client.close();
+            for (Integer id: clientCommunicationThreads.keySet()) {
+                closeClient(id);
             }
 
         } catch (IOException e) {
             logger.error("Problem handling server socket", e);
+        } finally {
+            Display.display("The end");
         }
     }
 
@@ -174,6 +176,7 @@ public class Dealer {
             result = false;
         }
 
+        Display.display("Close client " + id);
         return result;
     }
 

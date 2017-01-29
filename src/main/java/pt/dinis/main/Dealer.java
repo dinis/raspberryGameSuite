@@ -60,13 +60,20 @@ public class Dealer {
                     break;
                 }
                 Integer id = generateUniqueId();
-                ClientCommunicationThread client = new ClientCommunicationThread(socket, id);
+                try {
+                    ClientCommunicationThread client = new ClientCommunicationThread(socket, id);
 
-                if(!addClient(id, client)) {
-                    client.close();
-                    removeClient(id);
-                } else {
-                  client.start();
+                    if (!addClient(id, client)) {
+                        client.close();
+                        removeClient(id);
+                        Display.alert("Error creating client " + id);
+                    } else {
+                        client.start();
+                        Display.display("New client " + id);
+                    }
+                } catch (IOException e) {
+                    logger.error("Problem opening socket ", e);
+                    Display.alert("Error opening communication with client.");
                 }
             }
 
@@ -105,6 +112,7 @@ public class Dealer {
     private Boolean addClient(Integer id, ClientCommunicationThread clientCommunicationThread) {
         logger.info("Creating client " + id);
         if(clientCommunicationThreads.containsKey(id)) {
+            logger.warn("Failed to create client " + id);
             return false;
         }
         clientCommunicationThreads.put(id, clientCommunicationThread);
@@ -153,6 +161,6 @@ public class Dealer {
     }
 
     public static Collection<Integer> getActiveClients() {
-        return clientCommunicationThreads.keySet();
+        return new HashSet(clientCommunicationThreads.keySet());
     }
 }

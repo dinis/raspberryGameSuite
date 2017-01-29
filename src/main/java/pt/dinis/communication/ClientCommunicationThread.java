@@ -21,19 +21,15 @@ public class ClientCommunicationThread extends Thread{
     private BufferedReader in;
     private final DateTime time;
 
-    public ClientCommunicationThread(Socket socket, Integer id) {
+    public ClientCommunicationThread(Socket socket, Integer id) throws IOException {
 
         this.id = id;
         this.socket = socket;
         this.running = true;
         this.time = new DateTime();
 
-        try {
-            out = new PrintWriter(socket.getOutputStream());
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        } catch (IOException e) {
-            logger.error("Problem opening streams for client " + id, e);
-        }
+        out = new PrintWriter(socket.getOutputStream(), true);
+        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
     }
 
     @Override

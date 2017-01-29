@@ -1,6 +1,7 @@
 package pt.dinis.temporary;
 
 import pt.dinis.main.Dealer;
+import pt.dinis.main.Display;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -28,6 +29,10 @@ public class WorkerThread extends Thread {
            Collection<Integer> clients = Dealer.getActiveClients();
            clients.remove(id);
            Dealer.sendMessage(clients, "others");
+       } else if (message.equals("server")) {
+           Display.display("client " + id + " said: " + message);
+       } else {
+           Display.alert("client " + id + " said: " + message);
        }
     }
 }

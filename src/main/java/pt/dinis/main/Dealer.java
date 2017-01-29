@@ -1,9 +1,6 @@
 package pt.dinis.main;
 
 import org.apache.log4j.Logger;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import pt.dinis.communication.ClientCommunicationThread;
 
 import java.io.IOException;
@@ -23,6 +20,7 @@ public class Dealer {
     private boolean running = false;
     private static Map<Integer, ClientCommunicationThread> clientCommunicationThreads;
     private final int port;
+    private ServerSocket serverSocket;
 
     public Dealer() {
         this(null);
@@ -34,9 +32,10 @@ public class Dealer {
     }
 
     public boolean start() {
-      run();
-
-      return true;
+        ServerScanner scanner = new ServerScanner();
+        scanner.start();
+        run();
+        return true;
     }
 
     /*
@@ -46,10 +45,9 @@ public class Dealer {
      */
     public void run() {
         running = true;
-        ServerSocket serverSocket;
         try {
             serverSocket = new ServerSocket(port);
-            display("Listening at port " + port + ".");
+            Display.display("Listening at port " + port + ".");
             logger.info("Open Server Socket successfully at port " + port + ".");
 
             // Listening
@@ -97,13 +95,12 @@ public class Dealer {
      */
     public void stop() {
         running = false;
-    }
-
-    /*
-    Displays a message in stdout
-     */
-    private boolean display(String message) {
-        return Display.display(message);
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            logger.error("Error closing server socket.",e);
+        }
+        Display.alert("Closing server application");
     }
 
     /*
@@ -160,8 +157,24 @@ public class Dealer {
         return result;
     }
 
-    public boolean closeClient() {
-        return true;
+    public boolean closeClient(int id) {
+        boolean result = true;
+
+        if(!clientCommunicationThreads.containsKey(id)) {
+            return false;
+        }
+
+        if(!clientCommunicationThreads.get(id).close()){
+            logger.warn("Could not close client " + id);
+            result = false;
+        }
+
+        if(!removeClient(id)) {
+            logger.warn("Could not remove client " + id);
+            result = false;
+        }
+
+        return result;
     }
 
     public static Collection<Integer> getActiveClients() {

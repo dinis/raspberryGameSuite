@@ -20,13 +20,7 @@ public class SimpleClientScanner extends Thread {
         running = true;
         while(running) {
             String message = scanner.nextLine();
-            if(message.equals("logout")) {
-                running = false;
-                scanner.close();
-                SimpleClient.close();
-            } else {
-                SimpleClient.sendMessage(message);
-            }
+            SimpleClient.sendMessage(message);
         }
     }
 

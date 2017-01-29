@@ -1,4 +1,4 @@
-package pt.dinis.communication;
+package pt.dinis.main;
 
 import pt.dinis.simple.client.SimpleClient;
 
@@ -18,14 +18,15 @@ public class ServerScanner extends Thread {
     public void run() {
         Scanner scanner = new Scanner(System.in);
         running = true;
+
         while(running) {
             String message = scanner.nextLine();
-            if(message.equals("logout")) {
+            if(message.equals("end")) {
                 running = false;
                 scanner.close();
-                SimpleClient.close();
+                // fechar socket server
             } else {
-                SimpleClient.sendMessage(message);
+                // tratar da mensagem
             }
         }
     }

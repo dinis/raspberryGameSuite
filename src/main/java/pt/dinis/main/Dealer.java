@@ -160,6 +160,10 @@ public class Dealer {
         return result;
     }
 
+    public boolean closeClient() {
+        return true;
+    }
+
     public static Collection<Integer> getActiveClients() {
         return new HashSet(clientCommunicationThreads.keySet());
     }

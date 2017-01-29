@@ -108,7 +108,7 @@ public class Dealer {
     /*
     Adds a client to our map, returns false if id existed already
      */
-    private Boolean addClient(Integer id, ClientCommunicationThread clientCommunicationThread) {
+    private static Boolean addClient(Integer id, ClientCommunicationThread clientCommunicationThread) {
         logger.info("Creating client " + id);
         if(clientCommunicationThreads.containsKey(id)) {
             logger.warn("Failed to create client " + id);
@@ -128,7 +128,7 @@ public class Dealer {
     /*
     Remove client id
      */
-    private Boolean removeClient(Integer id) {
+    private static Boolean removeClient(Integer id) {
         logger.info("Removing client " + id);
         if(clientCommunicationThreads.containsKey(id)) {
             clientCommunicationThreads.remove(id);
@@ -159,7 +159,7 @@ public class Dealer {
         return result;
     }
 
-    public boolean closeClient(int id) {
+    public static boolean closeClient(int id) {
         boolean result = true;
 
         if(!clientCommunicationThreads.containsKey(id)) {

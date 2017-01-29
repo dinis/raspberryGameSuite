@@ -17,7 +17,7 @@ public class SimpleClient {
 
     final static Logger logger = Logger.getLogger(SimpleClient.class);
 
-    private static String server = "localhost";
+    private static String server = "192.168.1.70";
     private static int port = 1500;
     private static Socket socket;
     private static PrintWriter out;
@@ -47,7 +47,7 @@ public class SimpleClient {
         Display.info("Socket created.");
 
         try {
-            out = new PrintWriter(socket.getOutputStream());
+            out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         } catch (IOException e) {
             logger.error("Problem opening streams for server.", e);
@@ -109,7 +109,6 @@ public class SimpleClient {
         }
 
         out.println(message);
-        Display.alert("Sent message " + message);
         return true;
     }
 }

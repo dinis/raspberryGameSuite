@@ -7,10 +7,11 @@ import org.apache.log4j.Logger;
  */
 public class SimpleClientApp {
 
-    final static Logger logger = Logger.getLogger(SimpleClientApp.class);
+    private final static Logger logger = Logger.getLogger(SimpleClientApp.class);
 
     public static void main(String[] args) {
-        SimpleClient client = new SimpleClient();
+        SimpleClient client = new SimpleClient("192.168.1.73", 1500);
+        logger.info("Starting simple client.");
         client.start();
     }
 }

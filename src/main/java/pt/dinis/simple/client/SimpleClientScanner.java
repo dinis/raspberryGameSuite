@@ -9,6 +9,8 @@ import java.util.Scanner;
  */
 public class SimpleClientScanner extends Thread {
 
+    private Scanner scanner;
+
     private boolean running;
 
     public SimpleClientScanner() {
@@ -16,12 +18,18 @@ public class SimpleClientScanner extends Thread {
 
     @Override
     public void run() {
-        Scanner scanner = new Scanner(System.in);
+        scanner = new Scanner(System.in);
         running = true;
         while(running) {
             String message = scanner.nextLine();
             SimpleClient.sendMessage(message);
         }
+    }
+
+    public boolean close() {
+        running = false;
+        scanner.close();
+        return true;
     }
 
 }

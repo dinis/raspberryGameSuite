@@ -69,11 +69,25 @@ public class SimpleClient {
             try {
                 String message = in.readLine();
                 logger.debug("Receiving a message");
-                Display.display(message);
+                if(message == null) {
+                    close();
+                    Display.alert("Communication ended abruptally");
+                } else {
+                    Display.display(message);
+                }
             } catch (IOException e) {
                 logger.warn("Problem receiving message", e);
+            } finally {
+                if(!toContinue()) {
+                    Display.alert("Connection lost");
+                    close();
+                }
             }
         }
+    }
+
+    private boolean toContinue() {
+        return socket.isConnected();
     }
 
     public static boolean close() {
@@ -83,6 +97,13 @@ public class SimpleClient {
         running = false;
 
         try {
+            socket.close();
+        } catch (IOException e) {
+            logger.info("Problem closing socket.");
+            result = false;
+        }
+
+        try {
             in.close();
         } catch (IOException e) {
             logger.info("Problem closing socket input.");
@@ -90,13 +111,6 @@ public class SimpleClient {
         }
 
         out.close();
-
-        try {
-            socket.close();
-        } catch (IOException e) {
-            logger.info("Problem closing socket.");
-            result = false;
-        }
 
         return result;
     }

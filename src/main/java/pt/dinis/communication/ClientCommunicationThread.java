@@ -37,8 +37,9 @@ public class ClientCommunicationThread extends Thread{
     public void run() {
         while(running) {
             try {
-                String message = in.readLine();
-                logger.debug("Receiving and sending a message");
+                String message;
+                message = in.readLine();
+                logger.debug("Receiving and sending a message " + message);
                 WorkerThread temporaryThread = new WorkerThread(message, id);
                 temporaryThread.run();
             } catch (IOException e) {

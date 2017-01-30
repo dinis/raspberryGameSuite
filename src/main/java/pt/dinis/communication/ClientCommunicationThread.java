@@ -57,6 +57,13 @@ public class ClientCommunicationThread extends Thread{
         running = false;
 
         try {
+            socket.close();
+        } catch (IOException e) {
+            logger.info("Problem closing socket of client " + id + ".");
+            result = false;
+        }
+
+        try {
             in.close();
         } catch (IOException e) {
             logger.info("Problem closing socket input of client " + id + ".");
@@ -64,14 +71,6 @@ public class ClientCommunicationThread extends Thread{
         }
 
         out.close();
-
-        try {
-            socket.close();
-        } catch (IOException e) {
-            logger.info("Problem closing socket of client " + id + ".");
-            result = false;
-        }
-
         return result;
     }
 

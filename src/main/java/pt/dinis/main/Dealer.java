@@ -99,6 +99,9 @@ public class Dealer {
      */
     public static void stop() {
         running = false;
+        for(Integer id: getActiveClients()) {
+            closeClient(id);
+        }
         serverScanner.close();
         try {
             serverSocket.close();

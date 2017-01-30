@@ -17,11 +17,12 @@ public class Dealer {
 
     private final Integer DEFAULT_PORT = 1500;
 
+    private final int port;
     private static boolean running = false;
     private static Map<Integer, ClientCommunicationThread> clientCommunicationThreads;
     private static ServerScanner serverScanner;
-    private final int port;
     private static ServerSocket serverSocket;
+    private Integer uniqueId = 0;
 
     public Dealer() {
         this(null);
@@ -120,11 +121,8 @@ public class Dealer {
         return true;
     }
 
-    private Integer generateUniqueId() {
-        if (clientCommunicationThreads.isEmpty()) {
-            return 1;
-        }
-        return Collections.max(clientCommunicationThreads.keySet()) + 1;
+    private synchronized Integer generateUniqueId() {
+        return uniqueId ++;
     }
 
     /*

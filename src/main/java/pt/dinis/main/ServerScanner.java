@@ -66,10 +66,7 @@ public class ServerScanner extends Thread {
             Dealer.closeClient(id);
 
         } else if (splittedMessage[0].equals(GET)) {
-            Display.display("Clients list:");
-            for (Integer id: Dealer.getActiveClients()) {
-                Display.display("id: " + id);
-            }
+            Display.display("Clients list: " + Dealer.getActiveClients());
         } else if (splittedMessage[0].equals(END)) {
             Dealer.stop();
         } else {

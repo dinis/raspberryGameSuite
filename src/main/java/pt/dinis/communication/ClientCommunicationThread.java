@@ -39,9 +39,14 @@ public class ClientCommunicationThread extends Thread{
             try {
                 String message;
                 message = in.readLine();
-                logger.debug("Receiving and sending a message " + message);
-                WorkerThread temporaryThread = new WorkerThread(message, id);
-                temporaryThread.run();
+                if(message == null) {
+                    Dealer.closeClient(id);
+                    logger.warn("The connection to client " + id + " has been lost.");
+                } else {
+                    logger.debug("Receiving and sending a message " + message);
+                    WorkerThread temporaryThread = new WorkerThread(message, id);
+                    temporaryThread.run();
+                }
             } catch (IOException e) {
                 if(!toContinue()) {
                     Dealer.closeClient(id);

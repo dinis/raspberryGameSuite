@@ -3,7 +3,7 @@ package pt.dinis.main;
 import org.apache.log4j.Logger;
 import pt.dinis.communication.ClientCommunicationThread;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
@@ -12,10 +12,7 @@ import java.util.*;
  * Created by tiago on 21-01-2017.
  */
 public class Dealer {
-
     private final static Logger logger = Logger.getLogger(Dealer.class);
-
-    private final Integer DEFAULT_PORT = 1500;
 
     private final int port;
     private static boolean running = false;
@@ -24,19 +21,16 @@ public class Dealer {
     private static ServerSocket serverSocket;
     private Integer uniqueId = 0;
 
-    public Dealer() {
-        this(null);
-    }
-
     public Dealer(Integer port) {
         clientCommunicationThreads = new HashMap<Integer, ClientCommunicationThread>();
-        this.port = (port == null ? DEFAULT_PORT : port);
+        this.port = port;
     }
 
-    public boolean start() {
+    public boolean start() throws IOException {
         serverScanner = new ServerScanner();
         serverScanner.start();
         run();
+
         return true;
     }
 

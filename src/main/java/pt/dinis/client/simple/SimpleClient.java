@@ -1,4 +1,4 @@
-package pt.dinis.simple.client;
+package pt.dinis.client.simple;
 
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;

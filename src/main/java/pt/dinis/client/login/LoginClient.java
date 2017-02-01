@@ -5,8 +5,8 @@ import org.joda.time.DateTime;
 import pt.dinis.main.Display;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Optional;
 import java.util.Scanner;
 
 /**
@@ -16,7 +16,10 @@ public class LoginClient {
 
     private static Logger logger = Logger.getLogger(LoginClient.class);
 
-    private static Socket socket;
+    private static final String DEFAULT_IP = "localhost";
+    private static final Integer DEFAULT_PORT = 1500;
+
+    private static LoginClientCommunication loginSocket;
     private final DateTime time;
     private static boolean running;
     private Scanner scanner;
@@ -35,30 +38,32 @@ public class LoginClient {
         running = true;
         while(running) {
             String message = scanner.nextLine();
-            // TODO do whatever
+            LoginClientScannerProtocol.protocol(message);
         }
         logger.info("Exiting session started at " + time);
         Display.info("Goodbye");
     }
 
 
-    public static boolean openCommunication() {
+    public static boolean connect(Optional<String> ip, Optional<Integer> port) {
 
         if(isConnected()) {
             Display.alert("Trying to connect when is already connected.");
-            logger.warn("It is already conneceted. Nevertheless, it received an order to connect.");
+            logger.warn("It is already connected. Nevertheless, it received an order to connect.");
             return false;
         }
 
         try {
-            socket = new Socket("localhost", 1500);
+            Socket socket = new Socket(ip.orElse(DEFAULT_IP), port.orElse(DEFAULT_PORT));
+            loginSocket = new LoginClientCommunication(socket);
+            loginSocket.start();
         } catch (IOException e) {
             logger.error("Could not open a socket", e);
-            Display.alert("Could not open a socket");
+            Display.alert("Could not start communication");
             return false;
         }
 
-        Display.info("Socket created.");
+        Display.info("Communication started.");
         return true;
     }
 
@@ -67,13 +72,16 @@ public class LoginClient {
     }
 
     public static boolean isConnected() {
-        if(socket == null) {
+        if(loginSocket == null) {
             return false;
         }
-        return socket.isConnected();
+        return loginSocket.isConnected();
     }
 
     public static void close() {
+        if(loginSocket != null) {
+            loginSocket.close();
+        }
         running = false;
     }
 }

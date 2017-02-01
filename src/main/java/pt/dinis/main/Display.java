@@ -38,4 +38,9 @@ public class Display {
         return true;
     }
 
+    public static boolean clean(String message) {
+        System.out.println(message);
+        return true;
+    }
+
 }

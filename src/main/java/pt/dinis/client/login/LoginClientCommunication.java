@@ -36,11 +36,12 @@ public class LoginClientCommunication extends Thread {
         while(running) {
             try {
                 String message = in.readLine();
-                logger.debug("Receiving a message");
+                logger.debug("Receiving message " + message);
                 if(message == null) {
                     close();
-                    Display.alert("Communication ended abruptally");
+                    Display.alert("Communication closed by server.");
                 } else {
+                    // TODO: do stuff when message is logout close or login
                     Display.display(message);
                 }
             } catch (IOException e) {
@@ -54,8 +55,8 @@ public class LoginClientCommunication extends Thread {
         }
     }
 
-    private boolean toContinue() {
-        return socket.isConnected();
+    private static boolean toContinue() {
+        return isConnected();
     }
 
     public static boolean close() {
@@ -84,7 +85,7 @@ public class LoginClientCommunication extends Thread {
     }
 
     public static boolean sendMessage(String message) {
-        if (!socket.isConnected()) {
+        if (!toContinue()) {
             close();
             Display.alert("Failed to send message " + message);
             return false;
@@ -92,5 +93,12 @@ public class LoginClientCommunication extends Thread {
 
         out.println(message);
         return true;
+    }
+
+    public static boolean isConnected() {
+        if(socket == null) {
+            return false;
+        }
+        return socket.isConnected();
     }
 }

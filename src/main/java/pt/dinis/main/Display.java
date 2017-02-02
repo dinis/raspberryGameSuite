@@ -43,4 +43,9 @@ public class Display {
         return true;
     }
 
+    public static boolean cleanColor(String message) {
+        System.out.println("\t" + ANSI_PURPLE + message + ANSI_RESET);
+        return true;
+    }
+
 }

@@ -2,6 +2,7 @@ package pt.dinis.client.login;
 
 import org.apache.log4j.Logger;
 import pt.dinis.main.Display;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.*;
 
@@ -13,17 +14,19 @@ public class LoginClientScannerProtocol {
     public enum MessageType {
         HELP("help", "Displays this message",
                 "help", Arrays.asList("h")),
+        INFO("info", "xxx Shows client information",
+                "info", Arrays.asList("information", "status")),
         LOGIN("login", "xxx Logs in the server",
                 "login; login ip; login ip port", Collections.emptyList()),
         LOGOUT("logout", "xxx Logs out of the server",
                 "logout", Collections.emptyList()),
         RELOGIN("relogin", "xxx Redo the login",
                 "relogin", Arrays.asList("re-login")),
-        START("start", "xxx Starts a communication with the server",
+        START("start", "Starts a communication with the server",
                 "start", Arrays.asList("open", "connect")),
-        CLOSE("close", "xxx Closes a communication with the server",
+        CLOSE("close", "Closes a communication with the server",
                 "close", Arrays.asList("disconnect")),
-        MESSAGE("message", "xxx Sends a message to the server",
+        MESSAGE("message", "Sends a message to the server",
                 "message text; text", Collections.emptyList()),
         HASH("hash", "xxx print hash given from server while logging in",
                 "hash", Collections.emptyList()),
@@ -43,12 +46,12 @@ public class LoginClientScannerProtocol {
         }
 
         public String getHelpMessage() {
-            String result = word + ": " + help + "\n\tUsage: " + usage;
+            String result = word + ": " + help + " [" + usage + "]";
             return result;
         }
 
         public Collection<String> getKeys() {
-            Collection<String> words = new HashSet<String>(alternatives);
+            Collection<String> words = new HashSet<>(alternatives);
             words.add(word);
             return words;
         }
@@ -56,27 +59,33 @@ public class LoginClientScannerProtocol {
 
     private static Logger logger = Logger.getLogger(LoginClientScannerProtocol.class);
 
-    // TODO
     public static boolean protocol(String message) {
 
-        String[] splitMessage = message.split("\\s+");
-        if(splitMessage.length == 0) {
-            // TODO: this should do login and relogin
+        List<String> words = splitMessage(message);
+
+        // If message is empty, then it tries to start, login or relogin
+        if(words.isEmpty()) {
             if(!LoginClient.isConnected()) {
                 return start(Optional.empty(), Optional.empty());
             }
-            return message(message);
+            if (!LoginClient.isLogged()) {
+                if (!LoginClient.hasHash()) {
+                    return login();
+                }
+                return relogin();
+            }
+            return true;
         }
 
-        String word = splitMessage[0].toLowerCase();
+        String word = words.get(0);
 
         if(MessageType.START.getKeys().contains(word)) {
-            if(splitMessage.length == 1) {
+            if(words.size() == 1) {
                 return start(Optional.empty(), Optional.empty());
-            } else if (splitMessage.length == 2) {
-                return start(Optional.of(splitMessage[1]), Optional.empty());
+            } else if (words.size() == 2) {
+                return start(Optional.of(words.get(1)), Optional.empty());
             } else {
-                return start(Optional.of(splitMessage[1]), Optional.of(Integer.parseInt(splitMessage[2])));
+                return start(Optional.of(words.get(1)), Optional.of(Integer.parseInt(words.get(2))));
             }
         }
 
@@ -88,22 +97,57 @@ public class LoginClientScannerProtocol {
             return exit();
         }
 
-        return true;
+        if(MessageType.LOGIN.getKeys().contains(word)) {
+            return login();
+        }
+
+        if(MessageType.LOGOUT.getKeys().contains(word)) {
+            return logout();
+        }
+
+        if(MessageType.RELOGIN.getKeys().contains(word)) {
+            return relogin();
+        }
+
+        if(MessageType.HELP.getKeys().contains(word)) {
+            return help();
+        }
+
+        if(MessageType.INFO.getKeys().contains(word)) {
+            return info();
+        }
+
+        if(MessageType.HASH.getKeys().contains(word)) {
+            return hash();
+        }
+
+        if(MessageType.MESSAGE.getKeys().contains(word)) {
+            return message(message.substring(message.indexOf(word) + word.length()).trim());
+        }
+
+        return message(message);
+    }
+
+    private static List<String> splitMessage(String message) {
+        List<String> words = (new ArrayList<>());
+        words.addAll(Arrays.asList(message.split("\\s+")));
+        while(words.remove("")) { }
+        return words;
     }
 
     // TODO
     private static boolean login() {
-        return true;
+        throw new NotImplementedException();
     }
 
     // TODO
     private static boolean logout() {
-        return true;
+        throw new NotImplementedException();
     }
 
     // TODO
     private static boolean relogin() {
-        return true;
+        throw new NotImplementedException();
     }
 
     private static boolean start(Optional<String> ip, Optional<Integer> port) {
@@ -115,23 +159,33 @@ public class LoginClientScannerProtocol {
         return LoginClient.connect(ip, port);
     }
 
-    // TODO
     private static boolean close() {
-        return true;
+        LoginClient.sendMessage("disconnect");
+        return LoginClient.disconnect();
     }
 
     private static boolean message(String message) {
-        return LoginClient.sendMessage(message);
+        if(LoginClient.isConnected()) {
+            return LoginClient.sendMessage(message);
+        }
+        logger.info("Trying to send a message while connection is off");
+        Display.alert("No connection");
+        return false;
+    }
+
+    // TODO
+    private static boolean info() {
+        throw new NotImplementedException();
     }
 
     // TODO
     private static boolean hash() {
-        return true;
+        throw new NotImplementedException();
     }
 
     private static boolean help() {
         for(MessageType messageType: MessageType.values()) {
-            Display.clean(messageType.getHelpMessage());
+            Display.cleanColor(messageType.getHelpMessage());
         }
         return true;
     }

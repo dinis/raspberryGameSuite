@@ -3,6 +3,7 @@ package pt.dinis.client.login;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import pt.dinis.main.Display;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -38,7 +39,12 @@ public class LoginClient {
         running = true;
         while(running) {
             String message = scanner.nextLine();
-            LoginClientScannerProtocol.protocol(message);
+            try {
+                LoginClientScannerProtocol.protocol(message);
+            } catch (Exception e) {
+                Display.alert("Error: '" + message + "'.");
+                logger.error("Problem interpreting or performing '" + message + "'.", e);
+            }
         }
         logger.info("Exiting session started at " + time);
         Display.info("Goodbye");
@@ -59,12 +65,22 @@ public class LoginClient {
             loginSocket.start();
         } catch (IOException e) {
             logger.error("Could not open a socket", e);
-            Display.alert("Could not start communication");
+            Display.alert("Could not connect");
             return false;
         }
 
-        Display.info("Communication started.");
+        Display.info("Connect");
         return true;
+    }
+
+    public static boolean disconnect() {
+        if(!isConnected()) {
+            logger.info("Trying to disconnect a socket that is already gone.");
+            Display.alert("Already disconnected");
+            return false;
+        }
+
+        return loginSocket.disconnect();
     }
 
     public static boolean sendMessage(String message) {
@@ -78,9 +94,19 @@ public class LoginClient {
         return loginSocket.isConnected();
     }
 
+    // TODO
+    public static boolean isLogged() {
+        return true;
+    }
+
+    // TODO
+    public static boolean hasHash() {
+        return false;
+    }
+
     public static void close() {
-        if(loginSocket != null) {
-            loginSocket.close();
+        if(isConnected()) {
+            disconnect();
         }
         running = false;
     }

@@ -3,7 +3,6 @@ package pt.dinis.client.login;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import pt.dinis.main.Display;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -19,6 +18,8 @@ public class LoginClient {
 
     private static final String DEFAULT_IP = "localhost";
     private static final Integer DEFAULT_PORT = 1500;
+
+    private static String hash;
 
     private static LoginClientCommunication loginSocket;
     private final DateTime time;
@@ -94,13 +95,20 @@ public class LoginClient {
         return loginSocket.isConnected();
     }
 
-    // TODO
-    public static boolean isLogged() {
-        return true;
+    public static boolean isLoggedIn() {
+        return hash != null;
     }
 
-    // TODO
-    public static boolean hasHash() {
+    public static String getHash() {
+       return hash;
+    }
+
+    public static boolean logout() {
+        if (isLoggedIn()) {
+            hash = null;
+            return true;
+        }
+        Display.info("Logout");
         return false;
     }
 

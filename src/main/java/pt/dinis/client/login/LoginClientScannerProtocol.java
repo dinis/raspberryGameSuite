@@ -2,7 +2,6 @@ package pt.dinis.client.login;
 
 import org.apache.log4j.Logger;
 import pt.dinis.main.Display;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.*;
 
@@ -14,13 +13,13 @@ public class LoginClientScannerProtocol {
     public enum MessageType {
         HELP("help", "Displays this message",
                 "help", Arrays.asList("h")),
-        INFO("info", "xxx Shows client information",
+        INFO("info", "Shows client information",
                 "info", Arrays.asList("information", "status")),
-        LOGIN("login", "xxx Logs in the server",
+        LOGIN("login", "Logs in the server",
                 "login; login ip; login ip port", Collections.emptyList()),
-        LOGOUT("logout", "xxx Logs out of the server",
+        LOGOUT("logout", "Logs out of the server",
                 "logout", Collections.emptyList()),
-        RELOGIN("relogin", "xxx Redo the login",
+        RELOGIN("relogin", "Redo the login",
                 "relogin", Arrays.asList("re-login")),
         START("start", "Starts a communication with the server",
                 "start", Arrays.asList("open", "connect")),
@@ -28,9 +27,9 @@ public class LoginClientScannerProtocol {
                 "close", Arrays.asList("disconnect")),
         MESSAGE("message", "Sends a message to the server",
                 "message text; text", Collections.emptyList()),
-        HASH("hash", "xxx print hash given from server while logging in",
+        HASH("hash", "Print hash given from server while logging in",
                 "hash", Collections.emptyList()),
-        EXIT("exit", "xxx Ends this client",
+        EXIT("exit", "Ends this client",
                 "exit", Arrays.asList("quit", "end"));
 
         private String word;
@@ -65,16 +64,13 @@ public class LoginClientScannerProtocol {
 
         // If message is empty, then it tries to start, login or relogin
         if(words.isEmpty()) {
-            if(!LoginClient.isConnected()) {
-                return start(Optional.empty(), Optional.empty());
-            }
-            if (!LoginClient.isLogged()) {
-                if (!LoginClient.hasHash()) {
-                    return login();
+            if(LoginClient.isConnected()) {
+                if (LoginClient.isLoggedIn()) {
+                    return relogin();
                 }
-                return relogin();
+                return login();
             }
-            return true;
+            return start(Optional.empty(), Optional.empty());
         }
 
         String word = words.get(0);
@@ -135,19 +131,51 @@ public class LoginClientScannerProtocol {
         return words;
     }
 
-    // TODO
     private static boolean login() {
-        throw new NotImplementedException();
+        if (!LoginClient.isConnected()) {
+            Display.alert("No connection");
+            logger.warn("Trying to log in before connect");
+            return false;
+        }
+        if (LoginClient.isLoggedIn()) {
+            logger.info("Trying to log in while already logged in.");
+        }
+        return LoginClient.sendMessage("login");
     }
 
-    // TODO
     private static boolean logout() {
-        throw new NotImplementedException();
+        boolean result = true;
+
+        if(LoginClient.isConnected()) {
+            if(!LoginClient.sendMessage("logout")) {
+                result = false;
+            }
+        }
+
+        if(!LoginClient.isLoggedIn()) {
+            Display.alert("Already logged out");
+            logger.info("Trying to log out when is already logged out");
+            result = false;
+        } else {
+            if(!LoginClient.logout()) {
+                result = false;
+            }
+        }
+        return result;
     }
 
-    // TODO
     private static boolean relogin() {
-        throw new NotImplementedException();
+        if (!LoginClient.isConnected()) {
+            Display.alert("No connection");
+            logger.warn("Trying to re log in before connect");
+            return false;
+        }
+        if(!LoginClient.isLoggedIn()) {
+            Display.alert("No hash");
+            logger.warn("Trying to re log in without hash");
+            return false;
+        }
+        return LoginClient.sendMessage("relogin " + LoginClient.getHash());
     }
 
     private static boolean start(Optional<String> ip, Optional<Integer> port) {
@@ -173,14 +201,23 @@ public class LoginClientScannerProtocol {
         return false;
     }
 
-    // TODO
     private static boolean info() {
-        throw new NotImplementedException();
+        Display.cleanColor("Connected: " + Boolean.toString(LoginClient.isConnected()));
+        Display.cleanColor("Logged in: " + Boolean.toString(LoginClient.isLoggedIn()));
+        if(LoginClient.isLoggedIn()) {
+            Display.cleanColor("Hash: " + LoginClient.getHash());
+        }
+        return true;
     }
 
-    // TODO
     private static boolean hash() {
-        throw new NotImplementedException();
+        if(!LoginClient.isLoggedIn()) {
+            Display.alert("Not logged in");
+            logger.info("Cannot show hash because there isn't any.");
+            return false;
+        }
+        Display.info("Hash: " + LoginClient.getHash());
+        return true;
     }
 
     private static boolean help() {

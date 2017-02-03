@@ -2,11 +2,13 @@ package pt.dinis.main;
 
 import org.apache.log4j.Logger;
 import pt.dinis.communication.ClientCommunicationThread;
-
-import java.io.*;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.*;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * Created by tiago on 21-01-2017.

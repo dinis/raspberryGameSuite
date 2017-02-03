@@ -10,15 +10,11 @@ public class App {
 
         try {
             Configurations.setPropertiesFromFile();
-        } catch (FileNotFoundException e) {
-            Display.alert("Important files not found, this program will close now.");
-            return;
         } catch (IOException e) {
-            Display.alert("I/O problems, this program will close now.");
             return;
         }
 
-        dealer = new Dealer(Integer.parseInt(Configurations.getProperty("port")));
+        dealer = new Dealer(Integer.parseInt(Configurations.getProperty("server.port")));
         dealer.start();
     }
 }

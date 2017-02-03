@@ -17,7 +17,7 @@ public class SimpleClient {
 
     final static Logger logger = Logger.getLogger(SimpleClient.class);
 
-    private static String server = "192.168.1.70";
+    private static String server = "127.0.0.1";
     private static int port = 1500;
     private static Socket socket;
     private static PrintWriter out;

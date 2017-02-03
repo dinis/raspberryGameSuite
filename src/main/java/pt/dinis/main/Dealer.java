@@ -84,7 +84,7 @@ public class Dealer {
             }
 
             for (Integer id: clientCommunicationThreads.keySet()) {
-                closeClient(id);
+                disconnectClient(id);
             }
 
         } catch (IOException e) {
@@ -100,7 +100,7 @@ public class Dealer {
     public static void stop() {
         running = false;
         for(Integer id: getActiveClients()) {
-            closeClient(id);
+            disconnectClient(id);
         }
         serverScanner.close();
         try {
@@ -162,7 +162,7 @@ public class Dealer {
         return result;
     }
 
-    public static boolean closeClient(int id) {
+    public static boolean disconnectClient(int id) {
         boolean result = true;
 
         if(!clientCommunicationThreads.containsKey(id)) {
@@ -170,7 +170,7 @@ public class Dealer {
         }
 
         if(!clientCommunicationThreads.get(id).close()){
-            logger.warn("Could not close client " + id);
+            logger.warn("Could not disconnect client " + id);
             result = false;
         }
 
@@ -179,7 +179,7 @@ public class Dealer {
             result = false;
         }
 
-        Display.display("Close client " + id);
+        Display.display("Disconnect client " + id);
         return result;
     }
 

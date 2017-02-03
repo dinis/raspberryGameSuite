@@ -32,7 +32,7 @@ public class WorkerThread extends Thread {
        } else if (message.equals("server")) {
            Display.display("client " + id + " said: " + message);
        } else if (message.equals("disconnect")) {
-           Dealer.closeClient(id);
+           Dealer.disconnectClient(id);
        } else {
            Display.alert("client " + id + " said: " + message);
        }

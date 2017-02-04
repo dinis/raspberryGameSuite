@@ -5,11 +5,14 @@ import pt.dinis.simple.client.SimpleClient;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Scanner;
+import org.apache.log4j.Logger;
 
 /**
  * Created by tiago on 22-01-2017.
  */
 public class ServerScanner extends Thread {
+
+    private final static Logger logger = Logger.getLogger(Dealer.class);
 
     private Scanner scanner;
     private boolean running;
@@ -29,7 +32,12 @@ public class ServerScanner extends Thread {
 
         while (running) {
             String message = scanner.nextLine();
-            protocol(message);
+
+            try {
+                protocol(message);
+            } catch ( NumberFormatException | ArrayIndexOutOfBoundsException e) {
+                Display.alert("Unknown message " +  message);
+            }
         }
     }
 
@@ -41,7 +49,7 @@ public class ServerScanner extends Thread {
         return true;
     }
 
-    private void protocol(String message) {
+    private void protocol(String message) throws NumberFormatException {
         String[] splittedMessage = message.split(" ");
 
         if (splittedMessage[0].equals(MESSAGE)) {

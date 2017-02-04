@@ -1,11 +1,10 @@
-package pt.dinis.temporary;
+package pt.dinis.main;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 import org.apache.log4j.Logger;
-import pt.dinis.main.Display;
 
 /**
  * Created by diogo on 03-02-2017.

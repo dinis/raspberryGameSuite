@@ -1,7 +1,5 @@
 package pt.dinis.main;
 
-import org.apache.log4j.Logger;
-import pt.dinis.client.login.LoginClient;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.*;

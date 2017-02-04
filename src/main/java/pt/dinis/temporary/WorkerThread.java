@@ -82,20 +82,17 @@ public class WorkerThread extends Thread {
 
     private void login() {
         Display.info("Log in client " + id);
-        throw new NotImplementedException();
-        // TODO
+        Dealer.loginClient(id);
     }
 
     private void relogin(String hash) {
         Display.info("Relog in client " + id + " with hash '" + hash + "'");
-        throw new NotImplementedException();
-        // TODO
+        Dealer.reloginClient(hash, id);
     }
 
     private void logout() {
         Display.info("Log out client " + id);
-        throw new NotImplementedException();
-        // TODO
+        Dealer.logoutClient(id);
     }
 
     private void close() {

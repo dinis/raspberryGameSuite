@@ -5,10 +5,7 @@ import pt.dinis.communication.ClientCommunicationThread;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.*;
 
 /**
  * Created by tiago on 21-01-2017.
@@ -178,6 +175,32 @@ public class Dealer {
         Display.info("Disconnect client " + id);
         return result;
     }
+
+    public static boolean loginClient(Integer id) {
+        try {
+            String hash = LoginManager.loginClient(id);
+            return sendMessage(Collections.singleton(id), "login " + hash);
+        } catch (Exception e) {
+            Display.alert("Could not log in client " + id);
+            sendMessage(Collections.singleton(id), "error refuse login");
+            return false;
+        }
+    }
+
+    public static boolean reloginClient(String hash, Integer id) {
+        if (LoginManager.reloginClient(hash, id)) {
+            return sendMessage(Collections.singleton(id), "success");
+        } else {
+            sendMessage(Collections.singleton(id), "error refuse relogin");
+            return false;
+
+    }
+
+    public static boolean logoutClient(Integer id) {
+        return LoginManager.logoutClient(id);
+    }
+
+
 
     public static Collection<Integer> getActiveClients() {
         return new HashSet(clientCommunicationThreads.keySet());

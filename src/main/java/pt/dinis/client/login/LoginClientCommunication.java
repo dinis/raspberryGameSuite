@@ -38,11 +38,10 @@ public class LoginClientCommunication extends Thread {
                 String message = in.readLine();
                 logger.debug("Receiving message " + message);
                 if(message == null) {
+                    Display.alert("Error receiving from server: disconnect");
                     disconnect();
-                    Display.alert("Disconnected by the server");
                 } else {
-                    // TODO: do stuff when message is logout close or login
-                    Display.display(message);
+                    LoginClientCommunicationProtocol.protocol(message);
                 }
             } catch (IOException e) {
                 logger.warn("Problem receiving message", e);
@@ -62,19 +61,24 @@ public class LoginClientCommunication extends Thread {
 
         try {
             socket.close();
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) {
             logger.info("Problem closing socket.");
             result = false;
         }
 
         try {
             in.close();
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) {
             logger.info("Problem closing socket input.");
             result = false;
         }
 
-        out.close();
+        try {
+            out.close();
+        } catch (NullPointerException e) {
+            logger.info("Problem closing socket output");
+            result = false;
+        }
 
         socket = null;
         Display.info("Disconnect");

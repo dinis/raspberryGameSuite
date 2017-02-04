@@ -73,7 +73,7 @@ public class LoginClientScannerProtocol {
             return start(Optional.empty(), Optional.empty());
         }
 
-        String word = words.get(0);
+        String word = words.get(0).toLowerCase();
 
         if(MessageType.START.getKeys().contains(word)) {
             if(words.size() == 1) {

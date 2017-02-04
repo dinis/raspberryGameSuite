@@ -53,8 +53,6 @@ public class ServerScannerProtocol {
         }
     }
 
-    private static Logger logger = Logger.getLogger(ServerScannerProtocol.class);
-
     public static boolean protocol(String message) {
 
         List<String> words = splitMessage(message);
@@ -63,7 +61,7 @@ public class ServerScannerProtocol {
             return true;
         }
 
-        String word = words.get(0);
+        String word = words.get(0).toLowerCase();
 
         if(MessageType.HELP.getKeys().contains(word)) {
             return help();

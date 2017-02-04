@@ -103,6 +103,11 @@ public class LoginClient {
        return hash;
     }
 
+    public static boolean setHash(String newHash) {
+        hash = newHash;
+        return true;
+    }
+
     public static boolean logout() {
         if (isLoggedIn()) {
             hash = null;

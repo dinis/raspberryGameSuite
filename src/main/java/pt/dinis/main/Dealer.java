@@ -2,7 +2,6 @@ package pt.dinis.main;
 
 import org.apache.log4j.Logger;
 import pt.dinis.communication.ClientCommunicationThread;
-
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;

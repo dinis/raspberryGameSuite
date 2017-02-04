@@ -1,6 +1,6 @@
 package pt.dinis.main;
 
-import pt.dinis.dataaccess.DBUtils;
+import pt.dinis.dataaccess.DBConnection;
 import pt.dinis.temporary.Configurations;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -23,7 +23,7 @@ public class App {
         }
 
         try {
-            DBUtils.prepareDBAccess();
+            DBConnection.prepareDBAccess();
         } catch (ClassNotFoundException e) {
             logger.fatal("Can't find postgreSQL driver.");
             Display.alert("Data Base driver not found.");

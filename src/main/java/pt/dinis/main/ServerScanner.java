@@ -2,6 +2,7 @@ package pt.dinis.main;
 
 import java.util.Collections;
 import java.util.Scanner;
+import org.apache.log4j.Logger;
 
 /**
  * Created by tiago on 22-01-2017.
@@ -24,7 +25,7 @@ public class ServerScanner extends Thread {
             try {
                 ServerScannerProtocol.protocol(message);
             } catch (Exception e) {
-                Display.alert("Error with message '" + message + "'");
+                Display.alert("Unknown message " +  message);
             }
         }
     }

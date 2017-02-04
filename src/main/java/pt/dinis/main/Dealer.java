@@ -45,7 +45,7 @@ public class Dealer {
         running = true;
         try {
             serverSocket = new ServerSocket(port);
-            Display.display("Listening at port " + port + ".");
+            Display.info("Listening at port " + port + ".");
             logger.info("Open Server Socket successfully at port " + port + ".");
 
             // Listening
@@ -65,7 +65,7 @@ public class Dealer {
                         Display.alert("Error creating client " + id);
                     } else {
                         client.start();
-                        Display.display("New client " + id);
+                        Display.info("New client " + id);
                     }
                 } catch (IOException e) {
                     logger.error("Problem opening socket ", e);
@@ -86,7 +86,7 @@ public class Dealer {
         } catch (IOException e) {
             logger.error("Problem handling server socket", e);
         } finally {
-            Display.display("The end");
+            Display.info("Exit");
         }
     }
 
@@ -175,7 +175,7 @@ public class Dealer {
             result = false;
         }
 
-        Display.display("Disconnect client " + id);
+        Display.info("Disconnect client " + id);
         return result;
     }
 

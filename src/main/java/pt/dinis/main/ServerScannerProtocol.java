@@ -161,7 +161,8 @@ public class ServerScannerProtocol {
     }
 
     private static boolean exit() {
+        boolean result = Dealer.sendMessage(Dealer.getActiveClients(), "disconnect");
         Dealer.stop();
-        return true;
+        return result;
     }
 }

@@ -1,6 +1,4 @@
-package pt.dinis.simple.client;
-
-import pt.dinis.main.Display;
+package pt.dinis.client.simple;
 
 import java.util.Scanner;
 

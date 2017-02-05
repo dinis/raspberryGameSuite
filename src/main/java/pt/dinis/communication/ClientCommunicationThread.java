@@ -40,7 +40,7 @@ public class ClientCommunicationThread extends Thread{
                 String message;
                 message = in.readLine();
                 if(message == null) {
-                    Dealer.closeClient(id);
+                    Dealer.disconnectClient(id);
                     logger.warn("The connection to client " + id + " has been lost.");
                 } else {
                     logger.debug("Receiving and sending a message " + message);
@@ -49,7 +49,7 @@ public class ClientCommunicationThread extends Thread{
                 }
             } catch (IOException e) {
                 if(!toContinue()) {
-                    Dealer.closeClient(id);
+                    Dealer.disconnectClient(id);
                 }
                 logger.warn("Problem receiving message", e);
             }
@@ -90,7 +90,7 @@ public class ClientCommunicationThread extends Thread{
 
     public boolean sendMessage(String message) {
         if (!toContinue()) {
-            Dealer.closeClient(id);
+            Dealer.disconnectClient(id);
             return false;
         }
 

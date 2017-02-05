@@ -33,7 +33,7 @@ public class LoginManager {
         return true;
     }
 
-    public static boolean reloginClient(String hash, Integer id) {
+    public static boolean reloginClient(Integer id, String hash) {
         if (hashes.containsKey(hash)) {
             hashes.put(hash, id);
             return true;
@@ -42,7 +42,7 @@ public class LoginManager {
     }
 
     private static String generateUniqueHash() {
-        String hash = null;
+        String hash;
         do {
             hash = new BigInteger(130, random).toString(32);
         } while (hash == null || hashes.containsKey(hash));

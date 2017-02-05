@@ -1,5 +1,6 @@
 package pt.dinis.main;
 
+import pt.dinis.common.Display;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.*;

@@ -1,4 +1,4 @@
-package pt.dinis.main;
+package pt.dinis.common;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -35,11 +35,6 @@ public class Display {
         DateTime time = new DateTime();
         DateTimeFormatter formatter = DateTimeFormat.shortDateTime();
         System.out.println(color + formatter.print(time) + ": " + ANSI_RESET + message);
-        return true;
-    }
-
-    public static boolean clean(String message) {
-        System.out.println(message);
         return true;
     }
 

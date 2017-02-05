@@ -1,6 +1,7 @@
 package pt.dinis.main;
 
 import org.apache.log4j.Logger;
+import pt.dinis.common.Display;
 import pt.dinis.communication.ClientCommunicationThread;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -187,13 +188,13 @@ public class Dealer {
         }
     }
 
-    public static boolean reloginClient(String hash, Integer id) {
-        if (LoginManager.reloginClient(hash, id)) {
+    public static boolean reloginClient(Integer id, String hash) {
+        if (LoginManager.reloginClient(id, hash)) {
             return sendMessage(Collections.singleton(id), "success");
         } else {
             sendMessage(Collections.singleton(id), "error refuse relogin");
             return false;
-
+        }
     }
 
     public static boolean logoutClient(Integer id) {

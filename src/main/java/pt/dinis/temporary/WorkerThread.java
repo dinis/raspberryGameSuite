@@ -2,8 +2,7 @@ package pt.dinis.temporary;
 
 import org.apache.log4j.Logger;
 import pt.dinis.main.Dealer;
-import pt.dinis.main.Display;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import pt.dinis.common.Display;
 
 import java.util.*;
 
@@ -87,7 +86,7 @@ public class WorkerThread extends Thread {
 
     private void relogin(String hash) {
         Display.info("Relog in client " + id + " with hash '" + hash + "'");
-        Dealer.reloginClient(hash, id);
+        Dealer.reloginClient(id, hash);
     }
 
     private void logout() {

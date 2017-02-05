@@ -1,7 +1,7 @@
 package pt.dinis.client.login;
 
 import org.apache.log4j.Logger;
-import pt.dinis.main.Display;
+import pt.dinis.common.Display;
 
 import java.util.*;
 

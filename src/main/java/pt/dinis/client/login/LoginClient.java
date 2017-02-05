@@ -111,12 +111,9 @@ public class LoginClient {
     }
 
     public static boolean logout() {
-        if (isLoggedIn()) {
-            hash = null;
-            return true;
-        }
+        hash = null;
         Display.info("Logout");
-        return false;
+        return !isLoggedIn();
     }
 
     public static void close() {

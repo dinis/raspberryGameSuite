@@ -212,11 +212,11 @@ public class LoginClientScannerProtocol {
 
     private static boolean hash() {
         if(!LoginClient.isLoggedIn()) {
-            Display.alert("Not logged in");
+            Display.cleanColor("No hash");
             logger.info("Cannot show hash because there isn't any.");
             return false;
         }
-        Display.info("Hash: " + LoginClient.getHash());
+        Display.cleanColor("Hash: " + LoginClient.getHash());
         return true;
     }
 

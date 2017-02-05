@@ -3,6 +3,7 @@ package pt.dinis.client.login;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import pt.dinis.main.Display;
+import pt.dinis.temporary.Configurations;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -16,8 +17,8 @@ public class LoginClient {
 
     private static Logger logger = Logger.getLogger(LoginClient.class);
 
-    private static final String DEFAULT_IP = "localhost";
-    private static final Integer DEFAULT_PORT = 1500;
+    private static final String DEFAULT_IP = "login.client.server.host";
+    private static final String DEFAULT_PORT = "login.client.server.port";
 
     private static String hash;
 
@@ -61,7 +62,8 @@ public class LoginClient {
         }
 
         try {
-            Socket socket = new Socket(ip.orElse(DEFAULT_IP), port.orElse(DEFAULT_PORT));
+            Socket socket = new Socket(ip.orElse(Configurations.getProperty(DEFAULT_IP)),
+                    port.orElse(Integer.parseInt(Configurations.getProperty(DEFAULT_PORT))));
             loginSocket = new LoginClientCommunication(socket);
             loginSocket.start();
         } catch (IOException e) {

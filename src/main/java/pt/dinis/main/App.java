@@ -1,8 +1,6 @@
 package pt.dinis.main;
 
 import pt.dinis.dataaccess.DBConnection;
-import pt.dinis.temporary.Configurations;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.apache.log4j.Logger;
 
@@ -14,11 +12,7 @@ public class App {
 
         try {
             Configurations.setPropertiesFromFile();
-        } catch (FileNotFoundException e) {
-            Display.alert("Important files not found, this program will close now.");
-            return;
         } catch (IOException e) {
-            Display.alert("I/O problems, this program will close now.");
             return;
         }
 
@@ -30,7 +24,7 @@ public class App {
             return;
         }
         
-        dealer = new Dealer(Integer.parseInt(Configurations.getProperty("port")));
+        dealer = new Dealer(Integer.parseInt(Configurations.getProperty("server.port")));
         dealer.start();
     }
 }

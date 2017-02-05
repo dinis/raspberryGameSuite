@@ -1,6 +1,6 @@
 package pt.dinis.dataaccess;
 
-import pt.dinis.temporary.Configurations;
+import pt.dinis.main.Configurations;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -23,7 +23,7 @@ public class DBConnection {
 
         username = Configurations.getProperty("db.user");
         password = Configurations.getProperty("db.pass");
-        url = "jdbc:postgresql://" + Configurations.getProperty("hostname") + "/" + Configurations.getProperty("db.path");
+        url = "jdbc:postgresql://" + Configurations.getProperty("server.hostname") + "/" + Configurations.getProperty("db.path");
     }
 
     public Connection openConnection() throws SQLException {

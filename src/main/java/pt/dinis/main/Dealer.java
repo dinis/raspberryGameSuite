@@ -45,7 +45,7 @@ public class Dealer {
         running = true;
         try {
             serverSocket = new ServerSocket(port);
-            Display.display("Listening at port " + port + ".");
+            Display.info("Listening at port " + port + ".");
             logger.info("Open Server Socket successfully at port " + port + ".");
 
             // Listening
@@ -65,7 +65,7 @@ public class Dealer {
                         Display.alert("Error creating client " + id);
                     } else {
                         client.start();
-                        Display.display("New client " + id);
+                        Display.info("New client " + id);
                     }
                 } catch (IOException e) {
                     logger.error("Problem opening socket ", e);
@@ -80,13 +80,13 @@ public class Dealer {
             }
 
             for (Integer id: clientCommunicationThreads.keySet()) {
-                closeClient(id);
+                disconnectClient(id);
             }
 
         } catch (IOException e) {
             logger.error("Problem handling server socket", e);
         } finally {
-            Display.display("The end");
+            Display.info("Exit");
         }
     }
 
@@ -96,7 +96,7 @@ public class Dealer {
     public static void stop() {
         running = false;
         for(Integer id: getActiveClients()) {
-            closeClient(id);
+            disconnectClient(id);
         }
         serverScanner.close();
         try {
@@ -158,7 +158,7 @@ public class Dealer {
         return result;
     }
 
-    public static boolean closeClient(int id) {
+    public static boolean disconnectClient(int id) {
         boolean result = true;
 
         if(!clientCommunicationThreads.containsKey(id)) {
@@ -166,7 +166,7 @@ public class Dealer {
         }
 
         if(!clientCommunicationThreads.get(id).close()){
-            logger.warn("Could not close client " + id);
+            logger.warn("Could not disconnect client " + id);
             result = false;
         }
 
@@ -175,7 +175,7 @@ public class Dealer {
             result = false;
         }
 
-        Display.display("Close client " + id);
+        Display.info("Disconnect client " + id);
         return result;
     }
 

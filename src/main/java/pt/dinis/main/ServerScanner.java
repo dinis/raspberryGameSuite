@@ -1,26 +1,14 @@
 package pt.dinis.main;
 
-import pt.dinis.simple.client.SimpleClient;
-
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Scanner;
-import org.apache.log4j.Logger;
 
 /**
  * Created by tiago on 22-01-2017.
  */
 public class ServerScanner extends Thread {
 
-    private final static Logger logger = Logger.getLogger(Dealer.class);
-
     private Scanner scanner;
     private boolean running;
-    static private final String MESSAGE = "message";
-    static private final String ALL = "all";
-    static private final String GET = "get";
-    static private final String LOGOUT = "logout";
-    static private final String END = "end";
 
     public ServerScanner() {
     }
@@ -32,11 +20,10 @@ public class ServerScanner extends Thread {
 
         while (running) {
             String message = scanner.nextLine();
-
             try {
-                protocol(message);
-            } catch ( NumberFormatException | ArrayIndexOutOfBoundsException e) {
-                Display.alert("Unknown message " +  message);
+                ServerScannerProtocol.protocol(message);
+            } catch (Exception e) {
+                Display.alert("Unknown message '" +  message + "'");
             }
         }
     }
@@ -44,41 +31,8 @@ public class ServerScanner extends Thread {
     public boolean close() {
         running = false;
         scanner.close();
-        Display.display("Server scanner is closed.");
+        Display.info("Server scanner is closed.");
 
         return true;
-    }
-
-    private void protocol(String message) throws NumberFormatException {
-        String[] splittedMessage = message.split(" ");
-
-        if (splittedMessage[0].equals(MESSAGE)) {
-            if (splittedMessage[1].equals(ALL)) {
-                Dealer.sendMessage(Dealer.getActiveClients(), message);
-                return;
-            }
-
-            int id = Integer.parseInt(splittedMessage[1]);
-            Dealer.sendMessage(Collections.singleton(id), message);
-
-        } else if (splittedMessage[0].equals(LOGOUT)) {
-            if (splittedMessage[1].equals(ALL)) {
-                for (Integer id: Dealer.getActiveClients()) {
-                    Dealer.closeClient(id);
-                }
-
-                return;
-            }
-
-            int id = Integer.parseInt(splittedMessage[1]);
-            Dealer.closeClient(id);
-
-        } else if (splittedMessage[0].equals(GET)) {
-            Display.display("Clients list: " + Dealer.getActiveClients());
-        } else if (splittedMessage[0].equals(END)) {
-            Dealer.stop();
-        } else {
-            Display.alert("Unknown message " +  message);
-        }
     }
 }

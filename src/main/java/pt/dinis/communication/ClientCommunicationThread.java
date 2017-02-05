@@ -44,8 +44,9 @@ public class ClientCommunicationThread extends Thread{
                     logger.warn("The connection to client " + id + " has been lost.");
                 } else {
                     logger.debug("Receiving and sending a message " + message);
-                    WorkerThread temporaryThread = new WorkerThread(message, id);
-                    temporaryThread.run();
+                    if (!ClientCommunicationProtocol.protocol(message)) {
+                        logger.info("Can't process the message.");
+                    }
                 }
             } catch (IOException e) {
                 if(!toContinue()) {

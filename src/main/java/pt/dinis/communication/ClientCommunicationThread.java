@@ -3,7 +3,6 @@ package pt.dinis.communication;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import pt.dinis.main.Dealer;
-import pt.dinis.temporary.WorkerThread;
 
 import java.io.*;
 import java.net.Socket;

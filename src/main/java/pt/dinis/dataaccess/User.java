@@ -10,6 +10,29 @@ import java.sql.SQLException;
  * Created by diogo on 04-02-2017.
  */
 public class User {
+    //TODO
+    // getDate
+
+    public static void setPassword(String password, int id, Connection connection) throws SQLException {
+        String query = "INSERT INTO users (password) VALUES (?) WHERE id = ?";
+
+        try (PreparedStatement prepSt = connection.prepareStatement(query)) {
+            prepSt.setString(1, password);
+            prepSt.setInt(2, id);
+            prepSt.executeUpdate();
+        }
+    }
+
+    public static void setNewUser(String username, String password, Connection connection) throws SQLException {
+        String query = "INSERT INTO users (name, password) VALUES (?, ?)";
+
+        try (PreparedStatement prepSt = connection.prepareStatement(query)) {
+            prepSt.setString(1, username);
+            prepSt.setString(2, password);
+            prepSt.executeUpdate();
+        }
+    }
+
     public static String getPassword(String username, Connection connection) throws SQLException, NotFoundException {
         String query = "SELECT password FROM users WHERE name = ?";
 
@@ -23,16 +46,6 @@ public class User {
         }
 
         throw new NotFoundException();
-    }
-
-    public static void register(String username, String password, Connection connection) throws SQLException {
-        String query = "INSERT INTO users (name, password) VALUES (?, ?)";
-
-        try (PreparedStatement prepSt = connection.prepareStatement(query)) {
-            prepSt.setString(1, username);
-            prepSt.setString(1, password);
-            prepSt.executeUpdate();
-        }
     }
 
     public static int getId(String username, Connection connection) throws SQLException, NotFoundException {

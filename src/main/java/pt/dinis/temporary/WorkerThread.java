@@ -1,40 +1,58 @@
 package pt.dinis.temporary;
 
-import pt.dinis.main.Dealer;
-import pt.dinis.main.Display;
-
-import java.util.Collection;
-import java.util.Collections;
+import org.apache.log4j.Logger;
+import pt.dinis.dataaccess.DBConnection;
+import java.sql.SQLException;
+import java.util.List;
 
 /**
- * Created by tiago on 22-01-2017.
+ * Created by diogo on 05-02-2017.
  */
-public class WorkerThread extends Thread {
+public abstract class WorkerThread extends Thread {
+    private final static Logger logger = Logger.getLogger(WorkerThread.class);
 
-    private String message;
-    private Integer id;
+    private DBConnection connection;
+    private List<String> words;
 
-    public WorkerThread(String message, int id) {
-        this.message = message;
-        this.id = id;
+    public WorkerThread(List<String> words) {
+        this.words = words;
     }
 
     @Override
     public void run() {
-       if (message.equals("all")) {
-           Dealer.sendMessage(Dealer.getActiveClients(), "all");
-       } else if (message.equals("echo")) {
-           Dealer.sendMessage(Collections.singleton(id), "echo");
-       } else if (message.equals("others")) {
-           Collection<Integer> clients = Dealer.getActiveClients();
-           clients.remove(id);
-           Dealer.sendMessage(clients, "others");
-       } else if (message.equals("server")) {
-           Display.display("client " + id + " said: " + message);
-       } else if (message.equals("disconnect")) {
-           Dealer.disconnectClient(id);
-       } else {
-           Display.alert("client " + id + " said: " + message);
-       }
+        connection = new DBConnection();
+        try {
+            connection.openConnection();
+        } catch (SQLException e) {
+            logger.warn("Can't open the database connection.");
+            return;
+        }
+
+        try {
+            connection.getConnection().setAutoCommit(false);
+
+            working(words, connection);
+
+            connection.getConnection().commit();
+            logger.info("New database transaction committed.");
+        } catch (SQLException e) {
+            try {
+                logger.warn("New database transaction not committed, rolling back.");
+                connection.getConnection().rollback();
+            } catch (SQLException e1) {
+                logger.warn("Can't rollback the commit, unknown behaviour.");
+            }
+        } finally {
+            try {
+                connection.closeConnection();
+            } catch (SQLException e) {
+                logger.warn("Can't close the database connection.");
+            }
+        }
+
+
     }
+
+    protected abstract boolean working(List<String> message, DBConnection connection);
+
 }

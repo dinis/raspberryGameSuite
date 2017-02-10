@@ -1,6 +1,7 @@
 package pt.dinis.communication;
 
 import pt.dinis.client.login.LoginClientCommunicationProtocol;
+import pt.dinis.temporary.LoginWorkerThread;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +40,8 @@ public class ClientCommunicationProtocol {
         String word = words.get(0).toLowerCase();
 
         if(ClientCommunicationProtocol.MessageType.LOGIN.getWord().equals(word)) {
-            // new workerthread
+            LoginWorkerThread loginWorkerThread = new LoginWorkerThread(words);
+            loginWorkerThread.start();
             return true;
         }
 

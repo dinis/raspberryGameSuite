@@ -79,7 +79,7 @@ public class LoginClientCommunicationProtocol {
 
     private static boolean logout() {
         Display.info("Logged out");
-        return LoginClient.setHash(null);
+        return LoginClient.logout();
     }
 
     private static boolean close() {

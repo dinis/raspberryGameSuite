@@ -3,7 +3,7 @@ package pt.dinis.client.login;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import pt.dinis.common.Display;
-import pt.dinis.temporary.Configurations;
+import pt.dinis.main.Configurations;
 
 import java.io.IOException;
 import java.net.Socket;

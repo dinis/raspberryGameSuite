@@ -17,8 +17,8 @@ public class ServerScannerProtocol {
                 "info", Arrays.asList("information", "status")),
         GET("get", "Show a clients list",
                 "get", Arrays.asList("list")),
-        LOGIN("login", "Replies login demand with its hash",
-                "login i hash", Collections.emptyList()),
+        LOGIN("login", "Replies to login demand",
+                "login i", Collections.emptyList()),
         LOGOUT("logout", "Logs out client i",
                 "logout i", Collections.emptyList()),
         CLOSE("close", "Closes a communication with client i",
@@ -86,7 +86,7 @@ public class ServerScannerProtocol {
         }
 
         if(MessageType.LOGIN.getKeys().contains(word)) {
-            return login(ids, words.get(2));
+            return login(ids);
         }
 
         if(MessageType.LOGOUT.getKeys().contains(word)) {
@@ -116,16 +116,29 @@ public class ServerScannerProtocol {
         return true;
     }
 
-    private static boolean login(Collection<Integer>ids, String hash) {
+    private static boolean login(Collection<Integer>ids) {
         if(ids.size() > 1) {
             Display.alert("Cannot reply to more than one login demand");
             return false;
         }
-        return Dealer.sendMessage(ids, "login " + hash);
+        boolean result = true;
+        for (int id: ids) {
+            result = Dealer.loginClient(id);
+        }
+        return result;
     }
 
     private static boolean logout(Collection<Integer> ids) {
-        return Dealer.sendMessage(ids, "logout");
+        boolean result = true;
+        for(int id: ids) {
+            if (!Dealer.logoutClient(id)) {
+                result = false;
+            }
+        }
+        if(!Dealer.sendMessage(ids, "logout")) {
+            result = false;
+        }
+        return result;
     }
 
     private static boolean close(Collection<Integer> ids) {
@@ -145,9 +158,26 @@ public class ServerScannerProtocol {
         return Dealer.sendMessage(ids, message);
     }
 
-    // TODO
     private static boolean info() {
-        throw new NotImplementedException();
+        Collection<Integer> ids = Dealer.getActiveClients();
+        if (!ids.isEmpty()) {
+            Display.cleanColor("Connected clients:");
+            for(int id: ids) {
+                if (LoginManager.isLogged(id)) {
+                    Display.cleanColor("Client " + id + " logged in with hash " + LoginManager.getClientHash(id));
+                } else {
+                    Display.cleanColor("Client " + id + " not logged in");
+                }
+            }
+        }
+        Map<String, Integer> disconnected = LoginManager.getLoggedClients(ids);
+        if (!disconnected.isEmpty()) {
+            Display.cleanColor("Disconnected clients:");
+            for (Map.Entry<String, Integer> entry : disconnected.entrySet()) {
+                Display.cleanColor("Defunct client " + entry.getValue() + " was logged in with hash " + entry.getKey());
+            }
+        }
+        return true;
     }
 
     private static boolean help() {

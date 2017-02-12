@@ -1,6 +1,7 @@
 package pt.dinis.main;
 
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.security.SecureRandom;
@@ -39,6 +40,29 @@ public class LoginManager {
             return true;
         }
         return false;
+    }
+
+    public static boolean isLogged(Integer id) {
+        return hashes.values().contains(id);
+    }
+
+    public static String getClientHash(Integer id) {
+        for (Map.Entry<String, Integer> entry: hashes.entrySet()) {
+            if (entry.getValue() == id) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
+    public static Map<String, Integer> getLoggedClients(Collection<Integer> excludedIds) {
+        Map<String, Integer> result = new HashMap<String, Integer> ();
+        for (Map.Entry<String, Integer> entry: hashes.entrySet()) {
+            if (!excludedIds.contains(entry.getValue())) {
+                result.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return result;
     }
 
     private static String generateUniqueHash() {

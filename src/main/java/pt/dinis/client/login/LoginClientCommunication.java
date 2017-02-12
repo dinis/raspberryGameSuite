@@ -3,11 +3,9 @@ package pt.dinis.client.login;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import pt.dinis.common.Display;
+import pt.dinis.common.messages.GenericMessage;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 
 /**
@@ -18,16 +16,16 @@ public class LoginClientCommunication extends Thread {
     final static Logger logger = Logger.getLogger(LoginClientCommunication.class);
 
     private static Socket socket;
-    private static PrintWriter out;
-    private static BufferedReader in;
+    private static ObjectOutputStream out;
+    private static ObjectInputStream in;
     private static boolean running;
     private static DateTime time;
 
     public LoginClientCommunication(Socket socket) throws IOException {
         this.socket = socket;
         time = new DateTime();
-        out = new PrintWriter(socket.getOutputStream(), true);
-        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        out = new ObjectOutputStream(socket.getOutputStream());
+        in = new ObjectInputStream(socket.getInputStream());
     }
 
     public void run() {
@@ -35,15 +33,13 @@ public class LoginClientCommunication extends Thread {
 
         while(running) {
             try {
-                String message = in.readLine();
+                GenericMessage message = (GenericMessage) in.readObject();
                 logger.debug("Receiving message " + message);
-                if(message == null) {
-                    Display.alert("Error receiving from server: disconnect");
-                    disconnect();
-                } else {
-                    LoginClientCommunicationProtocol.protocol(message);
-                }
-            } catch (IOException e) {
+                LoginClientCommunicationProtocol.protocol(message.getMessage());
+            } catch (EOFException e) {
+                Display.alert("Error receiving from server: disconnect");
+                disconnect();
+            } catch (IOException | ClassNotFoundException e) {
                 logger.warn("Problem receiving message", e);
             }
         }
@@ -75,7 +71,7 @@ public class LoginClientCommunication extends Thread {
 
         try {
             out.close();
-        } catch (NullPointerException e) {
+        } catch (IOException | NullPointerException e) {
             logger.info("Problem closing socket output");
             result = false;
         }
@@ -86,13 +82,17 @@ public class LoginClientCommunication extends Thread {
         return result;
     }
 
-    public static boolean sendMessage(String message) {
+    public static boolean sendMessage(GenericMessage message) {
         if (!isConnected()) {
-            Display.alert("Cannot send message '" + message + "' ");
+            Display.alert("Cannot send message '" + message.toString() + "' ");
             return false;
         }
 
-        out.println(message);
+        try {
+            out.writeObject(message);
+        } catch (IOException e) {
+            Display.alert("error sending message '" + message.toString() + "'");
+        }
         return true;
     }
 }

@@ -2,6 +2,7 @@ package pt.dinis.communication;
 
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
+import pt.dinis.common.messages.GenericMessage;
 import pt.dinis.main.Dealer;
 import pt.dinis.temporary.WorkerThread;
 
@@ -18,8 +19,8 @@ public class ClientCommunicationThread extends Thread{
     private Integer id;
     private Socket socket;
     private boolean running;
-    private PrintWriter out;
-    private BufferedReader in;
+    private static ObjectOutputStream out;
+    private static ObjectInputStream in;
     private final DateTime time;
 
     public ClientCommunicationThread(Socket socket, Integer id) throws IOException {
@@ -29,25 +30,22 @@ public class ClientCommunicationThread extends Thread{
         this.running = true;
         this.time = new DateTime();
 
-        out = new PrintWriter(socket.getOutputStream(), true);
-        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        out = new ObjectOutputStream(socket.getOutputStream());
+        in = new ObjectInputStream(socket.getInputStream());
     }
 
     @Override
     public void run() {
         while(running) {
             try {
-                String message;
-                message = in.readLine();
-                if(message == null) {
-                    Dealer.disconnectClient(id);
-                    logger.warn("The connection to client " + id + " has been lost.");
-                } else {
-                    logger.debug("Receiving and sending a message " + message);
-                    WorkerThread temporaryThread = new WorkerThread(message, id);
-                    temporaryThread.run();
-                }
-            } catch (IOException e) {
+                GenericMessage message = (GenericMessage) in.readObject();
+                logger.debug("Receiving and sending a message " + message);
+                WorkerThread temporaryThread = new WorkerThread(message.getMessage(), id);
+                temporaryThread.run();
+            } catch (EOFException e) {
+                Dealer.disconnectClient(id);
+                logger.warn("The connection to client " + id + " has been lost.");
+            } catch (IOException | ClassNotFoundException e) {
                 if(!toContinue()) {
                     Dealer.disconnectClient(id);
                 }
@@ -65,18 +63,23 @@ public class ClientCommunicationThread extends Thread{
         try {
             socket.close();
         } catch (IOException e) {
-            logger.info("Problem closing socket of client " + id + ".");
+            logger.info("Problem closing socket of client " + id + ".", e);
             result = false;
         }
 
         try {
             in.close();
         } catch (IOException e) {
-            logger.info("Problem closing socket input of client " + id + ".");
+            logger.info("Problem closing socket input of client " + id + ".", e);
             result = false;
         }
 
-        out.close();
+        try {
+           out.close();
+        } catch (IOException | NullPointerException e) {
+            logger.info("Problem closing socket output of client " + id + ".", e);
+            result = false;
+        }
         return result;
     }
 
@@ -88,13 +91,18 @@ public class ClientCommunicationThread extends Thread{
         return true;
     }
 
-    public boolean sendMessage(String message) {
+    public boolean sendMessage(GenericMessage message) {
         if (!toContinue()) {
             Dealer.disconnectClient(id);
             return false;
         }
 
-        out.println(message);
+        try {
+            out.writeObject(message);
+        } catch (IOException e) {
+            logger.warn("Error sending message " + message.toString(), e);
+            return false;
+        }
         return true;
     }
 }

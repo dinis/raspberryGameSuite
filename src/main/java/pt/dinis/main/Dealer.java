@@ -2,6 +2,7 @@ package pt.dinis.main;
 
 import org.apache.log4j.Logger;
 import pt.dinis.common.Display;
+import pt.dinis.common.messages.GenericMessage;
 import pt.dinis.communication.ClientCommunicationThread;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -147,7 +148,7 @@ public class Dealer {
                 continue;
             } else {
                 ClientCommunicationThread client = clientCommunicationThreads.get(id);
-                if (!client.sendMessage(message)) {
+                if (!client.sendMessage(new GenericMessage(message))) {
                     result = false;
                     logger.warn("Sending message [" + message + "] to client " + id + " failed.");
                 }

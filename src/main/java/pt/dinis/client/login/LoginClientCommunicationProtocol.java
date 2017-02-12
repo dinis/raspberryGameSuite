@@ -22,7 +22,7 @@ public class LoginClientCommunicationProtocol {
             this.word = word;
         }
 
-        String getWord() {
+        public String getWord() {
             return word;
         }
     }
@@ -31,7 +31,6 @@ public class LoginClientCommunicationProtocol {
 
         List<String> words = splitMessage(message);
 
-        // If message is empty, then it tries to start, login or relogin
         if(words.isEmpty()) {
             return false;
         }

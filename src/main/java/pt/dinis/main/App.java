@@ -1,7 +1,5 @@
 package pt.dinis.main;
 
-import pt.dinis.temporary.Configurations;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class App {

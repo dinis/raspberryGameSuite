@@ -1,4 +1,4 @@
-package pt.dinis.temporary;
+package pt.dinis.main;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

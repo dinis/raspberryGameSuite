@@ -15,7 +15,7 @@ public class LoginWorkerThread extends WorkerThread {
     @Override
     protected boolean working(List<String> words, DBConnection connection) {
         // go to database and confirm if the user exist in DB and if is authentication is correct.
-
+        
 
         return false;
     }

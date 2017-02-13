@@ -24,7 +24,7 @@ public class User {
     }
 
     public static void setNewUser(String username, String password, Connection connection) throws SQLException {
-        String query = "INSERT INTO users (name, password) VALUES (?, ?)";
+        String query = "INSERT INTO users (username, password) VALUES (?, ?)";
 
         try (PreparedStatement prepSt = connection.prepareStatement(query)) {
             prepSt.setString(1, username);
@@ -33,8 +33,23 @@ public class User {
         }
     }
 
-    public static String getPassword(String username, Connection connection) throws SQLException, NotFoundException {
-        String query = "SELECT password FROM users WHERE name = ?";
+    public static String getPassword(int id, Connection connection) throws SQLException, NotFoundException {
+        String query = "SELECT password FROM users WHERE id = ?";
+
+        try (PreparedStatement prepSt = connection.prepareStatement(query)) {
+            prepSt.setInt(1, id);
+            ResultSet rs = prepSt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("password");
+            }
+        }
+
+        throw new NotFoundException();
+    }
+
+    public static String getPasswordWithName(String username, Connection connection) throws SQLException, NotFoundException {
+        String query = "SELECT password FROM users WHERE username = ?";
 
         try (PreparedStatement prepSt = connection.prepareStatement(query)) {
             prepSt.setString(1, username);
@@ -49,7 +64,7 @@ public class User {
     }
 
     public static int getId(String username, Connection connection) throws SQLException, NotFoundException {
-        String query = "SELECT password FROM users WHERE name = ?";
+        String query = "SELECT password FROM users WHERE username = ?";
 
         try (PreparedStatement prepSt = connection.prepareStatement(query)) {
             prepSt.setString(1, username);
@@ -64,14 +79,14 @@ public class User {
     }
 
     public static String getName(int id, Connection connection) throws SQLException, NotFoundException {
-        String query = "SELECT password FROM users WHERE name = ?";
+        String query = "SELECT username FROM users WHERE id = ?";
 
         try (PreparedStatement prepSt = connection.prepareStatement(query)) {
             prepSt.setInt(1, id);
             ResultSet rs = prepSt.executeQuery();
 
             if (rs.next()) {
-                return rs.getString("name");
+                return rs.getString("username");
             }
         }
 

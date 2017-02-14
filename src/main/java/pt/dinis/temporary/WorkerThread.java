@@ -26,6 +26,12 @@ public abstract class WorkerThread extends Thread {
         } catch (SQLException e) {
             logger.warn("Can't open the database connection.");
             return;
+        } finally {
+            try {
+                connection.closeConnection();
+            } catch (SQLException e) {
+                logger.warn("Can't close the database connection.");
+            }
         }
 
         try {
@@ -39,7 +45,7 @@ public abstract class WorkerThread extends Thread {
             try {
                 logger.warn("New database transaction not committed, rolling back.");
                 connection.getConnection().rollback();
-            } catch (SQLException e1) {
+            } catch (Exception e1) {
                 logger.warn("Can't rollback the commit, unknown behaviour.");
             }
         } finally {

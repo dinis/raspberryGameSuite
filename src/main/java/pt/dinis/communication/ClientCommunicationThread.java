@@ -44,7 +44,7 @@ public class ClientCommunicationThread extends Thread{
                 } else {
                     logger.debug("Receiving and sending a message " + message);
                     if (!ClientCommunicationProtocol.protocol(message)) {
-                        logger.info("Can't process the message.");
+                        logger.info("Can't process the message" + message);
                     }
                 }
             } catch (IOException e) {

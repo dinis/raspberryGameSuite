@@ -1,7 +1,7 @@
 package pt.dinis.client.login;
 
 import pt.dinis.main.Display;
-import java.util.*; //?
+import java.util.*;
 
 /**
  * Created by tiago on 03-02-2017.

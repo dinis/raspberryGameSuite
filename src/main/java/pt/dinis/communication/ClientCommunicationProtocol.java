@@ -1,8 +1,6 @@
 package pt.dinis.communication;
 
-import pt.dinis.client.login.LoginClientCommunicationProtocol;
 import pt.dinis.temporary.LoginWorkerThread;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

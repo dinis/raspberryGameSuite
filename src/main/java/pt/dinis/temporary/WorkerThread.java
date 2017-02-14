@@ -41,11 +41,11 @@ public abstract class WorkerThread extends Thread {
 
             connection.getConnection().commit();
             logger.info("New database transaction committed.");
-        } catch (SQLException e) {
+        } catch (Exception e) {
             try {
                 logger.warn("New database transaction not committed, rolling back.");
                 connection.getConnection().rollback();
-            } catch (Exception e1) {
+            } catch (SQLException e1) {
                 logger.warn("Can't rollback the commit, unknown behaviour.");
             }
         } finally {

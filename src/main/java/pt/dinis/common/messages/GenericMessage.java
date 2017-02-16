@@ -7,4 +7,8 @@ import java.io.Serializable;
  */
 public interface GenericMessage extends Serializable {
 
+    enum Direction {SERVER_TO_CLIENT, CLIENT_TO_SERVER}
+
+    Direction getDirection();
+
 }

@@ -2,7 +2,7 @@ package pt.dinis.main;
 
 import org.apache.log4j.Logger;
 import pt.dinis.common.Display;
-import pt.dinis.common.messages.ChatMessage;
+import pt.dinis.common.messages.ChatExampleMessage;
 import pt.dinis.communication.ClientCommunicationThread;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -147,7 +147,7 @@ public class Dealer {
                 logger.warn("Trying to send message [" + message + "] to client " + id + ". Client do not exist.");
             } else {
                 ClientCommunicationThread client = clientCommunicationThreads.get(id);
-                if (!client.sendMessage(new ChatMessage(message))) {
+                if (!client.sendMessage(new ChatExampleMessage(message))) {
                     result = false;
                     logger.warn("Sending message [" + message + "] to client " + id + " failed.");
                 }

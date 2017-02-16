@@ -3,7 +3,7 @@ package pt.dinis.client.login;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import pt.dinis.common.Display;
-import pt.dinis.common.messages.ChatMessage;
+import pt.dinis.common.messages.ChatExampleMessage;
 import pt.dinis.main.Configurations;
 
 import java.io.IOException;
@@ -88,8 +88,8 @@ public class LoginClient {
     }
 
     public static boolean sendMessage(String message) {
-        ChatMessage chatMessage = new ChatMessage(message);
-        return LoginClientCommunication.sendMessage(chatMessage);
+        ChatExampleMessage chatExampleMessage = new ChatExampleMessage(message);
+        return LoginClientCommunication.sendMessage(chatExampleMessage);
     }
 
     public static boolean isConnected() {

@@ -3,7 +3,7 @@ package pt.dinis.client.login;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import pt.dinis.common.Display;
-import pt.dinis.common.messages.ChatMessage;
+import pt.dinis.common.messages.ChatExampleMessage;
 
 import java.io.*;
 import java.net.Socket;
@@ -33,7 +33,7 @@ public class LoginClientCommunication extends Thread {
 
         while(running) {
             try {
-                ChatMessage message = (ChatMessage) in.readObject();
+                ChatExampleMessage message = (ChatExampleMessage) in.readObject();
                 logger.debug("Receiving message " + message);
                 LoginClientCommunicationProtocol.protocol(message.getMessage());
             } catch (EOFException e) {
@@ -84,7 +84,7 @@ public class LoginClientCommunication extends Thread {
         return result;
     }
 
-    public static boolean sendMessage(ChatMessage message) {
+    public static boolean sendMessage(ChatExampleMessage message) {
         if (!isConnected()) {
             Display.alert("Cannot send message '" + message.toString() + "' ");
             return false;

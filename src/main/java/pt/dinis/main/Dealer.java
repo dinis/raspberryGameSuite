@@ -2,7 +2,7 @@ package pt.dinis.main;
 
 import org.apache.log4j.Logger;
 import pt.dinis.common.Display;
-import pt.dinis.common.messages.GenericMessage;
+import pt.dinis.common.messages.ChatMessage;
 import pt.dinis.communication.ClientCommunicationThread;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -23,7 +23,7 @@ public class Dealer {
     private Integer uniqueId = 0;
 
     public Dealer(Integer port) {
-        clientCommunicationThreads = new HashMap<Integer, ClientCommunicationThread>();
+        clientCommunicationThreads = new HashMap<>();
         this.port = port;
     }
 
@@ -78,9 +78,7 @@ public class Dealer {
                 logger.error("Problem closing server socket", e);
             }
 
-            for (Integer id: clientCommunicationThreads.keySet()) {
-                disconnectClient(id);
-            }
+            clientCommunicationThreads.keySet().forEach(Dealer::disconnectClient);
 
         } catch (IOException e) {
             if(running) {
@@ -97,9 +95,8 @@ public class Dealer {
     public static void stop() {
         logger.warn("Closing dealer.");
         running = false;
-        for(Integer id: getActiveClients()) {
-            disconnectClient(id);
-        }
+        getActiveClients().forEach(Dealer::disconnectClient);
+
         serverScanner.close();
         try {
             serverSocket.close();
@@ -148,10 +145,9 @@ public class Dealer {
             if (!clientCommunicationThreads.containsKey(id)) {
                 result = false;
                 logger.warn("Trying to send message [" + message + "] to client " + id + ". Client do not exist.");
-                continue;
             } else {
                 ClientCommunicationThread client = clientCommunicationThreads.get(id);
-                if (!client.sendMessage(new GenericMessage(message))) {
+                if (!client.sendMessage(new ChatMessage(message))) {
                     result = false;
                     logger.warn("Sending message [" + message + "] to client " + id + " failed.");
                 }
@@ -204,8 +200,6 @@ public class Dealer {
     public static boolean logoutClient(Integer id) {
         return LoginManager.logoutClient(id);
     }
-
-
 
     public static Collection<Integer> getActiveClients() {
         return new HashSet(clientCommunicationThreads.keySet());

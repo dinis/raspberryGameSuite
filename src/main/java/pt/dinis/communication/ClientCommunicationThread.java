@@ -2,7 +2,7 @@ package pt.dinis.communication;
 
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
-import pt.dinis.common.messages.GenericMessage;
+import pt.dinis.common.messages.ChatMessage;
 import pt.dinis.main.Dealer;
 import pt.dinis.temporary.WorkerThread;
 
@@ -38,7 +38,7 @@ public class ClientCommunicationThread extends Thread{
     public void run() {
         while(running) {
             try {
-                GenericMessage message = (GenericMessage) in.readObject();
+                ChatMessage message = (ChatMessage) in.readObject();
                 logger.debug("Receiving and sending a message " + message);
                 WorkerThread temporaryThread = new WorkerThread(message.getMessage(), id);
                 temporaryThread.run();
@@ -92,7 +92,7 @@ public class ClientCommunicationThread extends Thread{
         return true;
     }
 
-    public boolean sendMessage(GenericMessage message) {
+    public boolean sendMessage(ChatMessage message) {
         if (!toContinue()) {
             Dealer.disconnectClient(id);
             return false;

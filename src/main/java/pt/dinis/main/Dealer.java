@@ -83,7 +83,9 @@ public class Dealer {
             }
 
         } catch (IOException e) {
-            logger.error("Problem handling server socket", e);
+            if(running) {
+                logger.error("Problem handling server socket", e);
+            }
         } finally {
             Display.info("Exit");
         }
@@ -93,6 +95,7 @@ public class Dealer {
     Sends a message to stop the server
      */
     public static void stop() {
+        logger.warn("Closing dealer.");
         running = false;
         for(Integer id: getActiveClients()) {
             disconnectClient(id);

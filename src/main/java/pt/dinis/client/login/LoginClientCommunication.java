@@ -40,7 +40,9 @@ public class LoginClientCommunication extends Thread {
                 Display.alert("Error receiving from server: disconnect");
                 disconnect();
             } catch (IOException | ClassNotFoundException e) {
-                logger.warn("Problem receiving message", e);
+                if(running) {
+                    logger.warn("Problem receiving message", e);
+                }
             }
         }
     }

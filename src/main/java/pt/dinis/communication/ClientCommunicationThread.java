@@ -43,13 +43,14 @@ public class ClientCommunicationThread extends Thread{
                 WorkerThread temporaryThread = new WorkerThread(message.getMessage(), id);
                 temporaryThread.run();
             } catch (EOFException e) {
-                Dealer.disconnectClient(id);
                 logger.warn("The connection to client " + id + " has been lost.");
+                Dealer.disconnectClient(id);
             } catch (IOException | ClassNotFoundException e) {
-                if(!toContinue()) {
+                if(running) {
+                    logger.warn("Problem receiving message", e);
+                } else if (!toContinue()) {
                     Dealer.disconnectClient(id);
                 }
-                logger.warn("Problem receiving message", e);
             }
         }
     }

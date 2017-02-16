@@ -19,8 +19,8 @@ public class ClientCommunicationThread extends Thread{
     private Integer id;
     private Socket socket;
     private boolean running;
-    private static ObjectOutputStream out;
-    private static ObjectInputStream in;
+    private ObjectOutputStream out;
+    private ObjectInputStream in;
     private final DateTime time;
 
     public ClientCommunicationThread(Socket socket, Integer id) throws IOException {

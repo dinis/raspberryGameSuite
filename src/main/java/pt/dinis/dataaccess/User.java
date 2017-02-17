@@ -10,9 +10,6 @@ import java.sql.SQLException;
  * Created by diogo on 04-02-2017.
  */
 public class User {
-    //TODO
-    // getDate
-
     public static void setPassword(String password, int id, Connection connection) throws SQLException {
         String query = "INSERT INTO users (password) VALUES (?) WHERE id = ?";
 

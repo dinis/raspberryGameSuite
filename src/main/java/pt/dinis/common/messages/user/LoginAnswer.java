@@ -5,7 +5,7 @@ import pt.dinis.common.messages.GenericMessage;
 /**
  * Created by tiago on 16-02-2017.
  */
-public class LoginAnswer implements UserMessage {
+public class LoginAnswer extends UserMessage {
 
     AnswerType answer;
     String token;
@@ -41,6 +41,6 @@ public class LoginAnswer implements UserMessage {
                 "answer=" + answer +
                 ", token='" + token + '\'' +
                 ", errorJustification='" + errorJustification + '\'' +
-                '}';
+                "} " + super.toString();
     }
 }

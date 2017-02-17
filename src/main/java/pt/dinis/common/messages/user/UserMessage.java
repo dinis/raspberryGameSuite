@@ -5,9 +5,9 @@ import pt.dinis.common.messages.GenericMessage;
 /**
  * Created by tiago on 16-02-2017.
  */
-public interface UserMessage extends GenericMessage {
+public abstract class UserMessage implements GenericMessage {
 
-    enum AnswerType{
+    public enum AnswerType{
         SUCCESS,
         ERROR
     }

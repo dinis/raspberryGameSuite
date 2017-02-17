@@ -3,7 +3,7 @@ package pt.dinis.common.messages.user;
 /**
  * Created by tiago on 16-02-2017.
  */
-public class ReLoginRequest implements UserMessage {
+public class ReLoginRequest extends UserMessage {
 
     private String token;
 
@@ -21,9 +21,10 @@ public class ReLoginRequest implements UserMessage {
     }
 
     @Override
-    public String toString() {
+    public String
+    toString() {
         return "ReLoginRequest{" +
                 "token='" + token + '\'' +
-                '}';
+                "} " + super.toString();
     }
 }

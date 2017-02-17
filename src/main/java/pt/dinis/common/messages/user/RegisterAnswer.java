@@ -3,7 +3,7 @@ package pt.dinis.common.messages.user;
 /**
  * Created by tiago on 16-02-2017.
  */
-public class RegisterAnswer implements UserMessage {
+public class RegisterAnswer extends UserMessage {
 
     AnswerType answer;
     String token;
@@ -39,6 +39,6 @@ public class RegisterAnswer implements UserMessage {
                 "answer=" + answer +
                 ", token='" + token + '\'' +
                 ", errorJustification='" + errorJustification + '\'' +
-                '}';
+                "} " + super.toString();
     }
 }

@@ -3,7 +3,7 @@ package pt.dinis.common.messages.user;
 /**
  * Created by tiago on 16-02-2017.
  */
-public class LogoutOrder implements UserMessage {
+public class LogoutOrder extends UserMessage {
 
     public LogoutOrder() {
     }
@@ -15,6 +15,6 @@ public class LogoutOrder implements UserMessage {
 
     @Override
     public String toString() {
-        return "LogoutOrder{}";
+        return "LogoutOrder{} " + super.toString();
     }
 }

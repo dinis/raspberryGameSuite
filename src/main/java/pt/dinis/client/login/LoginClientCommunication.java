@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import pt.dinis.common.Display;
 import pt.dinis.common.messages.ChatExampleMessage;
+import pt.dinis.common.messages.GenericMessage;
 
 import java.io.*;
 import java.net.Socket;
@@ -84,7 +85,7 @@ public class LoginClientCommunication extends Thread {
         return result;
     }
 
-    public static boolean sendMessage(ChatExampleMessage message) {
+    public static boolean sendMessage(GenericMessage message) {
         if (!isConnected()) {
             Display.alert("Cannot send message '" + message.toString() + "' ");
             return false;

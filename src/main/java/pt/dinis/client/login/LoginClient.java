@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import pt.dinis.common.Display;
 import pt.dinis.common.messages.ChatExampleMessage;
+import pt.dinis.common.messages.GenericMessage;
 import pt.dinis.main.Configurations;
 
 import java.io.IOException;
@@ -87,9 +88,15 @@ public class LoginClient {
         return loginSocket.disconnect();
     }
 
+    @Deprecated
     public static boolean sendMessage(String message) {
         ChatExampleMessage chatExampleMessage = new ChatExampleMessage(message);
         return LoginClientCommunication.sendMessage(chatExampleMessage);
+    }
+
+    public static boolean sendMessage(GenericMessage message) {
+        logger.debug("Client is sending message: " + message);
+        return LoginClientCommunication.sendMessage(message);
     }
 
     public static boolean isConnected() {

@@ -2,7 +2,9 @@ package pt.dinis.communication;
 
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
+import pt.dinis.common.Display;
 import pt.dinis.common.messages.ChatExampleMessage;
+import pt.dinis.common.messages.GenericMessage;
 import pt.dinis.main.Dealer;
 import pt.dinis.temporary.WorkerThread;
 
@@ -38,10 +40,15 @@ public class ClientCommunicationThread extends Thread{
     public void run() {
         while(running) {
             try {
-                ChatExampleMessage message = (ChatExampleMessage) in.readObject();
-                logger.debug("Receiving and sending a message " + message);
-                WorkerThread temporaryThread = new WorkerThread(message.getMessage(), id);
-                temporaryThread.run();
+                GenericMessage message = (GenericMessage) in.readObject();
+                if (message.getDirection() == GenericMessage.Direction.CLIENT_TO_SERVER) {
+                    logger.debug("Receiving and sending a message " + message);
+                    WorkerThread temporaryThread = new WorkerThread(message, id);
+                    temporaryThread.run();
+                } else {
+                    logger.warn("Server got a message supposedly from server to client: " + message);
+                    Display.alert("Wrong message from " + id);
+                }
             } catch (EOFException e) {
                 logger.warn("The connection to client " + id + " has been lost.");
                 Dealer.disconnectClient(id);

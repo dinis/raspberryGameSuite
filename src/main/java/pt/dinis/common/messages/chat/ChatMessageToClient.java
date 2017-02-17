@@ -2,24 +2,13 @@ package pt.dinis.common.messages.chat;
 /**
  * Created by tiago on 16-02-2017.
  */
-public class ChatMessageToClient implements ChatMessage {
+public class ChatMessageToClient extends ChatMessage {
 
-    private String message;
     private ChatMessageType type;
 
     public ChatMessageToClient(String message, ChatMessageType type) {
-        super();
-        this.message = message;
+        super(message);
         this.type = type;
-    }
-
-    @Override
-    public String getMessage() {
-        return message;
-    }
-
-    public ChatMessageType getType() {
-        return type;
     }
 
     @Override
@@ -30,8 +19,7 @@ public class ChatMessageToClient implements ChatMessage {
     @Override
     public String toString() {
         return "ChatMessageToClient{" +
-                "message='" + message + '\'' +
-                ", type=" + type +
-                '}';
+                "type=" + type +
+                "} " + super.toString();
     }
 }

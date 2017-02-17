@@ -5,7 +5,7 @@ import pt.dinis.common.messages.GenericMessage;
 /**
  * Created by tiago on 16-02-2017.
  */
-public class CloseConnectionRequest implements BasicMessage {
+public class CloseConnectionRequest extends BasicMessage {
 
     @Override
     public Direction getDirection() {
@@ -14,6 +14,6 @@ public class CloseConnectionRequest implements BasicMessage {
 
     @Override
     public String toString() {
-        return "CloseConnectionRequest{}";
+        return "CloseConnectionRequest{} " + super.toString();
     }
 }

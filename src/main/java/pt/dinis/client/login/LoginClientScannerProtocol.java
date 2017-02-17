@@ -2,6 +2,13 @@ package pt.dinis.client.login;
 
 import org.apache.log4j.Logger;
 import pt.dinis.common.Display;
+import pt.dinis.common.messages.basic.CloseConnectionRequest;
+import pt.dinis.common.messages.chat.AuthenticatedChatMessageToServer;
+import pt.dinis.common.messages.chat.ChatMessage;
+import pt.dinis.common.messages.chat.ChatMessageToServer;
+import pt.dinis.common.messages.user.LoginRequest;
+import pt.dinis.common.messages.user.LogoutRequest;
+import pt.dinis.common.messages.user.ReLoginRequest;
 
 import java.util.*;
 
@@ -26,7 +33,9 @@ public class LoginClientScannerProtocol {
         CLOSE("close", "Closes a communication with the server",
                 "close", Arrays.asList("disconnect")),
         MESSAGE("message", "Sends a message to the server",
-                "message text; text", Collections.emptyList()),
+                "message [all|echo|others|server|#] text; [all|echo|others|server|#] text", Collections.emptyList()),
+        ERROR("error", "Sends an error message to the server",
+                "error [all|echo|others|server|#] text", Collections.emptyList()),
         HASH("hash", "Print hash given from server while logging in",
                 "hash", Collections.emptyList()),
         EXIT("exit", "Ends this client",
@@ -117,6 +126,10 @@ public class LoginClientScannerProtocol {
             return hash();
         }
 
+        if(MessageType.ERROR.getKeys().contains(word)) {
+            return error(message.substring(message.indexOf(word) + word.length()).trim());
+        }
+
         if(MessageType.MESSAGE.getKeys().contains(word)) {
             return message(message.substring(message.indexOf(word) + word.length()).trim());
         }
@@ -131,6 +144,7 @@ public class LoginClientScannerProtocol {
         return words;
     }
 
+    // TODO: login should have name and password
     private static boolean login() {
         if (!LoginClient.isConnected()) {
             Display.alert("No connection");
@@ -140,14 +154,14 @@ public class LoginClientScannerProtocol {
         if (LoginClient.isLoggedIn()) {
             logger.info("Trying to log in while already logged in.");
         }
-        return LoginClient.sendMessage("login");
+        return LoginClient.sendMessage(new LoginRequest(null, null));
     }
 
     private static boolean logout() {
         boolean result = true;
 
         if(LoginClient.isConnected()) {
-            if(!LoginClient.sendMessage("logout")) {
+            if(!LoginClient.sendMessage(new LogoutRequest())) {
                 result = false;
             }
         }
@@ -175,7 +189,7 @@ public class LoginClientScannerProtocol {
             logger.warn("Trying to re log in without hash");
             return false;
         }
-        return LoginClient.sendMessage("relogin " + LoginClient.getHash());
+        return LoginClient.sendMessage(new ReLoginRequest(LoginClient.getHash()));
     }
 
     private static boolean start(Optional<String> ip, Optional<Integer> port) {
@@ -188,13 +202,36 @@ public class LoginClientScannerProtocol {
     }
 
     private static boolean close() {
-        LoginClient.sendMessage("disconnect");
+        LoginClient.sendMessage(new CloseConnectionRequest());
         return LoginClient.disconnect();
     }
 
     private static boolean message(String message) {
         if(LoginClient.isConnected()) {
-            return LoginClient.sendMessage(message);
+            if (LoginClient.isLoggedIn()) {
+                return LoginClient.sendMessage(
+                        new AuthenticatedChatMessageToServer(message, ChatMessage.ChatMessageType.NORMAL,
+                                null, null, LoginClient.getHash()));
+            }
+            return LoginClient.sendMessage(
+                    new ChatMessageToServer(message, ChatMessage.ChatMessageType.NORMAL,
+                            null, null));
+        }
+        logger.info("Trying to send a message while connection is off");
+        Display.alert("No connection");
+        return false;
+    }
+
+    private static boolean error(String message) {
+        if(LoginClient.isConnected()) {
+            if (LoginClient.isLoggedIn()) {
+                return LoginClient.sendMessage(
+                        new AuthenticatedChatMessageToServer(message, ChatMessage.ChatMessageType.ERROR,
+                                null, null, LoginClient.getHash()));
+            }
+            return LoginClient.sendMessage(
+                    new ChatMessageToServer(message, ChatMessage.ChatMessageType.ERROR,
+                            null, null));
         }
         logger.info("Trying to send a message while connection is off");
         Display.alert("No connection");

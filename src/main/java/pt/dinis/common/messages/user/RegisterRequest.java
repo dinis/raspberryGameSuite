@@ -1,11 +1,9 @@
 package pt.dinis.common.messages.user;
 
-import pt.dinis.common.messages.GenericMessage;
-
 /**
  * Created by tiago on 16-02-2017.
  */
-public class RegisterRequest implements UserMessage {
+public class RegisterRequest extends UserMessage {
 
     private String name;
     private String password;
@@ -33,6 +31,6 @@ public class RegisterRequest implements UserMessage {
         return "RegisterRequest{" +
                 "name='" + name + '\'' +
                 ", password='" + password + '\'' +
-                '}';
+                "} " + super.toString();
     }
 }

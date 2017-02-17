@@ -3,7 +3,7 @@ package pt.dinis.common.messages.user;
 /**
  * Created by tiago on 16-02-2017.
  */
-public class LoginRequest implements UserMessage {
+public class LoginRequest extends UserMessage {
 
     private String name;
     private String password;
@@ -31,6 +31,6 @@ public class LoginRequest implements UserMessage {
         return "LoginRequest{" +
                 "name='" + name + '\'' +
                 ", password='" + password + '\'' +
-                '}';
+                "} " + super.toString();
     }
 }

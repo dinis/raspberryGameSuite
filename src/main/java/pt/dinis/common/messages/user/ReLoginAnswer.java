@@ -3,7 +3,7 @@ package pt.dinis.common.messages.user;
 /**
  * Created by tiago on 16-02-2017.
  */
-public class ReLoginAnswer implements UserMessage {
+public class ReLoginAnswer extends UserMessage {
 
     AnswerType answer;
     // TODO: this should be an enum
@@ -32,6 +32,6 @@ public class ReLoginAnswer implements UserMessage {
         return "ReLoginAnswer{" +
                 "answer=" + answer +
                 ", errorJustification='" + errorJustification + '\'' +
-                '}';
+                "} " + super.toString();
     }
 }

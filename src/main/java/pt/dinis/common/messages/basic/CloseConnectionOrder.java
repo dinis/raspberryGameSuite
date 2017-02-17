@@ -5,7 +5,7 @@ import pt.dinis.common.messages.GenericMessage;
 /**
  * Created by tiago on 16-02-2017.
  */
-public class CloseConnectionOrder implements BasicMessage {
+public class CloseConnectionOrder extends BasicMessage {
 
     @Override
     public Direction getDirection() {
@@ -14,6 +14,6 @@ public class CloseConnectionOrder implements BasicMessage {
 
     @Override
     public String toString() {
-        return "CloseConnectionOrder{}";
+        return "CloseConnectionOrder{} " + super.toString();
     }
 }

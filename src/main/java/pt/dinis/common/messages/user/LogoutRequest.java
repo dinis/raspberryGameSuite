@@ -3,7 +3,7 @@ package pt.dinis.common.messages.user;
 /**
  * Created by tiago on 16-02-2017.
  */
-public class LogoutRequest implements UserMessage {
+public class LogoutRequest extends UserMessage {
 
     @Override
     public Direction getDirection() {
@@ -12,6 +12,6 @@ public class LogoutRequest implements UserMessage {
 
     @Override
     public String toString() {
-        return "LogoutRequest{}";
+        return "LogoutRequest{} " + super.toString();
     }
 }

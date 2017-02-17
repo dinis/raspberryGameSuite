@@ -5,12 +5,27 @@ import pt.dinis.common.messages.GenericMessage;
 /**
  * Created by tiago on 16-02-2017.
  */
-public interface ChatMessage extends GenericMessage {
+public abstract class ChatMessage implements GenericMessage {
 
-    enum ChatMessageType {
+    public enum ChatMessageType {
         NORMAL,
         ERROR
     }
 
-    String getMessage();
+    String message;
+
+    public ChatMessage(String message) {
+        this.message = message;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    @Override
+    public String toString() {
+        return "ChatMessage{" +
+                "message='" + message + '\'' +
+                '}';
+    }
 }

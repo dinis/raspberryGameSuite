@@ -1,5 +1,5 @@
 CREATE DATABASE game_suite
-  WITH OWNER = diogo
+  WITH OWNER = postgres
        ENCODING = 'UTF8'
        TABLESPACE = pg_default
        LC_COLLATE = 'pt_PT.UTF-8'

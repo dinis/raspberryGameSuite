@@ -182,8 +182,8 @@ public class Dealer {
 
     public static boolean loginClient(Integer id) {
         try {
-            String hash = LoginManager.loginClient(id);
-            return sendMessage(Collections.singleton(id), new LoginAnswer(UserMessage.AnswerType.SUCCESS, hash, null));
+            String token = LoginManager.loginClient(id);
+            return sendMessage(Collections.singleton(id), new LoginAnswer(UserMessage.AnswerType.SUCCESS, token, null));
         } catch (Exception e) {
             Display.alert("Could not log in client " + id);
             sendMessage(Collections.singleton(id), new LoginAnswer(UserMessage.AnswerType.ERROR, null, "error"));
@@ -191,8 +191,8 @@ public class Dealer {
         }
     }
 
-    public static boolean reloginClient(Integer id, String hash) {
-        if (LoginManager.reloginClient(id, hash)) {
+    public static boolean reloginClient(Integer id, String token) {
+        if (LoginManager.reloginClient(id, token)) {
             return sendMessage(Collections.singleton(id), new ReLoginAnswer(UserMessage.AnswerType.SUCCESS, null));
         } else {
             sendMessage(Collections.singleton(id), new ReLoginAnswer(UserMessage.AnswerType.ERROR, "error"));
@@ -202,6 +202,13 @@ public class Dealer {
 
     public static boolean logoutClient(Integer id) {
         return LoginManager.logoutClient(id);
+    }
+
+    public static boolean isAuthenticated(Integer id, String token) {
+        if (!LoginManager.isLogged(id)) {
+            return false;
+        }
+        return LoginManager.getClientToken(id).equals(token);
     }
 
     public static Collection<Integer> getActiveClients() {

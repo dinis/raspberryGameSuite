@@ -10,44 +10,44 @@ import java.security.SecureRandom;
  * Created by tiago on 04-02-2017.
  */
 public class LoginManager {
-    private static Map<String, Integer> hashes = new HashMap<String, Integer>();
+    private static Map<String, Integer> tokens = new HashMap<String, Integer>();
 
     private static SecureRandom random = new SecureRandom();
 
     public static String loginClient(Integer id) throws Exception {
-        String hash = generateUniqueHash();
-        hashes.put(hash, id);
-        return hash;
+        String token = generateUniqueToken();
+        tokens.put(token, id);
+        return token;
     }
 
     public static boolean logoutClient(Integer id) {
-        String hash = null;
-        for(Map.Entry<String, Integer> entry: hashes.entrySet()) {
+        String token = null;
+        for(Map.Entry<String, Integer> entry: tokens.entrySet()) {
             if(entry.getValue().equals(id)) {
-                hash = entry.getKey();
+                token = entry.getKey();
             }
         }
-        if (hash == null) {
+        if (token == null) {
             return false;
         }
-        hashes.remove(hash, id);
+        tokens.remove(token, id);
         return true;
     }
 
-    public static boolean reloginClient(Integer id, String hash) {
-        if (hashes.containsKey(hash)) {
-            hashes.put(hash, id);
+    public static boolean reloginClient(Integer id, String token) {
+        if (tokens.containsKey(token)) {
+            tokens.put(token, id);
             return true;
         }
         return false;
     }
 
     public static boolean isLogged(Integer id) {
-        return hashes.values().contains(id);
+        return tokens.values().contains(id);
     }
 
-    public static String getClientHash(Integer id) {
-        for (Map.Entry<String, Integer> entry: hashes.entrySet()) {
+    public static String getClientToken(Integer id) {
+        for (Map.Entry<String, Integer> entry: tokens.entrySet()) {
             if (entry.getValue() == id) {
                 return entry.getKey();
             }
@@ -57,7 +57,7 @@ public class LoginManager {
 
     public static Map<String, Integer> getLoggedClients(Collection<Integer> excludedIds) {
         Map<String, Integer> result = new HashMap<String, Integer> ();
-        for (Map.Entry<String, Integer> entry: hashes.entrySet()) {
+        for (Map.Entry<String, Integer> entry: tokens.entrySet()) {
             if (!excludedIds.contains(entry.getValue())) {
                 result.put(entry.getKey(), entry.getValue());
             }
@@ -65,11 +65,11 @@ public class LoginManager {
         return result;
     }
 
-    private static String generateUniqueHash() {
-        String hash;
+    private static String generateUniqueToken() {
+        String token;
         do {
-            hash = new BigInteger(130, random).toString(32);
-        } while (hash == null || hashes.containsKey(hash));
-        return hash;
+            token = new BigInteger(130, random).toString(32);
+        } while (token == null || tokens.containsKey(token));
+        return token;
     }
 }

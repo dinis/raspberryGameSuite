@@ -3,7 +3,6 @@ package pt.dinis.client.login;
 import org.apache.log4j.Logger;
 import pt.dinis.common.Display;
 import pt.dinis.common.messages.basic.CloseConnectionRequest;
-import pt.dinis.common.messages.chat.AuthenticatedChatMessageToServer;
 import pt.dinis.common.messages.chat.ChatMessage;
 import pt.dinis.common.messages.chat.ChatMessageToServer;
 import pt.dinis.common.messages.user.LoginRequest;
@@ -217,7 +216,7 @@ public class LoginClientScannerProtocol {
             logger.warn("Trying to re log in without hash");
             return false;
         }
-        return LoginClient.sendMessage(new ReLoginRequest(LoginClient.getHash()));
+        return LoginClient.sendMessage(new ReLoginRequest(LoginClient.getToken()));
     }
 
     private static boolean start(Optional<String> ip, Optional<Integer> port) {
@@ -259,14 +258,8 @@ public class LoginClientScannerProtocol {
         message = message.substring(message.indexOf(word) + word.length()).trim();
 
         if(LoginClient.isConnected()) {
-            if (LoginClient.isLoggedIn()) {
-                return LoginClient.sendMessage(
-                        new AuthenticatedChatMessageToServer(message, messageType,
-                                destiny, person, LoginClient.getHash()));
-            }
             return LoginClient.sendMessage(
-                    new ChatMessageToServer(message, messageType,
-                            destiny, person));
+                    new ChatMessageToServer(message, messageType, destiny, person));
         }
         logger.info("Trying to send a message while connection is off");
         Display.alert("No connection");
@@ -277,7 +270,7 @@ public class LoginClientScannerProtocol {
         Display.cleanColor("Connected: " + Boolean.toString(LoginClient.isConnected()));
         Display.cleanColor("Logged in: " + Boolean.toString(LoginClient.isLoggedIn()));
         if(LoginClient.isLoggedIn()) {
-            Display.cleanColor("Hash: " + LoginClient.getHash());
+            Display.cleanColor("Hash: " + LoginClient.getToken());
         }
         return true;
     }
@@ -288,7 +281,7 @@ public class LoginClientScannerProtocol {
             logger.info("Cannot show hash because there isn't any.");
             return false;
         }
-        Display.cleanColor("Hash: " + LoginClient.getHash());
+        Display.cleanColor("Hash: " + LoginClient.getToken());
         return true;
     }
 

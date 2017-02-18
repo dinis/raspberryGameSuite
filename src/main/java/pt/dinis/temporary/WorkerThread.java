@@ -24,6 +24,7 @@ public class WorkerThread extends Thread {
 
     private GenericMessage message;
     private Integer id;
+    private Boolean isAuthenticated;
 
     public WorkerThread(GenericMessage message, int id) {
         this.message = message;
@@ -32,6 +33,16 @@ public class WorkerThread extends Thread {
 
     @Override
     public void run() {
+        isAuthenticated = false;
+        if (message instanceof  AuthenticatedMessage) {
+            AuthenticatedMessage authenticatedMessage = (AuthenticatedMessage) message;
+            if (authenticatedMessage.isAuthenticated()) {
+                if (Dealer.isAuthenticated(id, authenticatedMessage.getToken())) {
+                    isAuthenticated = true;
+                }
+            }
+            message = authenticatedMessage.getMessage();
+        }
 
         try {
             if (message instanceof UserMessage) {
@@ -75,9 +86,6 @@ public class WorkerThread extends Thread {
     }
 
     private void chatProtocol(ChatMessage message) {
-        if (message instanceof AuthenticatedMessage) {
-            logger.info("Client " + id + " is authenticated");
-        }
         if (message instanceof ChatMessageToServer) {
             ChatMessageToServer chatMessage = (ChatMessageToServer) message;
             message(chatMessage.getMessage(), chatMessage.getType(),

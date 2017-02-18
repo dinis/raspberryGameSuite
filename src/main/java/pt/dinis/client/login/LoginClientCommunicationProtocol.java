@@ -10,8 +10,6 @@ import pt.dinis.common.messages.chat.ChatMessageToClient;
 import pt.dinis.common.messages.user.*;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.util.*;
-
 /**
  * Created by tiago on 03-02-2017.
  */
@@ -75,7 +73,7 @@ public class LoginClientCommunicationProtocol {
         switch(message.getAnswer()) {
             case SUCCESS:
                 Display.info("New token");
-                return LoginClient.setHash(message.getToken());
+                return LoginClient.setToken(message.getToken());
             case ERROR:
                 Display.alert("Login refused: " + message.getErrorJustification());
                 return false;

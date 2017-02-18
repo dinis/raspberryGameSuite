@@ -3,7 +3,6 @@ package pt.dinis.communication;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import pt.dinis.common.Display;
-import pt.dinis.common.messages.ChatExampleMessage;
 import pt.dinis.common.messages.GenericMessage;
 import pt.dinis.main.Dealer;
 import pt.dinis.temporary.WorkerThread;
@@ -49,6 +48,9 @@ public class ClientCommunicationThread extends Thread{
                     logger.warn("Server got a message supposedly from server to client: " + message);
                     Display.alert("Wrong message from " + id);
                 }
+            } catch (ClassCastException e) {
+                Display.alert("Received wrong message format");
+                logger.error("Received message is not of a correct class: ", e);
             } catch (EOFException e) {
                 logger.warn("The connection to client " + id + " has been lost.");
                 Dealer.disconnectClient(id);
@@ -99,7 +101,7 @@ public class ClientCommunicationThread extends Thread{
         return true;
     }
 
-    public boolean sendMessage(ChatExampleMessage message) {
+    public boolean sendMessage(GenericMessage message) {
         if (!toContinue()) {
             Dealer.disconnectClient(id);
             return false;

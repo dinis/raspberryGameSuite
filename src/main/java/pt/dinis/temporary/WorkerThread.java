@@ -5,8 +5,8 @@ import pt.dinis.common.messages.AuthenticatedMessage;
 import pt.dinis.common.messages.GenericMessage;
 import pt.dinis.common.messages.basic.BasicMessage;
 import pt.dinis.common.messages.basic.CloseConnectionRequest;
-import pt.dinis.common.messages.chat.AuthenticatedChatMessageToServer;
 import pt.dinis.common.messages.chat.ChatMessage;
+import pt.dinis.common.messages.chat.ChatMessageToClient;
 import pt.dinis.common.messages.chat.ChatMessageToServer;
 import pt.dinis.common.messages.user.*;
 import pt.dinis.main.Dealer;
@@ -34,7 +34,6 @@ public class WorkerThread extends Thread {
     public void run() {
 
         try {
-
             if (message instanceof UserMessage) {
                 userProtocol((UserMessage) message);
             } else if (message instanceof ChatMessage) {
@@ -148,7 +147,6 @@ public class WorkerThread extends Thread {
             return;
         }
 
-        // TODO: this should build an object here depending on type
-        Dealer.sendMessage(ids, message);
+        Dealer.sendMessage(ids, new ChatMessageToClient(message, type));
     }
 }

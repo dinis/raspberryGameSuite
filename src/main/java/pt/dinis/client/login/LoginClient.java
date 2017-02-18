@@ -3,7 +3,6 @@ package pt.dinis.client.login;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import pt.dinis.common.Display;
-import pt.dinis.common.messages.ChatExampleMessage;
 import pt.dinis.common.messages.GenericMessage;
 import pt.dinis.main.Configurations;
 

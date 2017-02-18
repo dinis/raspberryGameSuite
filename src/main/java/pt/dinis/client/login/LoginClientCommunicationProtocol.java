@@ -1,6 +1,14 @@
 package pt.dinis.client.login;
 
+import org.apache.log4j.Logger;
 import pt.dinis.common.Display;
+import pt.dinis.common.messages.GenericMessage;
+import pt.dinis.common.messages.basic.BasicMessage;
+import pt.dinis.common.messages.basic.CloseConnectionOrder;
+import pt.dinis.common.messages.chat.ChatMessage;
+import pt.dinis.common.messages.chat.ChatMessageToClient;
+import pt.dinis.common.messages.user.*;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.*;
 
@@ -9,71 +17,82 @@ import java.util.*;
  */
 public class LoginClientCommunicationProtocol {
 
-    public enum MessageType {
-        LOGIN("login"),
-        LOGOUT("logout"),
-        CLOSE("disconnect"),
-        MESSAGE("message"),
-        ERROR("error");
+    private final static Logger logger = Logger.getLogger(LoginClientCommunicationProtocol.class);
 
-        private String word;
+    public static boolean protocol(GenericMessage message) {
 
-        MessageType(String word) {
-            this.word = word;
-        }
-
-        public String getWord() {
-            return word;
-        }
-    }
-
-    public static boolean protocol(String message) {
-
-        List<String> words = splitMessage(message);
-
-        if(words.isEmpty()) {
-            return false;
-        }
-
-        String word = words.get(0).toLowerCase();
-
-        if(MessageType.LOGIN.getWord().equals(word)) {
-            if(words.size() != 2) {
-                Display.alert("Unknown message '" + message + "'");
+        try {
+            if (message instanceof UserMessage) {
+                return userProtocol((UserMessage) message);
+            } else if (message instanceof ChatMessage) {
+                return chatProtocol((ChatMessage) message);
+            } else if (message instanceof BasicMessage) {
+                return basicProtocol((BasicMessage) message);
+            } else {
+                logger.warn("Unexpected message from server: " + message);
                 return false;
             }
-            return login(words.get(1));
+        } catch (Exception e) {
+            Display.alert("error in message '" + message + "' from server.");
+            logger.error("Error interpreting message '" + message + "'", e);
+            return false;
         }
+    }
 
-        if(MessageType.CLOSE.getWord().equals(word)) {
-            return close();
+    private static boolean userProtocol(UserMessage message) {
+        if (message instanceof LoginAnswer) {
+            return login((LoginAnswer) message);
         }
-
-        if(MessageType.LOGOUT.getWord().equals(word)) {
+        if (message instanceof RegisterAnswer) {
+            throw new NotImplementedException();
+        }
+        if (message instanceof LogoutOrder) {
             return logout();
         }
-
-        if(MessageType.ERROR.getWord().equals(word)) {
-            return error(message.substring(message.indexOf(word) + word.length()).trim());
+        if (message instanceof ReLoginAnswer) {
+            return relogin((ReLoginAnswer) message);
         }
-
-        if(MessageType.MESSAGE.getWord().equals(word)) {
-            return message(message.substring(message.indexOf(word) + word.length()).trim());
-        }
-
-        return message(message);
+        return false;
     }
 
-    private static List<String> splitMessage(String message) {
-        List<String> words = (new ArrayList<>());
-        words.addAll(Arrays.asList(message.split("\\s+")));
-        while(words.remove("")) { }
-        return words;
+    private static boolean basicProtocol(BasicMessage message) {
+        if (message instanceof CloseConnectionOrder) {
+            return close();
+        }
+        logger.warn("Unexpected message from server: " + message);
+        return false;
     }
 
-    private static boolean login(String hash) {
-        Display.info("New hash");
-        return LoginClient.setHash(hash);
+    private static boolean chatProtocol(ChatMessage message) {
+        if (message instanceof ChatMessageToClient) {
+            return message(message.getMessage(), message.getType());
+        }
+        logger.warn("Unexpected message from server: " + message);
+        return false;
+    }
+
+    private static boolean login(LoginAnswer message) {
+        switch(message.getAnswer()) {
+            case SUCCESS:
+                Display.info("New token");
+                return LoginClient.setHash(message.getToken());
+            case ERROR:
+                Display.alert("Login refused: " + message.getErrorJustification());
+                return false;
+        }
+        return false;
+    }
+
+    private static boolean relogin(ReLoginAnswer message) {
+        switch(message.getAnswer()) {
+            case SUCCESS:
+                Display.info("Relogin success");
+                return true;
+            case ERROR:
+                Display.alert("Relogin refused: " + message.getErrorJustification());
+                return false;
+        }
+        return false;
     }
 
     private static boolean logout() {
@@ -86,13 +105,15 @@ public class LoginClientCommunicationProtocol {
         return LoginClient.disconnect();
     }
 
-    private static boolean message(String message) {
-        Display.display(message);
-        return true;
-    }
-
-    private static boolean error(String message) {
-        Display.alert(message);
+    private static boolean message(String message, ChatMessage.ChatMessageType type) {
+        switch(type) {
+            case NORMAL:
+                Display.display(message);
+                break;
+            case ERROR:
+                Display.alert(message);
+                break;
+        }
         return true;
     }
 }

@@ -230,7 +230,9 @@ public class LoginClientScannerProtocol {
     }
 
     private static boolean close() {
-        LoginClient.sendMessage(new CloseConnectionRequest());
+        if (LoginClient.isConnected()) {
+            LoginClient.sendMessage(new CloseConnectionRequest());
+        }
         return LoginClient.disconnect();
     }
 

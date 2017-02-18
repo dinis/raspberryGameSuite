@@ -2,7 +2,10 @@ package pt.dinis.main;
 
 import org.apache.log4j.Logger;
 import pt.dinis.common.Display;
-import pt.dinis.common.messages.ChatExampleMessage;
+import pt.dinis.common.messages.GenericMessage;
+import pt.dinis.common.messages.user.LoginAnswer;
+import pt.dinis.common.messages.user.ReLoginAnswer;
+import pt.dinis.common.messages.user.UserMessage;
 import pt.dinis.communication.ClientCommunicationThread;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -138,7 +141,7 @@ public class Dealer {
     /*
     This method will send the message to every element in list ids
      */
-    public static Boolean sendMessage(Collection<Integer> ids, String message) {
+    public static Boolean sendMessage(Collection<Integer> ids, GenericMessage message) {
         logger.info("Sending message [" + message + "] to clients [" + ids.toString() + "]." );
         boolean result = true;
         for (Integer id: ids) {
@@ -147,7 +150,7 @@ public class Dealer {
                 logger.warn("Trying to send message [" + message + "] to client " + id + ". Client do not exist.");
             } else {
                 ClientCommunicationThread client = clientCommunicationThreads.get(id);
-                if (!client.sendMessage(new ChatExampleMessage(message))) {
+                if (!client.sendMessage(message)) {
                     result = false;
                     logger.warn("Sending message [" + message + "] to client " + id + " failed.");
                 }
@@ -180,19 +183,19 @@ public class Dealer {
     public static boolean loginClient(Integer id) {
         try {
             String hash = LoginManager.loginClient(id);
-            return sendMessage(Collections.singleton(id), "login " + hash);
+            return sendMessage(Collections.singleton(id), new LoginAnswer(UserMessage.AnswerType.SUCCESS, hash, null));
         } catch (Exception e) {
             Display.alert("Could not log in client " + id);
-            sendMessage(Collections.singleton(id), "error refuse login");
+            sendMessage(Collections.singleton(id), new LoginAnswer(UserMessage.AnswerType.ERROR, null, "error"));
             return false;
         }
     }
 
     public static boolean reloginClient(Integer id, String hash) {
         if (LoginManager.reloginClient(id, hash)) {
-            return sendMessage(Collections.singleton(id), "success");
+            return sendMessage(Collections.singleton(id), new ReLoginAnswer(UserMessage.AnswerType.SUCCESS, null));
         } else {
-            sendMessage(Collections.singleton(id), "error refuse relogin");
+            sendMessage(Collections.singleton(id), new ReLoginAnswer(UserMessage.AnswerType.ERROR, "error"));
             return false;
         }
     }

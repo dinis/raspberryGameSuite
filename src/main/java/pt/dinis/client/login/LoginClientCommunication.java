@@ -3,7 +3,6 @@ package pt.dinis.client.login;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import pt.dinis.common.Display;
-import pt.dinis.common.messages.ChatExampleMessage;
 import pt.dinis.common.messages.GenericMessage;
 
 import java.io.*;
@@ -34,9 +33,17 @@ public class LoginClientCommunication extends Thread {
 
         while(running) {
             try {
-                ChatExampleMessage message = (ChatExampleMessage) in.readObject();
-                logger.debug("Receiving message " + message);
-                LoginClientCommunicationProtocol.protocol(message.getMessage());
+                GenericMessage message = (GenericMessage) in.readObject();
+                if (message.getDirection() == GenericMessage.Direction.SERVER_TO_CLIENT) {
+                    logger.debug("Receiving message " + message);
+                    LoginClientCommunicationProtocol.protocol(message);
+                } else {
+                    logger.warn("Server got a message supposedly from client to server: " + message);
+                    Display.alert("Wrong message from server");
+                }
+            } catch (ClassCastException e) {
+                Display.alert("Received wrong message format");
+                logger.error("Received message is not of a correct class: ", e);
             } catch (EOFException e) {
                 Display.alert("Error receiving from server: disconnect");
                 disconnect();

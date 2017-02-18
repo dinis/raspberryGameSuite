@@ -113,7 +113,7 @@ public class WorkerThread extends Thread {
 
 
         if(message.isEmpty()) {
-            Display.alert("client " + id + "sent an empty message");
+            Display.alert("client " + id + " sent an empty message");
             return;
         }
 

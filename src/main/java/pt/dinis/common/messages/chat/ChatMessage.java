@@ -12,20 +12,33 @@ public abstract class ChatMessage implements GenericMessage {
         ERROR
     }
 
-    String message;
+    private ChatMessageType type;
+    private String message;
 
-    public ChatMessage(String message) {
+    public ChatMessage(String message, ChatMessageType type) {
+        if (message == null) {
+            throw new IllegalArgumentException("Message can not be null");
+        }
         this.message = message;
+        if (type == null) {
+            throw new IllegalArgumentException("Type can not be null");
+        }
+        this.type = type;
     }
 
     public String getMessage() {
         return message;
     }
 
+    public ChatMessageType getType() {
+        return type;
+    }
+
     @Override
     public String toString() {
         return "ChatMessage{" +
-                "message='" + message + '\'' +
+                "type=" + type +
+                ", message='" + message + '\'' +
                 '}';
     }
 }

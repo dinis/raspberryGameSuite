@@ -7,7 +7,7 @@ import pt.dinis.common.messages.AuthenticatedMessage;
  */
 public class AuthenticatedChatMessageToClient extends ChatMessageToClient implements AuthenticatedMessage {
 
-    String token;
+    private String token;
 
     public AuthenticatedChatMessageToClient(String message, ChatMessageType type, String token) {
         super(message, type);

@@ -4,11 +4,8 @@ package pt.dinis.common.messages.chat;
  */
 public class ChatMessageToClient extends ChatMessage {
 
-    private ChatMessageType type;
-
     public ChatMessageToClient(String message, ChatMessageType type) {
-        super(message);
-        this.type = type;
+        super(message, type);
     }
 
     @Override
@@ -18,8 +15,6 @@ public class ChatMessageToClient extends ChatMessage {
 
     @Override
     public String toString() {
-        return "ChatMessageToClient{" +
-                "type=" + type +
-                "} " + super.toString();
+        return "ChatMessageToClient{} " + super.toString();
     }
 }

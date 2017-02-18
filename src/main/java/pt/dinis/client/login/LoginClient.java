@@ -88,12 +88,6 @@ public class LoginClient {
         return loginSocket.disconnect();
     }
 
-    @Deprecated
-    public static boolean sendMessage(String message) {
-        ChatExampleMessage chatExampleMessage = new ChatExampleMessage(message);
-        return LoginClientCommunication.sendMessage(chatExampleMessage);
-    }
-
     public static boolean sendMessage(GenericMessage message) {
         logger.debug("Client is sending message: " + message);
         return LoginClientCommunication.sendMessage(message);

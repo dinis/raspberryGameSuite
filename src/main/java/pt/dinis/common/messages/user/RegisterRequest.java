@@ -9,7 +9,13 @@ public class RegisterRequest extends UserMessage {
     private String password;
 
     public RegisterRequest(String name, String password) {
+        if (name == null) {
+            throw new IllegalArgumentException("Name cannot be null");
+        }
         this.name = name;
+        if (password == null) {
+            throw new IllegalArgumentException("Password cannot be null");
+        }
         this.password = password;
     }
 

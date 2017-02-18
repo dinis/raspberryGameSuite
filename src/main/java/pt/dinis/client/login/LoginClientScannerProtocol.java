@@ -9,6 +9,7 @@ import pt.dinis.common.messages.chat.ChatMessageToServer;
 import pt.dinis.common.messages.user.LoginRequest;
 import pt.dinis.common.messages.user.LogoutRequest;
 import pt.dinis.common.messages.user.ReLoginRequest;
+import pt.dinis.common.messages.user.RegisterRequest;
 
 import java.util.*;
 
@@ -23,21 +24,23 @@ public class LoginClientScannerProtocol {
         INFO("info", "Shows client information",
                 "info", Arrays.asList("information", "status")),
         LOGIN("login", "Logs in the server",
-                "login; login ip; login ip port", Collections.emptyList()),
+                "login name password", Collections.emptyList()),
+        REGISTER("register", "Register as a new client",
+                "register name password", Collections.emptyList()),
         LOGOUT("logout", "Logs out of the server",
                 "logout", Collections.emptyList()),
         RELOGIN("relogin", "Redo the login",
                 "relogin", Arrays.asList("re-login")),
         START("start", "Starts a communication with the server",
-                "start", Arrays.asList("open", "connect")),
+                "start; start ip; start ip port", Arrays.asList("open", "connect")),
         CLOSE("close", "Closes a communication with the server",
                 "close", Arrays.asList("disconnect")),
         MESSAGE("message", "Sends a message to the server",
                 "message [all|echo|others|server|#] text; [all|echo|others|server|#] text", Collections.emptyList()),
         ERROR("error", "Sends an error message to the server",
                 "error [all|echo|others|server|#] text", Collections.emptyList()),
-        HASH("hash", "Print hash given from server while logging in",
-                "hash", Collections.emptyList()),
+        HASH("token", "Print the token given from server while logging in",
+                "token", Arrays.asList("hash")),
         EXIT("exit", "Ends this client",
                 "exit", Arrays.asList("quit", "end"));
 
@@ -71,18 +74,16 @@ public class LoginClientScannerProtocol {
 
         List<String> words = splitMessage(message);
 
-        // If message is empty, then it tries to start, login or relogin
+        // If message is empty, then it tries to connect
         if(words.isEmpty()) {
-            if(LoginClient.isConnected()) {
-                if (LoginClient.isLoggedIn()) {
-                    return relogin();
-                }
-                return login();
+            if(!LoginClient.isConnected()) {
+                return start(Optional.empty(), Optional.empty());
             }
-            return start(Optional.empty(), Optional.empty());
+            return false;
         }
 
-        String word = words.get(0).toLowerCase();
+        String firstWord = words.get(0);
+        String word = firstWord.toLowerCase();
 
         if(MessageType.START.getKeys().contains(word)) {
             if(words.size() == 1) {
@@ -103,9 +104,20 @@ public class LoginClientScannerProtocol {
         }
 
         if(MessageType.LOGIN.getKeys().contains(word)) {
-            return login();
+            if (words.size() < 3) {
+                Display.alert("Not enough arguments");
+                return false;
+            }
+            return login(words.get(1), words.get(2));
         }
 
+        if(MessageType.REGISTER.getKeys().contains(word)) {
+            if (words.size() < 3) {
+                Display.alert("Not enough arguments");
+                return false;
+            }
+            return register(words.get(1), words.get(2));
+        }
         if(MessageType.LOGOUT.getKeys().contains(word)) {
             return logout();
         }
@@ -127,14 +139,18 @@ public class LoginClientScannerProtocol {
         }
 
         if(MessageType.ERROR.getKeys().contains(word)) {
-            return error(message.substring(message.indexOf(word) + word.length()).trim());
+            return message(message.substring(message.indexOf(word) + word.length()).trim(),
+                    ChatMessage.ChatMessageType.ERROR);
         }
 
         if(MessageType.MESSAGE.getKeys().contains(word)) {
-            return message(message.substring(message.indexOf(word) + word.length()).trim());
+            return message(message.substring(message.indexOf(firstWord) + firstWord.length()).trim(),
+                    ChatMessage.ChatMessageType.NORMAL);
         }
 
-        return message(message);
+        Display.alert("Unknown message");
+        logger.info("Trying to send an unknown message '" + message + "'.");
+        return false;
     }
 
     private static List<String> splitMessage(String message) {
@@ -144,8 +160,7 @@ public class LoginClientScannerProtocol {
         return words;
     }
 
-    // TODO: login should have name and password
-    private static boolean login() {
+    private static boolean login(String name, String password) {
         if (!LoginClient.isConnected()) {
             Display.alert("No connection");
             logger.warn("Trying to log in before connect");
@@ -154,7 +169,20 @@ public class LoginClientScannerProtocol {
         if (LoginClient.isLoggedIn()) {
             logger.info("Trying to log in while already logged in.");
         }
-        return LoginClient.sendMessage(new LoginRequest(null, null));
+        return LoginClient.sendMessage(new LoginRequest(name, password));
+    }
+
+    // We do not accept a new registry from a logged in client
+    private static boolean register(String name, String password) {
+        if (!LoginClient.isConnected()) {
+            Display.alert("No connection");
+            logger.warn("Trying to log in before connect");
+            return false;
+        }
+        if (LoginClient.isLoggedIn()) {
+            logger.info("Trying to log in while already logged in.");
+        }
+        return LoginClient.sendMessage(new RegisterRequest(name, password));
     }
 
     private static boolean logout() {
@@ -206,32 +234,37 @@ public class LoginClientScannerProtocol {
         return LoginClient.disconnect();
     }
 
-    private static boolean message(String message) {
-        if(LoginClient.isConnected()) {
-            if (LoginClient.isLoggedIn()) {
-                return LoginClient.sendMessage(
-                        new AuthenticatedChatMessageToServer(message, ChatMessage.ChatMessageType.NORMAL,
-                                null, null, LoginClient.getHash()));
-            }
-            return LoginClient.sendMessage(
-                    new ChatMessageToServer(message, ChatMessage.ChatMessageType.NORMAL,
-                            null, null));
-        }
-        logger.info("Trying to send a message while connection is off");
-        Display.alert("No connection");
-        return false;
-    }
+    private static boolean message(String message, ChatMessage.ChatMessageType messageType) {
+        List<String> words = splitMessage(message);
 
-    private static boolean error(String message) {
+        String word = words.get(0);
+
+        ChatMessageToServer.Destiny destiny = ChatMessageToServer.Destiny.SPECIFIC;
+        try {
+            destiny = ChatMessageToServer.Destiny.valueOf(word.toUpperCase());
+        } catch (IllegalArgumentException e) {}
+
+        Integer person = null;
+        if (destiny == ChatMessageToServer.Destiny.SPECIFIC) {
+            try {
+                person = Integer.parseInt(word);
+            } catch (NumberFormatException e) {
+                logger.info("Trying to send a message that cannot be understood '" + message + "'.");
+                Display.alert("Wrong message destiny");
+            }
+        }
+
+        message = message.substring(message.indexOf(word) + word.length()).trim();
+
         if(LoginClient.isConnected()) {
             if (LoginClient.isLoggedIn()) {
                 return LoginClient.sendMessage(
-                        new AuthenticatedChatMessageToServer(message, ChatMessage.ChatMessageType.ERROR,
-                                null, null, LoginClient.getHash()));
+                        new AuthenticatedChatMessageToServer(message, messageType,
+                                destiny, person, LoginClient.getHash()));
             }
             return LoginClient.sendMessage(
-                    new ChatMessageToServer(message, ChatMessage.ChatMessageType.ERROR,
-                            null, null));
+                    new ChatMessageToServer(message, messageType,
+                            destiny, person));
         }
         logger.info("Trying to send a message while connection is off");
         Display.alert("No connection");

@@ -8,6 +8,9 @@ public class ReLoginRequest extends UserMessage {
     private String token;
 
     public ReLoginRequest(String token) {
+        if (token == null) {
+            throw new IllegalArgumentException("Token cannot be null");
+        }
         this.token = token;
     }
 

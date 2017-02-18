@@ -11,19 +11,16 @@ public class ChatMessageToServer extends ChatMessage {
         ALL, ECHO, SERVER, OTHERS, SPECIFIC
     }
 
-    private ChatMessageType type;
     private Destiny destiny;
     private Integer person;
 
     public ChatMessageToServer(String message, ChatMessageType type, Destiny destiny, Integer person) {
-        super(message);
-        this.type = type;
+        super(message, type);
+        if (destiny == null) {
+            throw new IllegalArgumentException("Destiny can not be null");
+        }
         this.destiny = destiny;
         this.person = person;
-    }
-
-    public ChatMessageType getType() {
-        return type;
     }
 
     public Destiny getDestiny() {
@@ -42,8 +39,7 @@ public class ChatMessageToServer extends ChatMessage {
     @Override
     public String toString() {
         return "ChatMessageToServer{" +
-                "type=" + type +
-                ", destiny=" + destiny +
+                "destiny=" + destiny +
                 ", person=" + person +
                 "} " + super.toString();
     }

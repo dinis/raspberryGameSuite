@@ -1,6 +1,6 @@
 package pt.dinis.main;
 
-import pt.dinis.data.DBConnection;
+import pt.dinis.data.access.DBConnection;
 import java.io.IOException;
 import org.apache.log4j.Logger;
 

@@ -1,6 +1,6 @@
 package pt.dinis.temporary;
 
-import pt.dinis.dataaccess.DBConnection;
+import java.sql.Connection;
 import java.util.List;
 
 /**
@@ -8,12 +8,14 @@ import java.util.List;
  */
 public class LoginWorkerThread extends WorkerThread {
 
+    List<String> words;
+
     public LoginWorkerThread (List<String> words) {
-        super(words);
+        this.words = words;
     }
 
     @Override
-    protected boolean working(List<String> words, DBConnection connection) {
+    protected boolean working(Connection connection) {
         // go to database and confirm if the user exist in DB and if is authentication is correct.
 
 

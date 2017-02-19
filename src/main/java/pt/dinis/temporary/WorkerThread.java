@@ -1,7 +1,7 @@
 package pt.dinis.temporary;
 
 import org.apache.log4j.Logger;
-import pt.dinis.data.DBConnection;
+import pt.dinis.data.access.DBConnection;
 import pt.dinis.main.Display;
 
 import java.sql.Connection;
@@ -49,7 +49,7 @@ public abstract class WorkerThread extends Thread {
             try {
                 connection.closeConnection();
             } catch (SQLException e) {
-                logger.warn("Can't close the database connection.");
+                logger.warn("Can't close the database connection.", e);
             }
         }
     }

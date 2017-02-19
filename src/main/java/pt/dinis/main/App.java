@@ -19,7 +19,7 @@ public class App {
         try {
             DBConnection.prepareDBAccess();
         } catch (ClassNotFoundException e) {
-            logger.fatal("Can't find postgreSQL driver.");
+            logger.fatal("Can't find postgreSQL driver.", e);
             Display.alert("Data Base driver not found.");
             return;
         }

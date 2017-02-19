@@ -1,4 +1,4 @@
-package pt.dinis.data;
+package pt.dinis.data.access;
 
 import pt.dinis.main.Configurations;
 import java.sql.Connection;

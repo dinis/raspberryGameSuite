@@ -1,5 +1,6 @@
 package pt.dinis.communication;
 
+import pt.dinis.main.Display;
 import pt.dinis.temporary.LoginWorkerThread;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,9 +39,15 @@ public class ClientCommunicationProtocol {
         String word = words.get(0).toLowerCase();
 
         if(ClientCommunicationProtocol.MessageType.LOGIN.getWord().equals(word)) {
-            LoginWorkerThread loginWorkerThread = new LoginWorkerThread(words);
-            loginWorkerThread.start();
-            return true;
+            if (words.size() >= 4) {
+                Display.info("Login trial: " + words);
+                LoginWorkerThread loginWorkerThread = new LoginWorkerThread(
+                        words.get(1), words.get(2), words.get(3));
+                loginWorkerThread.start();
+                return true;
+            }
+            Display.alert("Login failed: " + words);
+            return false;
         }
 
         if(ClientCommunicationProtocol.MessageType.CLOSE.getWord().equals(word)) {

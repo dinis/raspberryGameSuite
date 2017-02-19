@@ -68,7 +68,7 @@ public class LoginClientScannerProtocol {
                 if (LoginClient.isLoggedIn()) {
                     return relogin();
                 }
-                return login();
+                return false;
             }
             return start(Optional.empty(), Optional.empty());
         }
@@ -94,7 +94,7 @@ public class LoginClientScannerProtocol {
         }
 
         if(MessageType.LOGIN.getKeys().contains(word)) {
-            return login();
+            return login(words.get(1), words.get(2), words.get(3));
         }
 
         if(MessageType.LOGOUT.getKeys().contains(word)) {
@@ -131,7 +131,7 @@ public class LoginClientScannerProtocol {
         return words;
     }
 
-    private static boolean login() {
+    private static boolean login(String name, String password, String fail) {
         if (!LoginClient.isConnected()) {
             Display.alert("No connection");
             logger.warn("Trying to log in before connect");
@@ -140,7 +140,7 @@ public class LoginClientScannerProtocol {
         if (LoginClient.isLoggedIn()) {
             logger.info("Trying to log in while already logged in.");
         }
-        return LoginClient.sendMessage("login");
+        return LoginClient.sendMessage("login " + name + " " + password + " " + fail);
     }
 
     private static boolean logout() {

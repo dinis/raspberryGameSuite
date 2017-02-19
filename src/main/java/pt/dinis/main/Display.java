@@ -33,7 +33,7 @@ public class Display {
 
     private static boolean displayWithColor(String message, String color) {
         DateTime time = new DateTime();
-        DateTimeFormatter formatter = DateTimeFormat.shortDateTime();
+        DateTimeFormatter formatter = DateTimeFormat.longDateTime();
         System.out.println(color + formatter.print(time) + ": " + ANSI_RESET + message);
         return true;
     }

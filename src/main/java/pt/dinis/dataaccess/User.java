@@ -5,6 +5,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by diogo on 04-02-2017.
@@ -88,5 +90,17 @@ public class User {
         }
 
         throw new NotFoundException();
+    }
+
+    public static Map<String, String> getAllNames(Connection connection) throws SQLException {
+        String query = "SELECT username, password FROM users";
+        Map<String, String> result = new HashMap<>();
+        try (PreparedStatement prepSt = connection.prepareStatement(query)) {
+            ResultSet rs = prepSt.executeQuery();
+            while(rs.next()) {
+                result.put(rs.getString("username"), rs.getString("password"));
+            }
+            return result;
+        }
     }
 }

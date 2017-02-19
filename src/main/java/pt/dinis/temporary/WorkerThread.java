@@ -1,12 +1,11 @@
 package pt.dinis.temporary;
 
 import org.apache.log4j.Logger;
-import pt.dinis.dataaccess.DBConnection;
+import pt.dinis.data.DBConnection;
 import pt.dinis.main.Display;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
 
 /**
  * Created by diogo on 05-02-2017.

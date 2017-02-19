@@ -1,4 +1,4 @@
-package pt.dinis.dataaccess;
+package pt.dinis.data;
 
 import pt.dinis.exceptions.NotFoundException;
 import java.sql.Connection;

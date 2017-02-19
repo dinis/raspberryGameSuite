@@ -3,7 +3,6 @@ package pt.dinis.communication;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import pt.dinis.main.Dealer;
-import pt.dinis.temporary.WorkerThread;
 
 import java.io.*;
 import java.net.Socket;
@@ -44,8 +43,9 @@ public class ClientCommunicationThread extends Thread{
                     logger.warn("The connection to client " + id + " has been lost.");
                 } else {
                     logger.debug("Receiving and sending a message " + message);
-                    WorkerThread temporaryThread = new WorkerThread(message, id);
-                    temporaryThread.run();
+                    if (!ClientCommunicationProtocol.protocol(message)) {
+                        logger.info("Cannot process message " + message);
+                    }
                 }
             } catch (IOException e) {
                 if(!toContinue()) {

@@ -1,7 +1,7 @@
 package pt.dinis.client.login;
 
 import org.apache.log4j.Logger;
-import pt.dinis.temporary.Configurations;
+import pt.dinis.main.Configurations;
 
 import java.io.IOException;
 

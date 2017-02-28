@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import pt.dinis.common.Display;
 import pt.dinis.common.messages.GenericMessage;
+import pt.dinis.common.messages.MessagesUtils;
 import pt.dinis.main.Dealer;
 import pt.dinis.temporary.WorkerThread;
 
@@ -20,8 +21,8 @@ public class ClientCommunicationThread extends Thread{
     private Integer id;
     private Socket socket;
     private boolean running;
-    private ObjectOutputStream out;
-    private ObjectInputStream in;
+    private PrintWriter out;
+    private BufferedReader in;
     private final DateTime time;
 
     public ClientCommunicationThread(Socket socket, Integer id) throws IOException {
@@ -31,15 +32,15 @@ public class ClientCommunicationThread extends Thread{
         this.running = true;
         this.time = new DateTime();
 
-        out = new ObjectOutputStream(socket.getOutputStream());
-        in = new ObjectInputStream(socket.getInputStream());
+        out = new PrintWriter(socket.getOutputStream(), true);
+        in = new BufferedReader( new InputStreamReader(socket.getInputStream()));
     }
 
     @Override
     public void run() {
         while(running) {
             try {
-                GenericMessage message = (GenericMessage) in.readObject();
+                GenericMessage message = MessagesUtils.decode(in.readLine());
                 if (message.getDirection() == GenericMessage.Direction.CLIENT_TO_SERVER) {
                     logger.debug("Receiving and sending a message " + message);
                     WorkerThread temporaryThread = new WorkerThread(message, id);
@@ -51,10 +52,10 @@ public class ClientCommunicationThread extends Thread{
             } catch (ClassCastException e) {
                 Display.alert("Received wrong message format");
                 logger.error("Received message is not of a correct class: ", e);
-            } catch (EOFException e) {
+            } catch (NullPointerException e) {
                 logger.warn("The connection to client " + id + " has been lost.");
                 Dealer.disconnectClient(id);
-            } catch (IOException | ClassNotFoundException e) {
+            } catch (IOException e) {
                 if(running) {
                     logger.warn("Problem receiving message", e);
                 } else if (!toContinue()) {
@@ -86,7 +87,7 @@ public class ClientCommunicationThread extends Thread{
 
         try {
            out.close();
-        } catch (IOException | NullPointerException e) {
+        } catch (NullPointerException e) {
             logger.info("Problem closing socket output of client " + id + ".", e);
             result = false;
         }
@@ -108,7 +109,7 @@ public class ClientCommunicationThread extends Thread{
         }
 
         try {
-            out.writeObject(message);
+            out.println(MessagesUtils.encode(message));
         } catch (IOException e) {
             logger.warn("Error sending message " + message.toString(), e);
             return false;

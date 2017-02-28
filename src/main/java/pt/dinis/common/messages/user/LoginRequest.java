@@ -1,5 +1,8 @@
 package pt.dinis.common.messages.user;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Created by tiago on 16-02-2017.
  */
@@ -8,7 +11,8 @@ public class LoginRequest extends UserMessage {
     private String name;
     private String password;
 
-    public LoginRequest(String name, String password) {
+    @JsonCreator
+    public LoginRequest(@JsonProperty("name") String name, @JsonProperty("password") String password) {
         if (name == null) {
             throw new IllegalArgumentException("Name cannot be null");
         }

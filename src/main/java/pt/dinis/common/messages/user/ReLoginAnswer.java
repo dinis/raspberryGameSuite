@@ -1,5 +1,8 @@
 package pt.dinis.common.messages.user;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Created by tiago on 16-02-2017.
  */
@@ -9,7 +12,8 @@ public class ReLoginAnswer extends UserMessage {
     // TODO: this should be an enum
     String errorJustification;
 
-    public ReLoginAnswer(AnswerType answer, String errorJustification) {
+    @JsonCreator
+    public ReLoginAnswer(@JsonProperty("answer") AnswerType answer, @JsonProperty("errorJustification") String errorJustification) {
         this.answer = answer;
         this.errorJustification = errorJustification;
     }

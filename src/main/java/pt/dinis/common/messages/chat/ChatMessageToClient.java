@@ -1,10 +1,15 @@
 package pt.dinis.common.messages.chat;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Created by tiago on 16-02-2017.
  */
 public class ChatMessageToClient extends ChatMessage {
 
-    public ChatMessageToClient(String message, ChatMessageType type) {
+    @JsonCreator
+    public ChatMessageToClient(@JsonProperty("message") String message, @JsonProperty("type") ChatMessageType type) {
         super(message, type);
     }
 

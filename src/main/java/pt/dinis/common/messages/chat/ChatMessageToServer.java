@@ -1,5 +1,7 @@
 package pt.dinis.common.messages.chat;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import pt.dinis.common.messages.GenericMessage;
 
 /**
@@ -14,7 +16,8 @@ public class ChatMessageToServer extends ChatMessage {
     private Destiny destiny;
     private Integer person;
 
-    public ChatMessageToServer(String message, ChatMessageType type, Destiny destiny, Integer person) {
+    @JsonCreator
+    public ChatMessageToServer(@JsonProperty("message") String message, @JsonProperty("type") ChatMessageType type, @JsonProperty("destiny") Destiny destiny, @JsonProperty("person") Integer person) {
         super(message, type);
         if (destiny == null) {
             throw new IllegalArgumentException("Destiny can not be null");

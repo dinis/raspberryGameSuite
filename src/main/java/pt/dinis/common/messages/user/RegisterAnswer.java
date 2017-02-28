@@ -1,5 +1,8 @@
 package pt.dinis.common.messages.user;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Created by tiago on 16-02-2017.
  */
@@ -10,7 +13,8 @@ public class RegisterAnswer extends UserMessage {
     // TODO: this should be an enum
     String errorJustification;
 
-    public RegisterAnswer(AnswerType answer, String token, String errorJustification) {
+    @JsonCreator
+    public RegisterAnswer(@JsonProperty("answer") AnswerType answer, @JsonProperty("token") String token, @JsonProperty("errorJustification") String errorJustification) {
         this.answer = answer;
         this.token = token;
         this.errorJustification = errorJustification;

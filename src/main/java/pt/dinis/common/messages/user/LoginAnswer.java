@@ -1,6 +1,7 @@
 package pt.dinis.common.messages.user;
 
-import pt.dinis.common.messages.GenericMessage;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Created by tiago on 16-02-2017.
@@ -12,7 +13,8 @@ public class LoginAnswer extends UserMessage {
     // TODO: this should be an enum
     String errorJustification;
 
-    public LoginAnswer(AnswerType answer, String token, String errorJustification) {
+    @JsonCreator
+    public LoginAnswer(@JsonProperty("answer") AnswerType answer, @JsonProperty("token") String token, @JsonProperty("error") String errorJustification) {
         this.answer = answer;
         this.token = token;
         this.errorJustification = errorJustification;

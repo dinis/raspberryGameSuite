@@ -12,4 +12,8 @@ public abstract class UserMessage implements GenericMessage {
         ERROR
     }
 
+    @Override
+    public String toString() {
+        return "UserMessage{}";
+    }
 }

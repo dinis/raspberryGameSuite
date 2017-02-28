@@ -1,5 +1,8 @@
 package pt.dinis.common.messages;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Optional;
 
 /**
@@ -10,7 +13,8 @@ public class AuthenticatedMessage implements GenericMessage {
      private GenericMessage message;
      private String token;
 
-     public AuthenticatedMessage(GenericMessage message, String token) {
+     @JsonCreator
+     public AuthenticatedMessage(@JsonProperty("message") GenericMessage message, @JsonProperty("token") String token) {
           if (message == null) {
                throw new IllegalArgumentException();
           }

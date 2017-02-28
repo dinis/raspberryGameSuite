@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import pt.dinis.common.Display;
 import pt.dinis.common.messages.GenericMessage;
+import pt.dinis.common.messages.MessagesUtils;
 
 import java.io.*;
 import java.net.Socket;
@@ -16,16 +17,16 @@ public class LoginClientCommunication extends Thread {
     final static Logger logger = Logger.getLogger(LoginClientCommunication.class);
 
     private static Socket socket;
-    private static ObjectOutputStream out;
-    private static ObjectInputStream in;
+    private static PrintWriter out;
+    private static BufferedReader in;
     private static boolean running;
     private static DateTime time;
 
     public LoginClientCommunication(Socket socket) throws IOException {
         this.socket = socket;
         time = new DateTime();
-        out = new ObjectOutputStream(socket.getOutputStream());
-        in = new ObjectInputStream(socket.getInputStream());
+        out = new PrintWriter(socket.getOutputStream(), true);
+        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
     }
 
     public void run() {
@@ -33,7 +34,7 @@ public class LoginClientCommunication extends Thread {
 
         while(running) {
             try {
-                GenericMessage message = (GenericMessage) in.readObject();
+                GenericMessage message = MessagesUtils.decode(in.readLine());
                 if (message.getDirection() == GenericMessage.Direction.SERVER_TO_CLIENT) {
                     logger.debug("Receiving message " + message);
                     LoginClientCommunicationProtocol.protocol(message);
@@ -44,10 +45,10 @@ public class LoginClientCommunication extends Thread {
             } catch (ClassCastException e) {
                 Display.alert("Received wrong message format");
                 logger.error("Received message is not of a correct class: ", e);
-            } catch (EOFException e) {
+            } catch (NullPointerException e) {
                 Display.alert("Error receiving from server: disconnect");
                 disconnect();
-            } catch (IOException | ClassNotFoundException e) {
+            } catch (IOException e) {
                 if(running) {
                     logger.warn("Problem receiving message", e);
                 }
@@ -81,7 +82,7 @@ public class LoginClientCommunication extends Thread {
 
         try {
             out.close();
-        } catch (IOException | NullPointerException e) {
+        } catch (NullPointerException e) {
             logger.info("Problem closing socket output");
             result = false;
         }
@@ -99,7 +100,7 @@ public class LoginClientCommunication extends Thread {
         }
 
         try {
-            out.writeObject(message);
+            out.println(MessagesUtils.encode(message));
         } catch (IOException e) {
             Display.alert("error sending message '" + message.toString() + "'");
         }

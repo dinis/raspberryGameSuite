@@ -1,5 +1,8 @@
 package pt.dinis.common.messages.user;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Created by tiago on 16-02-2017.
  */
@@ -7,7 +10,8 @@ public class ReLoginRequest extends UserMessage {
 
     private String token;
 
-    public ReLoginRequest(String token) {
+    @JsonCreator
+    public ReLoginRequest(@JsonProperty("token") String token) {
         if (token == null) {
             throw new IllegalArgumentException("Token cannot be null");
         }

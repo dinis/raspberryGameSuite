@@ -2,6 +2,10 @@ package pt.dinis.main;
 
 import org.apache.log4j.Logger;
 import pt.dinis.common.Display;
+import pt.dinis.common.messages.GenericMessage;
+import pt.dinis.common.messages.user.LoginAnswer;
+import pt.dinis.common.messages.user.ReLoginAnswer;
+import pt.dinis.common.messages.user.UserMessage;
 import pt.dinis.communication.ClientCommunicationThread;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -22,7 +26,7 @@ public class Dealer {
     private Integer uniqueId = 0;
 
     public Dealer(Integer port) {
-        clientCommunicationThreads = new HashMap<Integer, ClientCommunicationThread>();
+        clientCommunicationThreads = new HashMap<>();
         this.port = port;
     }
 
@@ -77,12 +81,12 @@ public class Dealer {
                 logger.error("Problem closing server socket", e);
             }
 
-            for (Integer id: clientCommunicationThreads.keySet()) {
-                disconnectClient(id);
-            }
+            clientCommunicationThreads.keySet().forEach(Dealer::disconnectClient);
 
         } catch (IOException e) {
-            logger.error("Problem handling server socket", e);
+            if(running) {
+                logger.error("Problem handling server socket", e);
+            }
         } finally {
             Display.info("Exit");
         }
@@ -92,10 +96,10 @@ public class Dealer {
     Sends a message to stop the server
      */
     public static void stop() {
+        logger.warn("Closing dealer.");
         running = false;
-        for(Integer id: getActiveClients()) {
-            disconnectClient(id);
-        }
+        getActiveClients().forEach(Dealer::disconnectClient);
+
         serverScanner.close();
         try {
             serverSocket.close();
@@ -137,14 +141,13 @@ public class Dealer {
     /*
     This method will send the message to every element in list ids
      */
-    public static Boolean sendMessage(Collection<Integer> ids, String message) {
+    public static Boolean sendMessage(Collection<Integer> ids, GenericMessage message) {
         logger.info("Sending message [" + message + "] to clients [" + ids.toString() + "]." );
         boolean result = true;
         for (Integer id: ids) {
             if (!clientCommunicationThreads.containsKey(id)) {
                 result = false;
                 logger.warn("Trying to send message [" + message + "] to client " + id + ". Client do not exist.");
-                continue;
             } else {
                 ClientCommunicationThread client = clientCommunicationThreads.get(id);
                 if (!client.sendMessage(message)) {
@@ -179,20 +182,20 @@ public class Dealer {
 
     public static boolean loginClient(Integer id) {
         try {
-            String hash = LoginManager.loginClient(id);
-            return sendMessage(Collections.singleton(id), "login " + hash);
+            String token = LoginManager.loginClient(id);
+            return sendMessage(Collections.singleton(id), new LoginAnswer(UserMessage.AnswerType.SUCCESS, token, null));
         } catch (Exception e) {
             Display.alert("Could not log in client " + id);
-            sendMessage(Collections.singleton(id), "error refuse login");
+            sendMessage(Collections.singleton(id), new LoginAnswer(UserMessage.AnswerType.ERROR, null, "error"));
             return false;
         }
     }
 
-    public static boolean reloginClient(Integer id, String hash) {
-        if (LoginManager.reloginClient(id, hash)) {
-            return sendMessage(Collections.singleton(id), "success");
+    public static boolean reloginClient(Integer id, String token) {
+        if (LoginManager.reloginClient(id, token)) {
+            return sendMessage(Collections.singleton(id), new ReLoginAnswer(UserMessage.AnswerType.SUCCESS, null));
         } else {
-            sendMessage(Collections.singleton(id), "error refuse relogin");
+            sendMessage(Collections.singleton(id), new ReLoginAnswer(UserMessage.AnswerType.ERROR, "error"));
             return false;
         }
     }
@@ -201,7 +204,12 @@ public class Dealer {
         return LoginManager.logoutClient(id);
     }
 
-
+    public static boolean isAuthenticated(Integer id, String token) {
+        if (!LoginManager.isLogged(id)) {
+            return false;
+        }
+        return LoginManager.getClientToken(id).equals(token);
+    }
 
     public static Collection<Integer> getActiveClients() {
         return new HashSet(clientCommunicationThreads.keySet());

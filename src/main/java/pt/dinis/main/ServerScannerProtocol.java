@@ -1,7 +1,10 @@
 package pt.dinis.main;
 
 import pt.dinis.common.Display;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import pt.dinis.common.messages.basic.CloseConnectionOrder;
+import pt.dinis.common.messages.chat.ChatMessage;
+import pt.dinis.common.messages.chat.ChatMessageToClient;
+import pt.dinis.common.messages.user.LogoutOrder;
 
 import java.util.*;
 
@@ -25,6 +28,8 @@ public class ServerScannerProtocol {
                 "close i", Arrays.asList("disconnect")),
         MESSAGE("message", "Sends a message to client i",
                 "message i text", Collections.emptyList()),
+        ERROR("error", "Sends an error message to client i",
+                "error i text", Collections.emptyList()),
         EXIT("exit", "Kill this server",
                 "exit", Arrays.asList("quit", "end"));
 
@@ -79,7 +84,7 @@ public class ServerScannerProtocol {
         }
 
         Collection<Integer> ids;
-        if(words.get(1).equals("all")) {
+        if(words.get(1).toLowerCase().equals("all")) {
             ids = Dealer.getActiveClients();
         } else {
             ids = Collections.singleton(Integer.parseInt(words.get(1)));
@@ -98,7 +103,13 @@ public class ServerScannerProtocol {
         }
 
         if(MessageType.MESSAGE.getKeys().contains(word)) {
-            return message(ids, message.substring(message.indexOf(words.get(1)) + words.get(1).length()).trim());
+            return message(ids, message.substring(message.indexOf(words.get(1)) + words.get(1).length()).trim(),
+                    ChatMessage.ChatMessageType.NORMAL);
+        }
+
+        if(MessageType.ERROR.getKeys().contains(word)) {
+            return message(ids, message.substring(message.indexOf(words.get(1)) + words.get(1).length()).trim(),
+                    ChatMessage.ChatMessageType.ERROR);
         }
 
         return false;
@@ -135,7 +146,7 @@ public class ServerScannerProtocol {
                 result = false;
             }
         }
-        if(!Dealer.sendMessage(ids, "logout")) {
+        if(!Dealer.sendMessage(ids, new LogoutOrder())) {
             result = false;
         }
         return result;
@@ -143,7 +154,7 @@ public class ServerScannerProtocol {
 
     private static boolean close(Collection<Integer> ids) {
         boolean result = true;
-        if(!Dealer.sendMessage(ids, "disconnect")) {
+        if(!Dealer.sendMessage(ids, new CloseConnectionOrder())) {
             result = false;
         }
         for (Integer id: ids) {
@@ -154,8 +165,8 @@ public class ServerScannerProtocol {
         return result;
     }
 
-    private static boolean message(Collection<Integer> ids, String message) {
-        return Dealer.sendMessage(ids, message);
+    private static boolean message(Collection<Integer> ids, String message, ChatMessage.ChatMessageType type) {
+        return Dealer.sendMessage(ids, new ChatMessageToClient(message, type));
     }
 
     private static boolean info() {
@@ -164,7 +175,7 @@ public class ServerScannerProtocol {
             Display.cleanColor("Connected clients:");
             for(int id: ids) {
                 if (LoginManager.isLogged(id)) {
-                    Display.cleanColor("Client " + id + " logged in with hash " + LoginManager.getClientHash(id));
+                    Display.cleanColor("Client " + id + " logged in with token " + LoginManager.getClientToken(id));
                 } else {
                     Display.cleanColor("Client " + id + " not logged in");
                 }
@@ -174,7 +185,7 @@ public class ServerScannerProtocol {
         if (!disconnected.isEmpty()) {
             Display.cleanColor("Disconnected clients:");
             for (Map.Entry<String, Integer> entry : disconnected.entrySet()) {
-                Display.cleanColor("Defunct client " + entry.getValue() + " was logged in with hash " + entry.getKey());
+                Display.cleanColor("Defunct client " + entry.getValue() + " was logged in with token " + entry.getKey());
             }
         }
         return true;
@@ -188,7 +199,7 @@ public class ServerScannerProtocol {
     }
 
     private static boolean exit() {
-        boolean result = Dealer.sendMessage(Dealer.getActiveClients(), "disconnect");
+        boolean result = Dealer.sendMessage(Dealer.getActiveClients(), new CloseConnectionOrder());
         Dealer.stop();
         return result;
     }

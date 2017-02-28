@@ -3,11 +3,10 @@ package pt.dinis.client.login;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import pt.dinis.common.Display;
+import pt.dinis.common.messages.GenericMessage;
+import pt.dinis.common.messages.MessagesUtils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 
 /**
@@ -35,16 +34,24 @@ public class LoginClientCommunication extends Thread {
 
         while(running) {
             try {
-                String message = in.readLine();
-                logger.debug("Receiving message " + message);
-                if(message == null) {
-                    Display.alert("Error receiving from server: disconnect");
-                    disconnect();
-                } else {
+                GenericMessage message = MessagesUtils.decode(in.readLine());
+                if (message.getDirection() == GenericMessage.Direction.SERVER_TO_CLIENT) {
+                    logger.debug("Receiving message " + message);
                     LoginClientCommunicationProtocol.protocol(message);
+                } else {
+                    logger.warn("Server got a message supposedly from client to server: " + message);
+                    Display.alert("Wrong message from server");
                 }
+            } catch (ClassCastException e) {
+                Display.alert("Received wrong message format");
+                logger.error("Received message is not of a correct class: ", e);
+            } catch (NullPointerException e) {
+                Display.alert("Error receiving from server: disconnect");
+                disconnect();
             } catch (IOException e) {
-                logger.warn("Problem receiving message", e);
+                if(running) {
+                    logger.warn("Problem receiving message", e);
+                }
             }
         }
     }
@@ -86,13 +93,17 @@ public class LoginClientCommunication extends Thread {
         return result;
     }
 
-    public static boolean sendMessage(String message) {
+    public static boolean sendMessage(GenericMessage message) {
         if (!isConnected()) {
-            Display.alert("Cannot send message '" + message + "' ");
+            Display.alert("Cannot send message '" + message.toString() + "' ");
             return false;
         }
 
-        out.println(message);
+        try {
+            out.println(MessagesUtils.encode(message));
+        } catch (IOException e) {
+            Display.alert("error sending message '" + message.toString() + "'");
+        }
         return true;
     }
 }

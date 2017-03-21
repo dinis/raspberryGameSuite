@@ -38,7 +38,7 @@ public class LoginClientScannerProtocol {
                 "message [all|echo|others|server|#] text; [all|echo|others|server|#] text", Collections.emptyList()),
         ERROR("error", "Sends an error message to the server",
                 "error [all|echo|others|server|#] text", Collections.emptyList()),
-        HASH("token", "Print the token given from server while logging in",
+        TOKEN("token", "Print the token given from server while logging in",
                 "token", Arrays.asList("hash")),
         EXIT("exit", "Ends this client",
                 "exit", Arrays.asList("quit", "end"));
@@ -133,8 +133,8 @@ public class LoginClientScannerProtocol {
             return info();
         }
 
-        if(MessageType.HASH.getKeys().contains(word)) {
-            return hash();
+        if(MessageType.TOKEN.getKeys().contains(word)) {
+            return token();
         }
 
         if(MessageType.ERROR.getKeys().contains(word)) {
@@ -175,11 +175,11 @@ public class LoginClientScannerProtocol {
     private static boolean register(String name, String password) {
         if (!LoginClient.isConnected()) {
             Display.alert("No connection");
-            logger.warn("Trying to log in before connect");
+            logger.warn("Trying to register before connect");
             return false;
         }
         if (LoginClient.isLoggedIn()) {
-            logger.info("Trying to log in while already logged in.");
+            logger.info("Trying to register while already logged in.");
         }
         return LoginClient.sendMessage(new RegisterRequest(name, password));
     }
@@ -212,8 +212,8 @@ public class LoginClientScannerProtocol {
             return false;
         }
         if(!LoginClient.isLoggedIn()) {
-            Display.alert("No hash");
-            logger.warn("Trying to re log in without hash");
+            Display.alert("No token");
+            logger.warn("Trying to re log in without token");
             return false;
         }
         return LoginClient.sendMessage(new ReLoginRequest(LoginClient.getToken()));
@@ -270,18 +270,18 @@ public class LoginClientScannerProtocol {
         Display.cleanColor("Connected: " + Boolean.toString(LoginClient.isConnected()));
         Display.cleanColor("Logged in: " + Boolean.toString(LoginClient.isLoggedIn()));
         if(LoginClient.isLoggedIn()) {
-            Display.cleanColor("Hash: " + LoginClient.getToken());
+            Display.cleanColor("Token: " + LoginClient.getToken());
         }
         return true;
     }
 
-    private static boolean hash() {
+    private static boolean token() {
         if(!LoginClient.isLoggedIn()) {
-            Display.cleanColor("No hash");
-            logger.info("Cannot show hash because there isn't any.");
+            Display.cleanColor("No token");
+            logger.info("Cannot show token because there isn't any.");
             return false;
         }
-        Display.cleanColor("Hash: " + LoginClient.getToken());
+        Display.cleanColor("Token: " + LoginClient.getToken());
         return true;
     }
 

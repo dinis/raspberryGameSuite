@@ -35,10 +35,10 @@ public class LoginClientCommunication extends Thread {
             try {
                 GenericMessage message = (GenericMessage) in.readObject();
                 if (message.getDirection() == GenericMessage.Direction.SERVER_TO_CLIENT) {
-                    logger.debug("Receiving message " + message);
+                    logger.debug("Receiving message: " + message);
                     LoginClientCommunicationProtocol.protocol(message);
                 } else {
-                    logger.warn("Server got a message supposedly from client to server: " + message);
+                    logger.warn("Client got a message supposedly from client to server: " + message);
                     Display.alert("Wrong message from server");
                 }
             } catch (ClassCastException e) {
@@ -94,14 +94,14 @@ public class LoginClientCommunication extends Thread {
 
     public static boolean sendMessage(GenericMessage message) {
         if (!isConnected()) {
-            Display.alert("Cannot send message '" + message.toString() + "' ");
+            Display.alert("Cannot send message: " + message);
             return false;
         }
 
         try {
             out.writeObject(message);
         } catch (IOException e) {
-            Display.alert("error sending message '" + message.toString() + "'");
+            Display.alert("Error sending message: " + message);
         }
         return true;
     }

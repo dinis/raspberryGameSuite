@@ -101,9 +101,9 @@ public class WorkerThread extends Thread {
         Dealer.loginClient(id);
     }
 
-    private void relogin(String hash) {
-        Display.info("Relog in client " + id + " with hash '" + hash + "'");
-        Dealer.reloginClient(id, hash);
+    private void relogin(String token) {
+        Display.info("Relog in client " + id + " with token '" + token + "'");
+        Dealer.reloginClient(id, token);
     }
 
     private void logout() {

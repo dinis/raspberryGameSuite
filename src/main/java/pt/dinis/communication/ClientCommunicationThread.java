@@ -110,7 +110,7 @@ public class ClientCommunicationThread extends Thread{
         try {
             out.writeObject(message);
         } catch (IOException e) {
-            logger.warn("Error sending message " + message.toString(), e);
+            logger.warn("Error sending message " + message, e);
             return false;
         }
         return true;

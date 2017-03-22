@@ -8,6 +8,7 @@ import pt.dinis.common.messages.basic.CloseConnectionOrder;
 import pt.dinis.common.messages.chat.ChatMessage;
 import pt.dinis.common.messages.chat.ChatMessageToClient;
 import pt.dinis.common.messages.user.*;
+
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**

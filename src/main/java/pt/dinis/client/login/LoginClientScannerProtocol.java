@@ -2,6 +2,7 @@ package pt.dinis.client.login;
 
 import org.apache.log4j.Logger;
 import pt.dinis.common.Display;
+
 import pt.dinis.common.messages.basic.CloseConnectionRequest;
 import pt.dinis.common.messages.chat.ChatMessage;
 import pt.dinis.common.messages.chat.ChatMessageToServer;

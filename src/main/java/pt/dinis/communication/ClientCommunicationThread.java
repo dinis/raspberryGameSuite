@@ -5,7 +5,6 @@ import org.joda.time.DateTime;
 import pt.dinis.common.Display;
 import pt.dinis.common.messages.GenericMessage;
 import pt.dinis.main.Dealer;
-import pt.dinis.temporary.WorkerThread;
 
 import java.io.*;
 import java.net.Socket;
@@ -40,13 +39,9 @@ public class ClientCommunicationThread extends Thread{
         while(running) {
             try {
                 GenericMessage message = (GenericMessage) in.readObject();
-                if (message.getDirection() == GenericMessage.Direction.CLIENT_TO_SERVER) {
-                    logger.debug("Receiving and sending a message " + message);
-                    WorkerThread temporaryThread = new WorkerThread(message, id);
-                    temporaryThread.run();
-                } else {
-                    logger.warn("Server got a message supposedly from server to client: " + message);
-                    Display.alert("Wrong message from " + id);
+                logger.debug("Receiving message: " + message);
+                if (!ClientCommunicationProtocol.protocol(message, id)) {
+                    logger.info("Cannot process message from id " + id + ": " + message);
                 }
             } catch (ClassCastException e) {
                 Display.alert("Received wrong message format");

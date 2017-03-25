@@ -2,6 +2,7 @@ package pt.dinis.client.login;
 
 import org.apache.log4j.Logger;
 import pt.dinis.common.Display;
+import pt.dinis.common.messages.GenericMessage;
 import pt.dinis.common.messages.basic.CloseConnectionRequest;
 import pt.dinis.common.messages.chat.ChatMessage;
 import pt.dinis.common.messages.chat.ChatMessageToServer;
@@ -239,27 +240,25 @@ public class LoginClientScannerProtocol {
         List<String> words = splitMessage(message);
 
         String word = words.get(0);
+        GenericMessage chatMessage;
+        String shortMessage = message.substring(message.indexOf(word) + word.length()).trim();
 
-        ChatMessageToServer.Destiny destiny = ChatMessageToServer.Destiny.SPECIFIC;
         try {
-            destiny = ChatMessageToServer.Destiny.valueOf(word.toUpperCase());
-        } catch (IllegalArgumentException e) {}
-
-        Integer person = null;
-        if (destiny == ChatMessageToServer.Destiny.SPECIFIC) {
+            Integer person = Integer.parseInt(word);
+            chatMessage = new ChatMessageToServer(shortMessage, messageType, person);
+        } catch (NumberFormatException e) {
             try {
-                person = Integer.parseInt(word);
-            } catch (NumberFormatException e) {
-                logger.info("Trying to send a message that cannot be understood '" + message + "'.");
-                Display.alert("Wrong message destiny");
+                ChatMessageToServer.Destiny destiny = ChatMessageToServer.Destiny.valueOf(word.toUpperCase());
+                chatMessage = new ChatMessageToServer(shortMessage, messageType, destiny);
+            } catch (IllegalArgumentException e1) {
+                logger.info("Wrong message '" + message + "'");
+                Display.alert("Wrong message");
+                return false;
             }
         }
 
-        message = message.substring(message.indexOf(word) + word.length()).trim();
-
         if(LoginClient.isConnected()) {
-            return LoginClient.sendMessage(
-                    new ChatMessageToServer(message, messageType, destiny, person));
+            return LoginClient.sendMessage(chatMessage);
         }
         logger.info("Trying to send a message while connection is off");
         Display.alert("No connection");

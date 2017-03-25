@@ -5,9 +5,6 @@ package pt.dinis.common.messages.user;
  */
 public class LogoutOrder extends UserMessage {
 
-    public LogoutOrder() {
-    }
-
     @Override
     public Direction getDirection() {
         return Direction.SERVER_TO_CLIENT;

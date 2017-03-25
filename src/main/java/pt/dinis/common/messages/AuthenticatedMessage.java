@@ -1,7 +1,5 @@
 package pt.dinis.common.messages;
 
-import java.util.Optional;
-
 /**
  * Created by tiago on 16-02-2017.
  */
@@ -12,7 +10,7 @@ public class AuthenticatedMessage implements GenericMessage {
 
      public AuthenticatedMessage(GenericMessage message, String token) {
           if (message == null) {
-               throw new IllegalArgumentException();
+               throw new IllegalArgumentException("GenericMessage cannot be null");
           }
           this.message = message;
           this.token = token;

@@ -1,7 +1,5 @@
 package pt.dinis.common.messages.user;
 
-import pt.dinis.common.messages.GenericMessage;
-
 /**
  * Created by tiago on 16-02-2017.
  */
@@ -13,6 +11,9 @@ public class LoginAnswer extends UserMessage {
     String errorJustification;
 
     public LoginAnswer(AnswerType answer, String token, String errorJustification) {
+        if (answer == null) {
+            throw new IllegalArgumentException("Answer cannot be null");
+        }
         this.answer = answer;
         this.token = token;
         this.errorJustification = errorJustification;

@@ -21,12 +21,7 @@ public class LoginManager {
     }
 
     public static boolean logoutClient(Integer id) {
-        String token = null;
-        for(Map.Entry<String, Integer> entry: tokens.entrySet()) {
-            if(entry.getValue().equals(id)) {
-                token = entry.getKey();
-            }
-        }
+        String token = getClientToken(id);
         if (token == null) {
             return false;
         }
@@ -48,7 +43,7 @@ public class LoginManager {
 
     public static String getClientToken(Integer id) {
         for (Map.Entry<String, Integer> entry: tokens.entrySet()) {
-            if (entry.getValue() == id) {
+            if (entry.getValue().equals(id)) {
                 return entry.getKey();
             }
         }

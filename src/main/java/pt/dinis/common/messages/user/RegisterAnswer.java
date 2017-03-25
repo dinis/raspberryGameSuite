@@ -11,6 +11,9 @@ public class RegisterAnswer extends UserMessage {
     String errorJustification;
 
     public RegisterAnswer(AnswerType answer, String token, String errorJustification) {
+         if (answer == null) {
+            throw new IllegalArgumentException("Answer cannot be null");
+        }
         this.answer = answer;
         this.token = token;
         this.errorJustification = errorJustification;

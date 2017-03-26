@@ -7,7 +7,6 @@ import pt.dinis.data.access.User;
 import pt.dinis.exceptions.NotFoundException;
 import pt.dinis.main.Dealer;
 import pt.dinis.main.LoginManager;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -49,11 +48,11 @@ public class UserWorkerThread extends WorkerThread {
     }
 
     private boolean register(RegisterRequest message, Connection connection) throws SQLException {
-        if (User.checkUserExists(message.getName(), connection)) {
+        if (User.checkUser(message.getName(), connection)) {
             return Dealer.sendMessage(Collections.singleton(id),
                     new RegisterAnswer(UserMessage.AnswerType.ERROR, null, "Username already taken"));
         }
-        User.setNewUser(message.getName(), message.getPassword(), connection);
+        User.createUser(message.getName(), message.getPassword(), connection);
         String token = LoginManager.loginClient(id);
         return Dealer.sendMessage(Collections.singleton(id),
                 new RegisterAnswer(UserMessage.AnswerType.SUCCESS, token, null));
@@ -61,7 +60,7 @@ public class UserWorkerThread extends WorkerThread {
 
     private boolean login(LoginRequest message, Connection connection) throws SQLException {
         try {
-            String password = User.getPasswordWithName(message.getName(), connection);
+            String password = User.getPassword(message.getName(), connection);
             if (!password.equals(message.getPassword())) {
                 Display.alert("Client " + id + " with name " + message.getName() + " trying to log in with wrong password");
                 return Dealer.sendMessage(Collections.singleton(id),

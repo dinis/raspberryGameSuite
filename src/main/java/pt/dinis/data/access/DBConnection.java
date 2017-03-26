@@ -10,8 +10,6 @@ import org.apache.log4j.Logger;
  * Created by diogo on 04-02-2017.
  */
 public class DBConnection {
-    private final static Logger logger = Logger.getLogger(DBConnection.class);
-
     private static String username;
     private static String password;
     private static String url;

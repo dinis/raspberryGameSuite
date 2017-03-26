@@ -1,8 +1,9 @@
 package pt.dinis.temporary;
 
 import org.apache.log4j.Logger;
+import pt.dinis.common.Display;
+
 import pt.dinis.data.access.DBConnection;
-import pt.dinis.main.Display;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -11,8 +12,8 @@ import java.sql.SQLException;
  * Created by diogo on 05-02-2017.
  */
 public abstract class WorkerThread extends Thread {
-    private final static Logger logger = Logger.getLogger(WorkerThread.class);
 
+    private final static Logger logger = Logger.getLogger(WorkerThread.class);
     private DBConnection connection;
 
     @Override
@@ -38,7 +39,7 @@ public abstract class WorkerThread extends Thread {
             connection.getConnection().commit();
             logger.info("New database transaction committed.");
         } catch (Exception e) {
-            Display.alert("Rolling back");
+            Display.alert("Work cancelled due to an error");
             try {
                 logger.warn("New database transaction not committed, rolling back.", e);
                 connection.getConnection().rollback();
@@ -54,7 +55,6 @@ public abstract class WorkerThread extends Thread {
         }
     }
 
-    protected abstract boolean working(Connection connection)
-            throws Exception;
+    protected abstract boolean working(Connection connection) throws Exception;
 
 }

@@ -2,7 +2,9 @@ package pt.dinis.client.login;
 
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
-import pt.dinis.main.Display;
+import pt.dinis.common.Display;
+import pt.dinis.common.messages.AuthenticatedMessage;
+import pt.dinis.common.messages.GenericMessage;
 import pt.dinis.main.Configurations;
 
 import java.io.IOException;
@@ -20,7 +22,7 @@ public class LoginClient {
     private static final String DEFAULT_IP = "login.client.server.host";
     private static final String DEFAULT_PORT = "login.client.server.port";
 
-    private static String hash;
+    private static String token;
 
     private static LoginClientCommunication loginSocket;
     private final DateTime time;
@@ -86,7 +88,17 @@ public class LoginClient {
         return loginSocket.disconnect();
     }
 
-    public static boolean sendMessage(String message) {
+    public static boolean sendMessage(GenericMessage message) {
+        if (message instanceof AuthenticatedMessage) {
+            logger.info("Message is already authenticated when arrived to LoginClient: " + message);
+        } else {
+            String tokenToSend = null;
+            if (isLoggedIn()) {
+                tokenToSend = getToken();
+            }
+            message = new AuthenticatedMessage(message, tokenToSend);
+        }
+        logger.debug("Client is sending message: " + message);
         return LoginClientCommunication.sendMessage(message);
     }
 
@@ -98,20 +110,20 @@ public class LoginClient {
     }
 
     public static boolean isLoggedIn() {
-        return hash != null;
+        return token != null;
     }
 
-    public static String getHash() {
-       return hash;
+    public static String getToken() {
+       return token;
     }
 
-    public static boolean setHash(String newHash) {
-        hash = newHash;
+    public static boolean setToken(String newToken) {
+        token = newToken;
         return true;
     }
 
     public static boolean logout() {
-        hash = null;
+        token = null;
         Display.info("Logout");
         return !isLoggedIn();
     }

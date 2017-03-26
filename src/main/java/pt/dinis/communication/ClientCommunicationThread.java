@@ -2,6 +2,8 @@ package pt.dinis.communication;
 
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
+import pt.dinis.common.Display;
+import pt.dinis.common.messages.GenericMessage;
 import pt.dinis.main.Dealer;
 
 import java.io.*;
@@ -17,8 +19,8 @@ public class ClientCommunicationThread extends Thread{
     private Integer id;
     private Socket socket;
     private boolean running;
-    private PrintWriter out;
-    private BufferedReader in;
+    private ObjectOutputStream out;
+    private ObjectInputStream in;
     private final DateTime time;
 
     public ClientCommunicationThread(Socket socket, Integer id) throws IOException {
@@ -28,30 +30,31 @@ public class ClientCommunicationThread extends Thread{
         this.running = true;
         this.time = new DateTime();
 
-        out = new PrintWriter(socket.getOutputStream(), true);
-        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        out = new ObjectOutputStream(socket.getOutputStream());
+        in = new ObjectInputStream(socket.getInputStream());
     }
 
     @Override
     public void run() {
         while(running) {
             try {
-                String message;
-                message = in.readLine();
-                if(message == null) {
-                    Dealer.disconnectClient(id);
-                    logger.warn("The connection to client " + id + " has been lost.");
-                } else {
-                    logger.debug("Receiving and sending a message " + message);
-                    if (!ClientCommunicationProtocol.protocol(message)) {
-                        logger.info("Cannot process message " + message);
-                    }
+                GenericMessage message = (GenericMessage) in.readObject();
+                logger.debug("Receiving message: " + message);
+                if (!ClientCommunicationProtocol.protocol(message, id)) {
+                    logger.info("Cannot process message from id " + id + ": " + message);
                 }
-            } catch (IOException e) {
-                if(!toContinue()) {
+            } catch (ClassCastException e) {
+                Display.alert("Received wrong message format");
+                logger.error("Received message is not of a correct class: ", e);
+            } catch (EOFException e) {
+                logger.warn("The connection to client " + id + " has been lost.");
+                Dealer.disconnectClient(id);
+            } catch (IOException | ClassNotFoundException e) {
+                if(running) {
+                    logger.warn("Problem receiving message", e);
+                } else if (!toContinue()) {
                     Dealer.disconnectClient(id);
                 }
-                logger.warn("Problem receiving message", e);
             }
         }
     }
@@ -65,18 +68,23 @@ public class ClientCommunicationThread extends Thread{
         try {
             socket.close();
         } catch (IOException e) {
-            logger.info("Problem closing socket of client " + id + ".");
+            logger.info("Problem closing socket of client " + id + ".", e);
             result = false;
         }
 
         try {
             in.close();
         } catch (IOException e) {
-            logger.info("Problem closing socket input of client " + id + ".");
+            logger.info("Problem closing socket input of client " + id + ".", e);
             result = false;
         }
 
-        out.close();
+        try {
+           out.close();
+        } catch (IOException | NullPointerException e) {
+            logger.info("Problem closing socket output of client " + id + ".", e);
+            result = false;
+        }
         return result;
     }
 
@@ -88,13 +96,18 @@ public class ClientCommunicationThread extends Thread{
         return true;
     }
 
-    public boolean sendMessage(String message) {
+    public boolean sendMessage(GenericMessage message) {
         if (!toContinue()) {
             Dealer.disconnectClient(id);
             return false;
         }
 
-        out.println(message);
+        try {
+            out.writeObject(message);
+        } catch (IOException e) {
+            logger.warn("Error sending message " + message, e);
+            return false;
+        }
         return true;
     }
 }

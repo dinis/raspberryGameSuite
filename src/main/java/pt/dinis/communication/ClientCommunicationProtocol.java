@@ -1,77 +1,62 @@
 package pt.dinis.communication;
 
-import pt.dinis.temporary.LoginWorkerThread;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import org.apache.log4j.Logger;
+import pt.dinis.common.Display;
+import pt.dinis.common.messages.AuthenticatedMessage;
+import pt.dinis.common.messages.GenericMessage;
+import pt.dinis.common.messages.basic.BasicMessage;
+import pt.dinis.common.messages.chat.ChatMessage;
+import pt.dinis.common.messages.user.UserMessage;
+import pt.dinis.main.Dealer;
+import pt.dinis.temporary.BasicWorkerThread;
+import pt.dinis.temporary.ChatWorkerThread;
+import pt.dinis.temporary.UserWorkerThread;
+import pt.dinis.temporary.WorkerThread;
 
 /**
  * Created by diogo on 05-02-2017.
  */
 public class ClientCommunicationProtocol {
 
-    public enum MessageType {
-        LOGIN("login"),
-        LOGOUT("logout"),
-        CLOSE("disconnect"),
-        MESSAGE("message"),
-        ERROR("error");
+    private final static Logger logger = Logger.getLogger(ClientCommunicationThread.class);
 
-        private String word;
+    public static boolean protocol(GenericMessage message, int id) {
 
-        MessageType(String word) {
-            this.word = word;
-        }
-
-        public String getWord() {
-            return word;
-        }
-    }
-
-    public static boolean protocol(String message) {
-        List<String> words = splitMessage(message);
-
-        if(words.isEmpty()) {
+        if (message.getDirection() == GenericMessage.Direction.SERVER_TO_CLIENT) {
+            logger.info("Server received message of type server to client: " + message);
             return false;
         }
 
-        String word = words.get(0).toLowerCase();
-
-        if(ClientCommunicationProtocol.MessageType.LOGIN.getWord().equals(word)) {
-            LoginWorkerThread loginWorkerThread = new LoginWorkerThread(words);
-            loginWorkerThread.start();
-            return true;
+        boolean isAuthenticated = false;
+        if (message instanceof AuthenticatedMessage) {
+            AuthenticatedMessage authenticatedMessage = (AuthenticatedMessage) message;
+            if (authenticatedMessage.isAuthenticated()) {
+                if (Dealer.isAuthenticated(id, authenticatedMessage.getToken())) {
+                    isAuthenticated = true;
+                }
+            }
+            message = authenticatedMessage.getMessage();
         }
 
-        if(ClientCommunicationProtocol.MessageType.CLOSE.getWord().equals(word)) {
-            // new workerthread
-            return true;
-        }
+        WorkerThread worker = null;
 
-        if(ClientCommunicationProtocol.MessageType.LOGOUT.getWord().equals(word)) {
-            // new workerthread
+        try {
+            if (message instanceof UserMessage) {
+                worker = new UserWorkerThread((UserMessage) message, id, isAuthenticated);
+            } else if (message instanceof ChatMessage) {
+                worker = new ChatWorkerThread((ChatMessage) message, id, isAuthenticated);
+            } else if (message instanceof BasicMessage) {
+                worker = new BasicWorkerThread((BasicMessage) message, id, isAuthenticated);
+            } else {
+                logger.warn("Unexpected message from client " + id + ": " + message);
+                return false;
+            }
+            worker.run();
             return true;
+        } catch (Exception e) {
+            Display.alert("Error in message from client " + id + ": " + message);
+            logger.error("Error interpreting message from client " + id + ": " + message, e);
         }
-
-        if(ClientCommunicationProtocol.MessageType.ERROR.getWord().equals(word)) {
-            // new workerthread
-            return true;
-        }
-
-        if(ClientCommunicationProtocol.MessageType.MESSAGE.getWord().equals(word)) {
-            // new workerthread
-            return true;
-        }
-
         return false;
     }
-
-    private static List<String> splitMessage(String message) {
-        List<String> words = (new ArrayList<>());
-        words.addAll(Arrays.asList(message.split("\\s+")));
-        while(words.remove("")) { }
-        return words;
-    }
-
-
 }

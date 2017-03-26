@@ -1,5 +1,7 @@
 package pt.dinis.main;
 
+import pt.dinis.common.Display;
+
 import java.util.Scanner;
 
 /**

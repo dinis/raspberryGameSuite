@@ -43,7 +43,7 @@ public class LoginClientCommunicationProtocol {
             return login((LoginAnswer) message);
         }
         if (message instanceof RegisterAnswer) {
-            throw new NotImplementedException();
+            return register((RegisterAnswer) message);
         }
         if (message instanceof LogoutOrder) {
             return logout();
@@ -77,6 +77,18 @@ public class LoginClientCommunicationProtocol {
                 return LoginClient.setToken(message.getToken());
             case ERROR:
                 Display.alert("Login refused: " + message.getErrorJustification());
+                return false;
+        }
+        return false;
+    }
+
+    private static boolean register(RegisterAnswer message) {
+        switch(message.getAnswer()) {
+            case SUCCESS:
+                Display.info("New token");
+                return LoginClient.setToken(message.getToken());
+            case ERROR:
+                Display.alert("Register refused: " + message.getErrorJustification());
                 return false;
         }
         return false;

@@ -30,6 +30,21 @@ public class User {
         }
     }
 
+    public static boolean checkUserExists(String username, Connection connection) throws SQLException  {
+        String query = "SELECT username FROM users WHERE username = ?";
+
+        try (PreparedStatement prepSt = connection.prepareStatement(query)) {
+            prepSt.setString(1, username);
+            ResultSet rs = prepSt.executeQuery();
+
+            if (rs.next()) {
+                return true;
+            }
+
+            return false;
+        }
+    }
+
     public static String getPassword(int id, Connection connection) throws SQLException, NotFoundException {
         String query = "SELECT password FROM users WHERE id = ?";
 

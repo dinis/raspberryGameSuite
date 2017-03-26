@@ -14,7 +14,7 @@ public class LoginManager {
 
     private static SecureRandom random = new SecureRandom();
 
-    public static String loginClient(Integer id) throws Exception {
+    public static String loginClient(Integer id) {
         String token = generateUniqueToken();
         tokens.put(token, id);
         return token;

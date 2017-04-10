@@ -5,6 +5,7 @@ import pt.dinis.common.Display;
 import pt.dinis.common.messages.GenericMessage;
 import pt.dinis.common.messages.user.LoginAnswer;
 import pt.dinis.common.messages.user.ReLoginAnswer;
+import pt.dinis.common.messages.user.RegisterAnswer;
 import pt.dinis.common.messages.user.UserMessage;
 import pt.dinis.communication.ClientCommunicationThread;
 import java.io.IOException;
@@ -187,6 +188,17 @@ public class Dealer {
         } catch (Exception e) {
             Display.alert("Could not log in client " + id);
             sendMessage(Collections.singleton(id), new LoginAnswer(UserMessage.AnswerType.ERROR, null, "error"));
+            return false;
+        }
+    }
+
+    public static boolean registerClient(Integer id) {
+        try {
+            String token = LoginManager.loginClient(id);
+            return sendMessage(Collections.singleton(id), new RegisterAnswer(UserMessage.AnswerType.SUCCESS, token, null));
+        } catch (Exception e) {
+            Display.alert("Could not log in new client " + id);
+            sendMessage(Collections.singleton(id), new RegisterAnswer(UserMessage.AnswerType.ERROR, null, "error"));
             return false;
         }
     }

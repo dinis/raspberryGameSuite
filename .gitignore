@@ -1,0 +1,12 @@
+bin/
+target/
+log/
+build/
+gradle/
+.*
+*.iml
+*.ipr
+*.iws
+user.conf
+!.gitignore
+

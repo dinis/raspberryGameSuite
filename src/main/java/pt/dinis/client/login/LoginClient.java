@@ -75,6 +75,7 @@ public class LoginClient {
         }
 
         Display.info("Connect");
+        logger.info("This client are now connected to server.");
         return true;
     }
 

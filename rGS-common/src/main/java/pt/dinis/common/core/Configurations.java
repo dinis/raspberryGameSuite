@@ -3,6 +3,8 @@ package pt.dinis.common.core;
 import java.io.*;
 import java.net.URLClassLoader;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import org.apache.log4j.Logger;
 
@@ -25,36 +27,52 @@ public class Configurations {
 
     private static Properties loadProperties(String fileName) throws IOException {
         Properties properties = new Properties();
-        // TODO: erase the following code
-        // prints all classpaths
-        ClassLoader cl = ClassLoader.getSystemClassLoader();
-        URL[] urls = ((URLClassLoader)cl).getURLs();
-        for(URL url: urls){
-        	System.out.println(url.getFile());
-        }
-        // end of to be erased code
 
-        try (FileInputStream in = new FileInputStream("classpath:/" + fileName)) {
-            properties.load(in);
-            logger.info("Load properties from default configurations file.");
-        } catch (FileNotFoundException e) {
-            logger.fatal("Default configuration file ('application.conf') not found.");
-            Display.alert("Properties not found.");
-            throw new IOException();
-        } catch (IOException e) {
-            logger.fatal("Can't connect with standard input stream.");
-            Display.alert("I/O problems.");
-            throw new IOException();
+        List<File> files = getFilesInClassPath(fileName);
+        if (files.isEmpty()) {
+            throw new IOException("No file '" + fileName + "' found");
+        }
+
+        for (File file: files) {
+            try (FileInputStream in = new FileInputStream(file)) {
+                properties.load(in);
+                logger.info("Load properties from default configurations file: " + file.getCanonicalPath());
+            } catch (FileNotFoundException e) {
+                logger.fatal("Default configuration file ('application.conf') not found.");
+                Display.alert("Properties not found.");
+                throw new IOException();
+            } catch (IOException e) {
+                logger.fatal("Can't connect with standard input stream.");
+                Display.alert("I/O problems.");
+                throw new IOException();
+            }
         }
 
         // user's properties
-        try (FileInputStream in = new FileInputStream("./" + properties.getProperty("user.properties.file.name"))) {
+        String userFileName = "./" + properties.getProperty("user.properties.file.name");
+        try (FileInputStream in = new FileInputStream(userFileName)) {
             properties.load(in);
-            logger.info("Load properties from user's configurations file.");
+            logger.info("Load properties from user's configurations file: " + userFileName );
         } catch (FileNotFoundException e) {
             logger.info("User's configuration file not found.");
         }
 
         return properties;
     }
+
+    static private List<File> getFilesInClassPath(String fileName) {
+
+        List<File> files = new ArrayList<>();
+        ClassLoader cl = ClassLoader.getSystemClassLoader();
+        URL[] urls = ((URLClassLoader)cl).getURLs();
+        for(URL url: urls){
+            File file = new File(url.getFile() + fileName);
+            if (file.exists()) {
+                files.add(file);
+            }
+        }
+
+        return files;
+    }
+
 }

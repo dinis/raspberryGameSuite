@@ -1,1 +1,5 @@
 rootProject.name = 'raspberryGameSuite'
+include 'rGS-common'
+include 'rGS-loginClient'
+include 'rGS-server'
+

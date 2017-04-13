@@ -1,7 +1,5 @@
 package pt.dinis.common.messages.chat;
 
-import pt.dinis.common.messages.GenericMessage;
-
 /**
  * Created by tiago on 16-02-2017.
  */
@@ -43,8 +41,8 @@ public class ChatMessageToServer extends ChatMessage {
     }
 
     @Override
-    public GenericMessage.Direction getDirection() {
-        return GenericMessage.Direction.CLIENT_TO_SERVER;
+    public Direction getDirection() {
+        return Direction.CLIENT_TO_SERVER;
     }
 
     @Override

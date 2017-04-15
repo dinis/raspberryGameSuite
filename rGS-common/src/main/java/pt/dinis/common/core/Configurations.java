@@ -32,7 +32,6 @@ public class Configurations {
         }
     }
 
-
     public static String getProperty(String key) {
         return properties.getProperty(key);
     }

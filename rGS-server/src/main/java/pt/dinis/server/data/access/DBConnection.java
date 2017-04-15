@@ -25,7 +25,7 @@ public class DBConnection {
 
         username = Configurations.getProperty("db.user");
         password = Configurations.getProperty("db.pass");
-        url = "jdbc:postgresql://" + Configurations.getProperty("server.hostname") + "/" + Configurations.getProperty("db.path");
+        url = "jdbc:postgresql://" + Configurations.getProperty("db.hostname") + "/" + Configurations.getProperty("db.path");
     }
 
     public static void testConnection()  throws ConnectException {

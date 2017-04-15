@@ -38,7 +38,7 @@ public class ClientCommunicationProtocol {
             message = authenticatedMessage.getMessage();
         }
 
-        WorkerThread worker = null;
+        WorkerThread worker;
 
         try {
             if (message instanceof UserMessage) {

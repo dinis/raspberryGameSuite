@@ -5,7 +5,7 @@ import pt.dinis.common.core.Display;
 import pt.dinis.common.messages.user.*;
 import pt.dinis.server.data.access.User;
 import pt.dinis.server.exceptions.NotFoundException;
-import pt.dinis.server.main.Dealer;
+import pt.dinis.server.core.Dealer;
 
 import java.sql.Connection;
 import java.sql.SQLException;

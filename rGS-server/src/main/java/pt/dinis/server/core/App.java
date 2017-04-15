@@ -1,4 +1,4 @@
-package pt.dinis.server.main;
+package pt.dinis.server.core;
 
 import pt.dinis.common.core.Configurations;
 import pt.dinis.common.core.Display;
@@ -15,7 +15,7 @@ public class App {
         Dealer dealer;
 
         try {
-            Configurations.setPropertiesFromFile();
+            Configurations.setPropertiesFromFile("user.properties.file.name", true);
         } catch (IOException e) {
             return;
         }

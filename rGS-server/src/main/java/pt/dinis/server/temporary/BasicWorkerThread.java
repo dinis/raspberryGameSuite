@@ -3,7 +3,7 @@ package pt.dinis.server.temporary;
 import org.apache.log4j.Logger;
 import pt.dinis.common.messages.basic.BasicMessage;
 import pt.dinis.common.messages.basic.CloseConnectionRequest;
-import pt.dinis.server.main.Dealer;
+import pt.dinis.server.core.Dealer;
 
 import java.sql.Connection;
 

@@ -7,7 +7,7 @@ import pt.dinis.common.messages.GenericMessage;
 import pt.dinis.common.messages.basic.BasicMessage;
 import pt.dinis.common.messages.chat.ChatMessage;
 import pt.dinis.common.messages.user.UserMessage;
-import pt.dinis.server.main.Dealer;
+import pt.dinis.server.core.Dealer;
 import pt.dinis.server.temporary.BasicWorkerThread;
 import pt.dinis.server.temporary.ChatWorkerThread;
 import pt.dinis.server.temporary.UserWorkerThread;

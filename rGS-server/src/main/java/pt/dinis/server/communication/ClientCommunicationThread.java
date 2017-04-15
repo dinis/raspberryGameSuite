@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import pt.dinis.common.core.Display;
 import pt.dinis.common.messages.GenericMessage;
-import pt.dinis.server.main.Dealer;
+import pt.dinis.server.core.Dealer;
 
 import java.io.*;
 import java.net.Socket;

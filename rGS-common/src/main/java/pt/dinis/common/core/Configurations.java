@@ -18,14 +18,26 @@ public class Configurations {
     private static final String PROPERTIES_FILE_NAME = "application.conf";
 
     public static void setPropertiesFromFile() throws IOException {
-        properties = loadProperties(PROPERTIES_FILE_NAME);
+        properties = loadDefaultProperties(PROPERTIES_FILE_NAME);
     }
+
+    public static void setPropertiesFromFile(String propertyName, boolean mandatory) throws IOException {
+        setPropertiesFromFile();
+        try {
+            loadUserProperties(propertyName);
+        } catch (Exception e) {
+            if (mandatory) {
+                throw e;
+            }
+        }
+    }
+
 
     public static String getProperty(String key) {
         return properties.getProperty(key);
     }
 
-    private static Properties loadProperties(String fileName) throws IOException {
+    private static Properties loadDefaultProperties(String fileName) throws IOException {
         Properties properties = new Properties();
 
         List<File> files = getFilesInClassPath(fileName);
@@ -48,16 +60,19 @@ public class Configurations {
             }
         }
 
+        return properties;
+    }
+
+    static void loadUserProperties(String propertyName) throws IOException {
         // user's properties
-        String userFileName = "./" + properties.getProperty("user.properties.file.name");
+        String userFileName = "./" + properties.getProperty(propertyName);
         try (FileInputStream in = new FileInputStream(userFileName)) {
             properties.load(in);
             logger.info("Load properties from user's configurations file: " + userFileName );
         } catch (FileNotFoundException e) {
             logger.info("User's configuration file not found.");
+            throw e;
         }
-
-        return properties;
     }
 
     static private List<File> getFilesInClassPath(String fileName) {

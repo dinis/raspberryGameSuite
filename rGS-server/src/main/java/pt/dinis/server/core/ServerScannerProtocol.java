@@ -1,4 +1,4 @@
-package pt.dinis.server.main;
+package pt.dinis.server.core;
 
 import pt.dinis.common.core.Display;
 import pt.dinis.common.messages.basic.CloseConnectionOrder;

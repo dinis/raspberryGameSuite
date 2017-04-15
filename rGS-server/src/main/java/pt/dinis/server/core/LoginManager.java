@@ -1,4 +1,4 @@
-package pt.dinis.server.main;
+package pt.dinis.server.core;
 
 import java.math.BigInteger;
 import java.util.Collection;

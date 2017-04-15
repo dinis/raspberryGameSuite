@@ -15,7 +15,7 @@ public class LoginClientApp {
     public static void main(String[] args) {
 
         try {
-            Configurations.setPropertiesFromFile();
+            Configurations.setPropertiesFromFile("user.properties.file.name", true);
         } catch (IOException e) {
             return;
         }

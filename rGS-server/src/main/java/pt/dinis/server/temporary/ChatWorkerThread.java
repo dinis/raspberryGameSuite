@@ -5,7 +5,7 @@ import pt.dinis.common.core.Display;
 import pt.dinis.common.messages.chat.ChatMessage;
 import pt.dinis.common.messages.chat.ChatMessageToClient;
 import pt.dinis.common.messages.chat.ChatMessageToServer;
-import pt.dinis.server.main.Dealer;
+import pt.dinis.server.core.Dealer;
 
 import java.sql.Connection;
 import java.util.Collection;

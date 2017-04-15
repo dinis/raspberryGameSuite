@@ -1,8 +1,9 @@
-package pt.dinis.server.temporary;
+package pt.dinis.server.user;
 
 import org.apache.log4j.Logger;
 import pt.dinis.common.core.Display;
 import pt.dinis.common.messages.user.*;
+import pt.dinis.server.core.WorkerThread;
 import pt.dinis.server.data.access.User;
 import pt.dinis.server.exceptions.NotFoundException;
 import pt.dinis.server.core.Dealer;

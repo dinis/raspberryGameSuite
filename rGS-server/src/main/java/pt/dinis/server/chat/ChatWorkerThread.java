@@ -1,4 +1,4 @@
-package pt.dinis.server.temporary;
+package pt.dinis.server.chat;
 
 import org.apache.log4j.Logger;
 import pt.dinis.common.core.Display;
@@ -6,6 +6,7 @@ import pt.dinis.common.messages.chat.ChatMessage;
 import pt.dinis.common.messages.chat.ChatMessageToClient;
 import pt.dinis.common.messages.chat.ChatMessageToServer;
 import pt.dinis.server.core.Dealer;
+import pt.dinis.server.core.WorkerThread;
 
 import java.sql.Connection;
 import java.util.Collection;

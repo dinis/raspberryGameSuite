@@ -1,4 +1,4 @@
-package pt.dinis.server.temporary;
+package pt.dinis.server.core;
 
 import org.apache.log4j.Logger;
 import pt.dinis.common.core.Display;

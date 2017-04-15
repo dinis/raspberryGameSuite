@@ -8,10 +8,10 @@ import pt.dinis.common.messages.basic.BasicMessage;
 import pt.dinis.common.messages.chat.ChatMessage;
 import pt.dinis.common.messages.user.UserMessage;
 import pt.dinis.server.core.Dealer;
-import pt.dinis.server.temporary.BasicWorkerThread;
-import pt.dinis.server.temporary.ChatWorkerThread;
-import pt.dinis.server.temporary.UserWorkerThread;
-import pt.dinis.server.temporary.WorkerThread;
+import pt.dinis.server.basic.BasicWorkerThread;
+import pt.dinis.server.chat.ChatWorkerThread;
+import pt.dinis.server.user.UserWorkerThread;
+import pt.dinis.server.core.WorkerThread;
 
 /**
  * Created by diogo on 05-02-2017.

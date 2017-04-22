@@ -49,7 +49,7 @@ public class Configurations {
                 properties.load(in);
                 logger.info("Load properties from default configurations file: " + file.getCanonicalPath());
             } catch (FileNotFoundException e) {
-                logger.fatal("Default configuration file ('application.conf') not found.");
+                logger.fatal("Default configuration file ('" + fileName + "') not found.");
                 Display.alert("Properties not found.");
                 throw new IOException();
             } catch (IOException e) {

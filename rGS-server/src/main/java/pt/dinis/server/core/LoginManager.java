@@ -1,22 +1,24 @@
 package pt.dinis.server.core;
 
+import pt.dinis.common.core.Player;
+
 import java.math.BigInteger;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.security.SecureRandom;
+import java.util.stream.Collectors;
 
 /**
  * Created by tiago on 04-02-2017.
  */
 public class LoginManager {
-    private static Map<String, Integer> tokens = new HashMap<String, Integer>();
+    private static Map<String, Integer> tokens = new HashMap<>();
+    private static Map<Integer, Player> players = new HashMap<>();
 
     private static SecureRandom random = new SecureRandom();
 
-    public static String loginClient(Integer id) {
+    public static String loginClient(Integer id, Player player) {
         String token = generateUniqueToken();
-        tokens.put(token, id);
+        addClient(id, player, token);
         return token;
     }
 
@@ -25,13 +27,14 @@ public class LoginManager {
         if (token == null) {
             return false;
         }
-        tokens.remove(token, id);
+        removeClient(id, token);
         return true;
     }
 
     public static boolean reloginClient(Integer id, String token) {
-        if (tokens.containsKey(token)) {
-            tokens.put(token, id);
+        if (tokens.containsKey(token) && players.containsKey(tokens.get(token))) {
+            players.remove(tokens.get(token));
+            addClient(id, players.get(tokens.get(token)), token);
             return true;
         }
         return false;
@@ -51,10 +54,20 @@ public class LoginManager {
     }
 
     public static Map<String, Integer> getLoggedClients(Collection<Integer> excludedIds) {
-        Map<String, Integer> result = new HashMap<String, Integer> ();
+        Map<String, Integer> result = new HashMap<> ();
         for (Map.Entry<String, Integer> entry: tokens.entrySet()) {
             if (!excludedIds.contains(entry.getValue())) {
                 result.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return result;
+    }
+
+    public static List<Player> getPlayersFromIds(List<Integer> ids) {
+        List<Player> result = new ArrayList<>();
+        for (Integer id: ids) {
+            if (players.containsKey(id)) {
+                result.add(players.get(id));
             }
         }
         return result;
@@ -66,5 +79,15 @@ public class LoginManager {
             token = new BigInteger(130, random).toString(32);
         } while (token == null || tokens.containsKey(token));
         return token;
+    }
+
+    private static void addClient(Integer id, Player player, String token) {
+        tokens.put(token, id);
+        players.put(id, player);
+    }
+
+    private static void removeClient(Integer id, String token) {
+        tokens.remove(token, id);
+        players.remove(id);
     }
 }

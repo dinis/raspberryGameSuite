@@ -134,7 +134,7 @@ public class ServerScannerProtocol {
         }
         boolean result = true;
         for (int id: ids) {
-            result = Dealer.loginClient(id);
+            result = Dealer.loginClient(id, null); // no player
         }
         return result;
     }
@@ -175,7 +175,9 @@ public class ServerScannerProtocol {
             Display.cleanColor("Connected clients:");
             for(int id: ids) {
                 if (LoginManager.isLogged(id)) {
-                    Display.cleanColor("Client " + id + " logged in with token " + LoginManager.getClientToken(id));
+                    Display.cleanColor("Client " + id + " "
+                            + LoginManager.getPlayersFromIds(Collections.singletonList(id))
+                            + " logged in with token " + LoginManager.getClientToken(id));
                 } else {
                     Display.cleanColor("Client " + id + " not logged in");
                 }

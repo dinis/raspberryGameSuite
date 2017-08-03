@@ -72,6 +72,7 @@ public class LoginClientCommunicationProtocol {
         switch(message.getAnswer()) {
             case SUCCESS:
                 Display.info("New token");
+                LoginClient.setMe(message.getPlayer());
                 return LoginClient.setToken(message.getToken());
             case ERROR:
                 Display.alert("Login refused: " + message.getErrorJustification());
@@ -84,6 +85,7 @@ public class LoginClientCommunicationProtocol {
         switch(message.getAnswer()) {
             case SUCCESS:
                 Display.info("New token");
+                LoginClient.setMe(message.getPlayer());
                 return LoginClient.setToken(message.getToken());
             case ERROR:
                 Display.alert("Register refused: " + message.getErrorJustification());

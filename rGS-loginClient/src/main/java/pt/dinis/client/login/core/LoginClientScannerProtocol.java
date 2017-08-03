@@ -270,6 +270,7 @@ public class LoginClientScannerProtocol {
         Display.cleanColor("Connected: " + Boolean.toString(LoginClient.isConnected()));
         Display.cleanColor("Logged in: " + Boolean.toString(LoginClient.isLoggedIn()));
         if(LoginClient.isLoggedIn()) {
+            Display.cleanColor("Me: " + LoginClient.getMe());
             Display.cleanColor("Token: " + LoginClient.getToken());
         }
         return true;

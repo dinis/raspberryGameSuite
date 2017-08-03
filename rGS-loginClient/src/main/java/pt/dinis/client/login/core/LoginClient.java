@@ -3,6 +3,7 @@ package pt.dinis.client.login.core;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import pt.dinis.common.core.Display;
+import pt.dinis.common.core.Player;
 import pt.dinis.common.messages.AuthenticatedMessage;
 import pt.dinis.common.messages.GenericMessage;
 import pt.dinis.common.core.Configurations;
@@ -23,6 +24,7 @@ public class LoginClient {
     private static final String DEFAULT_PORT = "login.client.server.port";
 
     private static String token;
+    private static Player me;
 
     private static LoginClientCommunication loginSocket;
     private final DateTime time;
@@ -121,6 +123,18 @@ public class LoginClient {
     public static boolean setToken(String newToken) {
         token = newToken;
         return true;
+    }
+
+    public static boolean setMe(Player player) {
+        if (player == null) {
+            return false;
+        }
+        me = player;
+        return true;
+    }
+
+    public static Player getMe() {
+        return me;
     }
 
     public static boolean logout() {

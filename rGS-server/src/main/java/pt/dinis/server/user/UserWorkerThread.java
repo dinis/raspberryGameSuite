@@ -2,6 +2,7 @@ package pt.dinis.server.user;
 
 import org.apache.log4j.Logger;
 import pt.dinis.common.core.Display;
+import pt.dinis.common.core.Player;
 import pt.dinis.common.messages.user.*;
 import pt.dinis.server.core.WorkerThread;
 import pt.dinis.server.data.access.User;
@@ -30,7 +31,7 @@ public class UserWorkerThread extends WorkerThread {
     }
 
     @Override
-    protected boolean working(Connection connection) throws SQLException {
+    protected boolean working(Connection connection) throws SQLException, NotFoundException {
         if (message instanceof LoginRequest) {
             login((LoginRequest) message, connection);
         } else if (message instanceof RegisterRequest) {
@@ -47,15 +48,16 @@ public class UserWorkerThread extends WorkerThread {
         return true;
     }
 
-    private boolean register(RegisterRequest message, Connection connection) throws SQLException {
+    private boolean register(RegisterRequest message, Connection connection) throws SQLException, NotFoundException {
         logger.info("Trying to create a new client with name '" + message.getName() + "' for id " + id);
         if (User.checkUser(message.getName(), connection)) {
             return Dealer.sendMessage(Collections.singleton(id),
-                    new RegisterAnswer(UserMessage.AnswerType.ERROR, null, "Username already taken"));
+                    new RegisterAnswer(UserMessage.AnswerType.ERROR, null, null, "Username already taken"));
         }
         Display.info("Create a new client " + id);
         User.createUser(message.getName(), message.getPassword(), connection);
-        return Dealer.registerClient(id);
+        Player player = User.getPlayer(message.getName(), connection);
+        return Dealer.registerClient(id, player);
     }
 
     private boolean login(LoginRequest message, Connection connection) throws SQLException {
@@ -64,15 +66,16 @@ public class UserWorkerThread extends WorkerThread {
             if (!password.equals(message.getPassword())) {
                 Display.alert("Client " + id + " with name " + message.getName() + " trying to log in with wrong password");
                 return Dealer.sendMessage(Collections.singleton(id),
-                        new LoginAnswer(UserMessage.AnswerType.ERROR, null, "Wrong password"));
+                        new LoginAnswer(UserMessage.AnswerType.ERROR, null, null, "Wrong password"));
             }
             Display.info("Log in client " + id);
             logger.info("Log in client '" + message.getName() + "' and id " + id);
-            return Dealer.loginClient(id);
+            Player player = User.getPlayer(message.getName(), connection);
+            return Dealer.loginClient(id, player);
         } catch (NotFoundException e) {
             Display.alert("Client " + id + " trying to log with unknown name: " + message.getName());
             return Dealer.sendMessage(Collections.singleton(id),
-                    new LoginAnswer(UserMessage.AnswerType.ERROR, null, "Did not found username"));
+                    new LoginAnswer(UserMessage.AnswerType.ERROR, null, null, "Did not found username"));
         }
     }
 

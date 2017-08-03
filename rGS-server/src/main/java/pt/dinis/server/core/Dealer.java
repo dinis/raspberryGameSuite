@@ -2,6 +2,7 @@ package pt.dinis.server.core;
 
 import org.apache.log4j.Logger;
 import pt.dinis.common.core.Display;
+import pt.dinis.common.core.Player;
 import pt.dinis.common.messages.GenericMessage;
 import pt.dinis.common.messages.user.LoginAnswer;
 import pt.dinis.common.messages.user.ReLoginAnswer;
@@ -182,24 +183,24 @@ public class Dealer {
         return result;
     }
 
-    public static boolean loginClient(Integer id) {
+    public static boolean loginClient(Integer id, Player player) {
         try {
-            String token = LoginManager.loginClient(id);
-            return sendMessage(Collections.singleton(id), new LoginAnswer(UserMessage.AnswerType.SUCCESS, token, null));
+            String token = LoginManager.loginClient(id, player);
+            return sendMessage(Collections.singleton(id), new LoginAnswer(UserMessage.AnswerType.SUCCESS, token, player, null));
         } catch (Exception e) {
             Display.alert("Could not log in client " + id);
-            sendMessage(Collections.singleton(id), new LoginAnswer(UserMessage.AnswerType.ERROR, null, "error"));
+            sendMessage(Collections.singleton(id), new LoginAnswer(UserMessage.AnswerType.ERROR, null, null, "error"));
             return false;
         }
     }
 
-    public static boolean registerClient(Integer id) {
+    public static boolean registerClient(Integer id, Player player) {
         try {
-            String token = LoginManager.loginClient(id);
-            return sendMessage(Collections.singleton(id), new RegisterAnswer(UserMessage.AnswerType.SUCCESS, token, null));
+            String token = LoginManager.loginClient(id, player);
+            return sendMessage(Collections.singleton(id), new RegisterAnswer(UserMessage.AnswerType.SUCCESS, token, player, null));
         } catch (Exception e) {
             Display.alert("Could not log in new client " + id);
-            sendMessage(Collections.singleton(id), new RegisterAnswer(UserMessage.AnswerType.ERROR, null, "error"));
+            sendMessage(Collections.singleton(id), new RegisterAnswer(UserMessage.AnswerType.ERROR, null, null, "error"));
             return false;
         }
     }

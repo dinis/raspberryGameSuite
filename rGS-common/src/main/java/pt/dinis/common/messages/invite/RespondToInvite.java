@@ -14,6 +14,7 @@ public class RespondToInvite extends InviteMessage {
         if (accept == null) {
             throw new IllegalArgumentException("Accept cannot be null");
         }
+	this.accept = accept;
         if (game == null) {
             throw new IllegalArgumentException("Game cannot be null");
         }

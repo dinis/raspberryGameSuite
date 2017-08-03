@@ -9,6 +9,8 @@ public interface GenericMessage extends Serializable {
 
     enum Direction {SERVER_TO_CLIENT, CLIENT_TO_SERVER}
 
+    enum AnswerType{SUCCESS, ERROR}
+
     Direction getDirection();
 
 }

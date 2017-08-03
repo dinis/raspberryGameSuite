@@ -8,6 +8,7 @@ public class ReLoginAnswer extends UserMessage {
     AnswerType answer;
     // TODO: this should be an enum
     String errorJustification;
+    // TODO: add player
 
     public ReLoginAnswer(AnswerType answer, String errorJustification) {
         this.answer = answer;

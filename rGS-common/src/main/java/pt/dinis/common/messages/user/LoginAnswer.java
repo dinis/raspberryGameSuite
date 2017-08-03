@@ -9,6 +9,7 @@ public class LoginAnswer extends UserMessage {
     String token;
     // TODO: this should be an enum
     String errorJustification;
+    // TODO: add player
 
     public LoginAnswer(AnswerType answer, String token, String errorJustification) {
         if (answer == null) {

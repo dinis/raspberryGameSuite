@@ -28,10 +28,6 @@ public class InviteAnswer extends InviteMessage {
         return answer;
     }
 
-    public void setAnswer(AnswerType answer) {
-        this.answer = answer;
-    }
-
     @Override
     public String toString() {
         return "InviteAnswer{" +
@@ -45,16 +41,8 @@ public class InviteAnswer extends InviteMessage {
         return game;
     }
 
-    public void setGame(Game game) {
-        this.game = game;
-    }
-
     public String getErrorJustification() {
         return errorJustification;
-    }
-
-    public void setErrorJustification(String errorJustification) {
-        this.errorJustification = errorJustification;
     }
 
     @Override

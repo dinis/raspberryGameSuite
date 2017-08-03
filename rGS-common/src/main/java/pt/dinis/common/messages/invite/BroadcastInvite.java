@@ -26,16 +26,8 @@ public class BroadcastInvite extends InviteMessage {
         return game;
     }
 
-    public void setGame(Game game) {
-        this.game = game;
-    }
-
     public Player getPlayer() {
         return player;
-    }
-
-    public void setPlayer(Player player) {
-        this.player = player;
     }
 
     @Override

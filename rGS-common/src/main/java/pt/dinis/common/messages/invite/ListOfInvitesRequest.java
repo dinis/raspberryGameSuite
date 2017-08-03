@@ -3,9 +3,9 @@ package pt.dinis.common.messages.invite;
 /**
  * Created by tiago on 16-02-2017.
  */
-public class ListOfGamesRequest extends InviteMessage {
+public class ListOfInvitesRequest extends InviteMessage {
 
-    public ListOfGamesRequest() {
+    public ListOfInvitesRequest() {
     }
 
     @Override
@@ -15,6 +15,6 @@ public class ListOfGamesRequest extends InviteMessage {
 
     @Override
     public String toString() {
-        return "ListOfGamesRequest{} " + super.toString();
+        return "ListOfInvitesRequest{} " + super.toString();
     }
 }

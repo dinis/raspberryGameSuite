@@ -28,16 +28,8 @@ public class Invite extends InviteMessage {
         return game;
     }
 
-    public void setGame(GameType game) {
-        this.game = game;
-    }
-
     public List<Player> getPlayers() {
         return players;
-    }
-
-    public void setPlayers(List<Player> players) {
-        this.players = players;
     }
 
     @Override

@@ -1,7 +1,6 @@
 package pt.dinis.common.messages.invite;
 
 import pt.dinis.common.core.Game;
-import pt.dinis.common.core.Player;
 
 /**
  * Created by tiago on 16-02-2017.
@@ -28,24 +27,12 @@ public class RespondToInviteAnswer extends InviteMessage {
         return game;
     }
 
-    public void setGame(Game game) {
-        this.game = game;
-    }
-
     public AnswerType getAnswer() {
         return answer;
     }
 
-    public void setAnswer(AnswerType answer) {
-        this.answer = answer;
-    }
-
     public String getJustificationError() {
         return justificationError;
-    }
-
-    public void setJustificationError(String justificationError) {
-        this.justificationError = justificationError;
     }
 
     @Override

@@ -31,24 +31,12 @@ public class BroadcastResponseToInvite extends InviteMessage {
         return game;
     }
 
-    public void setGame(Game game) {
-        this.game = game;
-    }
-
     public Boolean getAccept() {
         return accept;
     }
 
-    public void setAccept(Boolean accept) {
-        this.accept = accept;
-    }
-
     public Player getPlayer() {
         return player;
-    }
-
-    public void setPlayer(Player player) {
-        this.player = player;
     }
 
     @Override

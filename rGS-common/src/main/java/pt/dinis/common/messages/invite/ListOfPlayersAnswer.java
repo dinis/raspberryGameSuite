@@ -30,24 +30,12 @@ public class ListOfPlayersAnswer extends InviteMessage {
         return answer;
     }
 
-    public void setAnswer(AnswerType answer) {
-        this.answer = answer;
-    }
-
     public String getErrorJustification() {
         return errorJustification;
     }
 
-    public void setErrorJustification(String errorJustification) {
-        this.errorJustification = errorJustification;
-    }
-
     public List<Player> getPlayers() {
         return players;
-    }
-
-    public void setPlayers(List<Player> players) {
-        this.players = players;
     }
 
     @Override

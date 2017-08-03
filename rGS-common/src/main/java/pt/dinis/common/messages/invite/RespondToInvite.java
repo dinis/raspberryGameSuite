@@ -14,7 +14,7 @@ public class RespondToInvite extends InviteMessage {
         if (accept == null) {
             throw new IllegalArgumentException("Accept cannot be null");
         }
-	this.accept = accept;
+        this.accept = accept;
         if (game == null) {
             throw new IllegalArgumentException("Game cannot be null");
         }
@@ -25,16 +25,8 @@ public class RespondToInvite extends InviteMessage {
         return game;
     }
 
-    public void setGame(Game game) {
-        this.game = game;
-    }
-
     public Boolean getAccept() {
         return accept;
-    }
-
-    public void setAccept(Boolean accept) {
-        this.accept = accept;
     }
 
     @Override

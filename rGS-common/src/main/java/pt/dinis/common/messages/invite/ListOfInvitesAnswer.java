@@ -1,7 +1,6 @@
 package pt.dinis.common.messages.invite;
 
 import pt.dinis.common.core.Game;
-import pt.dinis.common.core.Player;
 
 import java.util.List;
 
@@ -31,24 +30,12 @@ public class ListOfInvitesAnswer extends InviteMessage {
         return answer;
     }
 
-    public void setAnswer(AnswerType answer) {
-        this.answer = answer;
-    }
-
     public String getErrorJustification() {
         return errorJustification;
     }
 
-    public void setErrorJustification(String errorJustification) {
-        this.errorJustification = errorJustification;
-    }
-
     public List<Game> getGames() {
         return games;
-    }
-
-    public void setGames(List<Game> games) {
-        this.games = games;
     }
 
     @Override

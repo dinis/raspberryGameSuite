@@ -1,6 +1,7 @@
 package pt.dinis.common.core;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Created by tiago on 02-08-2017.
@@ -37,5 +38,19 @@ public class Game implements Serializable {
                 "id=" + id +
                 ", game='" + game + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Game)) return false;
+        Game game1 = (Game) o;
+        return Objects.equals(getId(), game1.getId()) &&
+                getGame() == game1.getGame();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getGame());
     }
 }

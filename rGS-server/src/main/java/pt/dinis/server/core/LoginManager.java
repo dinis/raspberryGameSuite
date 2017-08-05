@@ -63,8 +63,8 @@ public class LoginManager {
         return result;
     }
 
-    public static List<Player> getPlayersFromIds(List<Integer> ids) {
-        List<Player> result = new ArrayList<>();
+    public static Collection<Player> getPlayersFromIds(Collection<Integer> ids) {
+        Collection<Player> result = new HashSet<>();
         for (Integer id: ids) {
             if (players.containsKey(id)) {
                 result.add(players.get(id));
@@ -73,7 +73,7 @@ public class LoginManager {
         return result;
     }
 
-    public static List<Player> getActivePlayers() {
+    public static Collection<Player> getActivePlayers() {
         return getPlayersFromIds(new ArrayList<>(tokens.values()));
     }
 

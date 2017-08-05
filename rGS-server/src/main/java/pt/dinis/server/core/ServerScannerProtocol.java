@@ -2,6 +2,7 @@ package pt.dinis.server.core;
 
 import pt.dinis.common.core.Display;
 import pt.dinis.common.core.GameType;
+import pt.dinis.common.core.Player;
 import pt.dinis.common.messages.basic.CloseConnectionOrder;
 import pt.dinis.common.messages.chat.ChatMessage;
 import pt.dinis.common.messages.chat.ChatMessageToClient;
@@ -141,7 +142,7 @@ public class ServerScannerProtocol {
         }
         boolean result = true;
         for (int id: ids) {
-            result = Dealer.loginClient(id, null); // no player
+            result = Dealer.loginClient(id, new Player(-1, "Temporary player")); // fake player created by the server
         }
         return result;
     }

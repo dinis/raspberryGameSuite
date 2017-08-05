@@ -226,14 +226,16 @@ public class Dealer {
     }
 
     public static Player getPlayer(Integer id) {
-        List<Player> players = LoginManager.getPlayersFromIds(Collections.singletonList(id));
+        Collection<Player> players = LoginManager.getPlayersFromIds(Collections.singleton(id));
         if (players.size() == 1) {
-            return players.get(0);
+            for (Player player: players) {
+                return player;
+            }
         }
         return null;
     }
 
-    public static List<Player> getActivePlayers() {
+    public static Collection<Player> getActivePlayers() {
         return LoginManager.getActivePlayers();
     }
 

@@ -1,6 +1,7 @@
 package pt.dinis.server.core;
 
 import pt.dinis.common.core.Display;
+import pt.dinis.common.core.GameType;
 import pt.dinis.common.messages.basic.CloseConnectionOrder;
 import pt.dinis.common.messages.chat.ChatMessage;
 import pt.dinis.common.messages.chat.ChatMessageToClient;
@@ -30,6 +31,8 @@ public class ServerScannerProtocol {
                 "message i text", Collections.emptyList()),
         ERROR("error", "Sends an error message to client i",
                 "error i text", Collections.emptyList()),
+        GAMES("games", "Get a list of available games",
+                      "games", Collections.emptyList()),
         EXIT("exit", "Kill this server",
                 "exit", Arrays.asList("quit", "end"));
 
@@ -81,6 +84,10 @@ public class ServerScannerProtocol {
 
         if(MessageType.EXIT.getKeys().contains(word)) {
             return exit();
+        }
+
+        if(MessageType.GAMES.getKeys().contains(word)) {
+            return listOfGames();
         }
 
         Collection<Integer> ids;
@@ -168,6 +175,14 @@ public class ServerScannerProtocol {
     private static boolean message(Collection<Integer> ids, String message, ChatMessage.ChatMessageType type) {
         return Dealer.sendMessage(ids, new ChatMessageToClient(message, type));
     }
+
+    private static boolean listOfGames() {
+        for (GameType game: GameType.values()) {
+            Display.cleanColor(game.toString());
+        }
+        return true;
+    }
+
 
     private static boolean info() {
         Collection<Integer> ids = Dealer.getActiveClients();

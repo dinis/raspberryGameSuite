@@ -1,7 +1,6 @@
 package pt.dinis.common.messages.invite;
 
 import pt.dinis.common.core.GameType;
-import pt.dinis.common.core.Player;
 
 import java.util.List;
 
@@ -11,9 +10,9 @@ import java.util.List;
 public class Invite extends InviteMessage {
 
     GameType game;
-    List<Player> players;
+    List<Integer> players;
 
-    public Invite(GameType game, List<Player> players) {
+    public Invite(GameType game, List<Integer> players) {
         if (game == null) {
             throw new IllegalArgumentException("Answer cannot be null");
         }
@@ -28,7 +27,7 @@ public class Invite extends InviteMessage {
         return game;
     }
 
-    public List<Player> getPlayers() {
+    public List<Integer> getPlayers() {
         return players;
     }
 

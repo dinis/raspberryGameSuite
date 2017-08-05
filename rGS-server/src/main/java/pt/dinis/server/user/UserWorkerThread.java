@@ -22,12 +22,12 @@ public class UserWorkerThread extends WorkerThread {
 
     private UserMessage message;
     private int id;
-    private boolean isAuthenticated;
+    private Player player;
 
-    public UserWorkerThread(UserMessage message, int id, boolean isAuthenticated) {
+    public UserWorkerThread(UserMessage message, int id, Player player) {
         this.message = message;
         this.id = id;
-        this.isAuthenticated = isAuthenticated;
+        this.player = player;
     }
 
     @Override

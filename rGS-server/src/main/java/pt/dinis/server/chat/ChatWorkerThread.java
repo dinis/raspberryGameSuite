@@ -2,6 +2,7 @@ package pt.dinis.server.chat;
 
 import org.apache.log4j.Logger;
 import pt.dinis.common.core.Display;
+import pt.dinis.common.core.Player;
 import pt.dinis.common.messages.chat.ChatMessage;
 import pt.dinis.common.messages.chat.ChatMessageToClient;
 import pt.dinis.common.messages.chat.ChatMessageToServer;
@@ -21,12 +22,12 @@ public class ChatWorkerThread extends WorkerThread {
 
     private ChatMessage message;
     private int id;
-    private boolean isAuthenticated;
+    private Player player;
 
-    public ChatWorkerThread(ChatMessage message, int id, boolean isAuthenticated) {
+    public ChatWorkerThread(ChatMessage message, int id, Player player) {
         this.message = message;
         this.id = id;
-        this.isAuthenticated = isAuthenticated;
+        this.player = player;
     }
 
     @Override

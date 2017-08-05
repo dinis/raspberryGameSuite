@@ -5,7 +5,6 @@ import pt.dinis.common.core.Player;
 import java.math.BigInteger;
 import java.util.*;
 import java.security.SecureRandom;
-import java.util.stream.Collectors;
 
 /**
  * Created by tiago on 04-02-2017.
@@ -27,14 +26,15 @@ public class LoginManager {
         if (token == null) {
             return false;
         }
-        removeClient(id, token);
+        removeClient(token);
         return true;
     }
 
     public static boolean reloginClient(Integer id, String token) {
         if (tokens.containsKey(token) && players.containsKey(tokens.get(token))) {
-            players.remove(tokens.get(token));
-            addClient(id, players.get(tokens.get(token)), token);
+            Player player = players.get(tokens.get(token));
+            removeClient(token);
+            addClient(id, player, token);
             return true;
         }
         return false;
@@ -73,6 +73,10 @@ public class LoginManager {
         return result;
     }
 
+    public static List<Player> getActivePlayers() {
+        return getPlayersFromIds(new ArrayList<>(tokens.values()));
+    }
+
     private static String generateUniqueToken() {
         String token;
         do {
@@ -82,12 +86,18 @@ public class LoginManager {
     }
 
     private static void addClient(Integer id, Player player, String token) {
+        if (isLogged(id)) {
+            tokens.remove(getClientToken(id));
+        }
         tokens.put(token, id);
         players.put(id, player);
     }
 
-    private static void removeClient(Integer id, String token) {
-        tokens.remove(token, id);
-        players.remove(id);
+    private static void removeClient(String token) {
+        Integer id = tokens.get(token);
+        tokens.remove(token);
+        if (id != null) {
+            players.remove(id);
+        }
     }
 }

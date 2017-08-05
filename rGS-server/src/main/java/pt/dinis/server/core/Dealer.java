@@ -225,6 +225,18 @@ public class Dealer {
         return LoginManager.getClientToken(id).equals(token);
     }
 
+    public static Player getPlayer(Integer id) {
+        List<Player> players = LoginManager.getPlayersFromIds(Collections.singletonList(id));
+        if (players.size() == 1) {
+            return players.get(0);
+        }
+        return null;
+    }
+
+    public static List<Player> getActivePlayers() {
+        return LoginManager.getActivePlayers();
+    }
+
     public static Collection<Integer> getActiveClients() {
         return new HashSet(clientCommunicationThreads.keySet());
     }

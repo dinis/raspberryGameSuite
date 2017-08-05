@@ -20,9 +20,6 @@ public class ListOfPlayersAnswer extends InviteMessage {
         }
         this.answer = answer;
         this.errorJustification = errorJustification;
-        if (players == null) {
-            throw new IllegalArgumentException("Players cannot be null");
-        }
         this.players = players;
     }
 

@@ -26,6 +26,7 @@ public class LoginClientCommunicationProtocol {
             } else if (message instanceof BasicMessage) {
                 return basicProtocol((BasicMessage) message);
             } else {
+                Display.alert("Unexpected message: " + message);
                 logger.warn("Unexpected message from server: " + message);
                 return false;
             }

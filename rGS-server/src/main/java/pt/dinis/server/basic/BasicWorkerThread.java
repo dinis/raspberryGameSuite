@@ -1,6 +1,7 @@
 package pt.dinis.server.basic;
 
 import org.apache.log4j.Logger;
+import pt.dinis.common.core.Player;
 import pt.dinis.common.messages.basic.BasicMessage;
 import pt.dinis.common.messages.basic.CloseConnectionRequest;
 import pt.dinis.server.core.Dealer;
@@ -17,12 +18,12 @@ public class BasicWorkerThread extends WorkerThread {
 
     private BasicMessage message;
     private int id;
-    private boolean isAuthenticated;
+    private Player player;
 
-    public BasicWorkerThread(BasicMessage message, int id, boolean isAuthenticated) {
+    public BasicWorkerThread(BasicMessage message, int id, Player player) {
         this.message = message;
         this.id = id;
-        this.isAuthenticated = isAuthenticated;
+        this.player = player;
     }
 
     @Override

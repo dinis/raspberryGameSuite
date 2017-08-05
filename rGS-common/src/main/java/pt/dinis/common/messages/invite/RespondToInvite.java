@@ -1,16 +1,14 @@
 package pt.dinis.common.messages.invite;
 
-import pt.dinis.common.core.Game;
-
 /**
  * Created by tiago on 16-02-2017.
  */
 public class RespondToInvite extends InviteMessage {
 
     Boolean accept;
-    Game game;
+    Integer game;
 
-    public RespondToInvite(Game game, Boolean accept) {
+    public RespondToInvite(Integer game, Boolean accept) {
         if (accept == null) {
             throw new IllegalArgumentException("Accept cannot be null");
         }
@@ -21,7 +19,7 @@ public class RespondToInvite extends InviteMessage {
         this.game = game;
     }
 
-    public Game getGame() {
+    public Integer getGame() {
         return game;
     }
 

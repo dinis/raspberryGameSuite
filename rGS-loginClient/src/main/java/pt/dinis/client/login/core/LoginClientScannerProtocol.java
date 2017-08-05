@@ -3,14 +3,16 @@ package pt.dinis.client.login.core;
 import org.apache.log4j.Logger;
 import pt.dinis.common.core.Display;
 
+import pt.dinis.common.core.GameType;
 import pt.dinis.common.messages.GenericMessage;
 import pt.dinis.common.messages.basic.CloseConnectionRequest;
 import pt.dinis.common.messages.chat.ChatMessage;
 import pt.dinis.common.messages.chat.ChatMessageToServer;
-import pt.dinis.common.messages.user.LoginRequest;
-import pt.dinis.common.messages.user.LogoutRequest;
-import pt.dinis.common.messages.user.ReLoginRequest;
-import pt.dinis.common.messages.user.RegisterRequest;
+import pt.dinis.common.messages.invite.Invite;
+import pt.dinis.common.messages.invite.ListOfInvitesRequest;
+import pt.dinis.common.messages.invite.ListOfPlayersRequest;
+import pt.dinis.common.messages.invite.RespondToInvite;
+import pt.dinis.common.messages.user.*;
 
 import java.util.*;
 
@@ -42,6 +44,16 @@ public class LoginClientScannerProtocol {
                 "error [all|echo|others|server|#] text", Collections.emptyList()),
         TOKEN("token", "Print the token given from server while logging in",
                 "token", Arrays.asList("hash")),
+        PLAYERS("players", "Get a list of logged in players",
+                "players", Arrays.asList("users")),
+        GAMES("games", "Get a list of available games",
+                "games", Collections.emptyList()),
+        INVITES("invites", "Get a list of active invites",
+                "invites", Collections.emptyList()),
+        INVITE("invite", "Invite someone (a list)",
+                "invite game_type_id (#)", Collections.emptyList()),
+        ANSWER("answer", "Answer to an invite or cancel an invite",
+                "invite game_id [y|yes|accept|n|no|refuse]", Collections.emptyList()),
         EXIT("exit", "Ends this client",
                 "exit", Arrays.asList("quit", "end"));
 
@@ -133,6 +145,34 @@ public class LoginClientScannerProtocol {
 
         if(MessageType.INFO.getKeys().contains(word)) {
             return info();
+        }
+
+        if(MessageType.PLAYERS.getKeys().contains(word)) {
+            return players();
+        }
+
+        if(MessageType.GAMES.getKeys().contains(word)) {
+            return games();
+        }
+
+        if(MessageType.INVITES.getKeys().contains(word)) {
+            return invites();
+        }
+
+        if(MessageType.INVITE.getKeys().contains(word)) {
+            if (words.size() < 2) {
+                Display.alert("Not enough arguments");
+                return false;
+            }
+            return invite(words.get(1), words.subList(2, words.size()));
+        }
+
+        if(MessageType.ANSWER.getKeys().contains(word)) {
+            if (words.size() < 3) {
+                Display.alert("Not enough arguments");
+                return false;
+            }
+            return answer(words.get(1), words.get(2));
         }
 
         if(MessageType.TOKEN.getKeys().contains(word)) {
@@ -276,6 +316,69 @@ public class LoginClientScannerProtocol {
         return true;
     }
 
+    private static boolean players() {
+        return LoginClient.sendMessage(new ListOfPlayersRequest());
+    }
+
+    private static boolean games() {
+        for (GameType game: GameType.values()) {
+            Display.cleanColor(game.toString());
+        }
+        return true;
+    }
+
+    private static boolean invites() {
+        return LoginClient.sendMessage(new ListOfInvitesRequest());
+    }
+
+    private static boolean invite(String gameId, List<String> message) {
+        try {
+            GameType game = getGameType(Integer.parseInt(gameId));
+            if (game == null) {
+                Display.alert("Game " + gameId + " does not exist");
+                return false;
+            }
+            if (message.isEmpty()) {
+                return LoginClient.sendMessage(new Invite(game, null));
+            }
+            List<Integer> players = new ArrayList<>();
+            for (String word: message) {
+                try {
+                    players.add(Integer.parseInt(word));
+                } catch (NumberFormatException e) {
+                    break;
+                }
+            }
+            if (!players.isEmpty()) {
+                return LoginClient.sendMessage(new Invite(game, players));
+            }
+        } catch (NumberFormatException e) { }
+        Display.alert(gameId + " is not a number");
+        return false;
+    }
+
+    private static boolean answer(String gameId, String answer) {
+        try {
+            Integer id = Integer.parseInt(gameId);
+            switch (answer.toLowerCase()) {
+                case "n":
+                case "no":
+                case "refuse":
+                    return LoginClient.sendMessage(new RespondToInvite(id, false));
+                case "y":
+                case "yes":
+                case "accept":
+                    return LoginClient.sendMessage(new RespondToInvite(id, true));
+                default:
+                    Display.alert("Unknown message " + answer);
+                    return false;
+            }
+        } catch (NumberFormatException e) {
+            Display.alert(gameId + " is not a number");
+            return false;
+        }
+    }
+
     private static boolean token() {
         if(!LoginClient.isLoggedIn()) {
             Display.cleanColor("No token");
@@ -296,5 +399,14 @@ public class LoginClientScannerProtocol {
     private static boolean exit() {
         LoginClient.close();
         return true;
+    }
+
+    private static GameType getGameType(Integer id) {
+        for (GameType game: GameType.values()) {
+            if (game.getId() == id) {
+                return game;
+            }
+        }
+        return null;
     }
 }

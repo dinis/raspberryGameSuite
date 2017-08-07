@@ -9,6 +9,7 @@ import pt.dinis.common.messages.user.ReLoginAnswer;
 import pt.dinis.common.messages.user.RegisterAnswer;
 import pt.dinis.common.messages.user.UserMessage;
 import pt.dinis.server.communication.ClientCommunicationThread;
+import pt.dinis.server.exceptions.NotFoundException;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -60,17 +61,17 @@ public class Dealer {
                 if(!running) {
                     break;
                 }
-                Integer id = generateUniqueId();
+                Integer connectionId = generateUniqueId();
                 try {
-                    ClientCommunicationThread client = new ClientCommunicationThread(socket, id);
+                    ClientCommunicationThread client = new ClientCommunicationThread(socket, connectionId);
 
-                    if (!addClient(id, client)) {
+                    if (!addClient(connectionId, client)) {
                         client.close();
-                        removeClient(id);
-                        Display.alert("Error creating client " + id);
+                        removeClient(connectionId);
+                        Display.alert("Error creating client " + connectionId);
                     } else {
                         client.start();
-                        Display.info("New client " + id);
+                        Display.info("New client " + connectionId);
                     }
                 } catch (IOException e) {
                     logger.error("Problem opening socket ", e);
@@ -113,15 +114,15 @@ public class Dealer {
     }
 
     /*
-    Adds a client to our map, returns false if id existed already
+    Adds a client to our map, returns false if the connection id existed already
      */
-    private static Boolean addClient(Integer id, ClientCommunicationThread clientCommunicationThread) {
-        logger.info("Creating client " + id);
-        if(clientCommunicationThreads.containsKey(id)) {
-            logger.warn("Failed to create client " + id);
+    private static Boolean addClient(Integer connectionId, ClientCommunicationThread clientCommunicationThread) {
+        logger.info("Creating client " + connectionId);
+        if(clientCommunicationThreads.containsKey(connectionId)) {
+            logger.warn("Failed to create client " + connectionId);
             return false;
         }
-        clientCommunicationThreads.put(id, clientCommunicationThread);
+        clientCommunicationThreads.put(connectionId, clientCommunicationThread);
         return true;
     }
 
@@ -130,12 +131,12 @@ public class Dealer {
     }
 
     /*
-    Remove client id
+    Remove client connection id
      */
-    private static Boolean removeClient(Integer id) {
-        logger.info("Removing client " + id);
-        if(clientCommunicationThreads.containsKey(id)) {
-            clientCommunicationThreads.remove(id);
+    private static Boolean removeClient(Integer connectionId) {
+        logger.info("Removing client " + connectionId);
+        if(clientCommunicationThreads.containsKey(connectionId)) {
+            clientCommunicationThreads.remove(connectionId);
             return true;
         }
         return false;
@@ -144,99 +145,120 @@ public class Dealer {
     /*
     This method will send the message to every element in list ids
      */
-    public static Boolean sendMessage(Collection<Integer> ids, GenericMessage message) {
-        logger.info("Sending message [" + message + "] to clients [" + ids.toString() + "]." );
+    public static Boolean sendMessageToConnection(Collection<Integer> connectionIds, GenericMessage message) {
+        logger.info("Sending message [" + message + "] to clients [" + connectionIds.toString() + "]." );
         boolean result = true;
-        for (Integer id: ids) {
-            if (!clientCommunicationThreads.containsKey(id)) {
+        for (Integer connectionId: connectionIds) {
+            if (!clientCommunicationThreads.containsKey(connectionId)) {
                 result = false;
-                logger.warn("Trying to send message [" + message + "] to client " + id + ". Client do not exist.");
+                logger.warn("Trying to send message [" + message + "] to client " + connectionId + ". Client do not exist.");
             } else {
-                ClientCommunicationThread client = clientCommunicationThreads.get(id);
+                ClientCommunicationThread client = clientCommunicationThreads.get(connectionId);
                 if (!client.sendMessage(message)) {
                     result = false;
-                    logger.warn("Sending message [" + message + "] to client " + id + " failed.");
+                    logger.warn("Sending message [" + message + "] to client " + connectionId + " failed.");
                 }
             }
         }
         return result;
     }
 
-    public static boolean disconnectClient(int id) {
+    /*
+    Simpler method to send message to only one client
+     */
+    public static Boolean sendMessageToConnection(Integer connectionId, GenericMessage message) {
+        return sendMessageToConnection(Collections.singleton(connectionId), message);
+    }
+
+    /*
+    Method to send message to a given player
+     */
+    public static Boolean sendMessage(Integer playerId, GenericMessage message) {
+        Collection<Integer> connectionIds = LoginManager.getConnectionIds(playerId);
+        return sendMessageToConnection(connectionIds, message);
+    }
+
+    /*
+    Method to send message to given players
+     */
+    public static Boolean sendMessage(Collection<Integer> playerIds, GenericMessage message) {
+        Collection<Integer> connectionIds = LoginManager.getConnectionIds(playerIds);
+        return sendMessageToConnection(connectionIds, message);
+    }
+
+    public static boolean disconnectClient(int connectionId) {
         boolean result = true;
 
-        if(!clientCommunicationThreads.containsKey(id)) {
+        if(!clientCommunicationThreads.containsKey(connectionId)) {
             return false;
         }
 
-        if(!clientCommunicationThreads.get(id).close()){
-            logger.warn("Could not disconnect client " + id);
+        if(!clientCommunicationThreads.get(connectionId).close()){
+            logger.warn("Could not disconnect client " + connectionId);
             result = false;
         }
 
-        if(!removeClient(id)) {
-            logger.warn("Could not remove client " + id);
+        if(!removeClient(connectionId)) {
+            logger.warn("Could not remove client " + connectionId);
             result = false;
         }
 
-        Display.info("Disconnect client " + id);
+        Display.info("Disconnect client " + connectionId);
         return result;
     }
 
-    public static boolean loginClient(Integer id, Player player) {
+    public static boolean loginClient(Integer connectionId, Player player) {
         try {
-            String token = LoginManager.loginClient(id, player);
-            return sendMessage(Collections.singleton(id), new LoginAnswer(UserMessage.AnswerType.SUCCESS, token, player, null));
+            String token = LoginManager.loginClient(connectionId, player);
+            return sendMessageToConnection(Collections.singleton(connectionId), new LoginAnswer(UserMessage.AnswerType.SUCCESS, token, player, null));
         } catch (Exception e) {
-            Display.alert("Could not log in client " + id);
-            sendMessage(Collections.singleton(id), new LoginAnswer(UserMessage.AnswerType.ERROR, null, null, "error"));
+            Display.alert("Could not log in client " + connectionId);
+            sendMessageToConnection(Collections.singleton(connectionId), new LoginAnswer(UserMessage.AnswerType.ERROR, null, null, "error"));
             return false;
         }
     }
 
-    public static boolean registerClient(Integer id, Player player) {
+    public static boolean registerClient(Integer connectionId, Player player) {
         try {
-            String token = LoginManager.loginClient(id, player);
-            return sendMessage(Collections.singleton(id), new RegisterAnswer(UserMessage.AnswerType.SUCCESS, token, player, null));
+            String token = LoginManager.loginClient(connectionId, player);
+            return sendMessageToConnection(Collections.singleton(connectionId), new RegisterAnswer(UserMessage.AnswerType.SUCCESS, token, player, null));
         } catch (Exception e) {
-            Display.alert("Could not log in new client " + id);
-            sendMessage(Collections.singleton(id), new RegisterAnswer(UserMessage.AnswerType.ERROR, null, null, "error"));
+            Display.alert("Could not log in new client " + connectionId);
+            sendMessageToConnection(Collections.singleton(connectionId), new RegisterAnswer(UserMessage.AnswerType.ERROR, null, null, "error"));
             return false;
         }
     }
 
-    public static boolean reloginClient(Integer id, String token) {
-        if (LoginManager.reloginClient(id, token)) {
-            return sendMessage(Collections.singleton(id), new ReLoginAnswer(UserMessage.AnswerType.SUCCESS, null));
+    public static boolean reloginClient(Integer connectionId, String token) {
+        if (LoginManager.reloginClient(connectionId, token)) {
+            return sendMessageToConnection(Collections.singleton(connectionId), new ReLoginAnswer(UserMessage.AnswerType.SUCCESS, null));
         } else {
-            sendMessage(Collections.singleton(id), new ReLoginAnswer(UserMessage.AnswerType.ERROR, "error"));
+            sendMessageToConnection(Collections.singleton(connectionId), new ReLoginAnswer(UserMessage.AnswerType.ERROR, "error"));
             return false;
         }
     }
 
-    public static boolean logoutClient(Integer id) {
-        return LoginManager.logoutClient(id);
+    public static boolean logoutClient(Integer connectionId) {
+        return LoginManager.logoutClient(connectionId);
     }
 
-    public static boolean isAuthenticated(Integer id, String token) {
-        if (!LoginManager.isLogged(id)) {
+    public static boolean isAuthenticated(Integer connectionId, String token) {
+        if (!LoginManager.isLogged(connectionId)) {
             return false;
         }
-        return LoginManager.getClientToken(id).equals(token);
+        return LoginManager.getClientToken(connectionId).equals(token);
     }
 
-    public static Player getPlayer(Integer id) {
-        Collection<Player> players = LoginManager.getPlayersFromIds(Collections.singleton(id));
-        if (players.size() == 1) {
-            for (Player player: players) {
-                return player;
-            }
+    public static Player getPlayer(Integer connectionId) {
+        try {
+            return LoginManager.getPlayer(connectionId);
+        } catch (NotFoundException e) {
+            return null;
         }
-        return null;
     }
 
     public static Collection<Player> getActivePlayers() {
-        return LoginManager.getActivePlayers();
+        return LoginManager.getPlayers(clientCommunicationThreads.keySet());
     }
 
     public static Collection<Integer> getActiveClients() {

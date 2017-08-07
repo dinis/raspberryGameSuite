@@ -2,6 +2,8 @@ package pt.dinis.server.invite;
 
 import org.apache.log4j.Logger;
 import pt.dinis.common.core.Display;
+import pt.dinis.common.core.Game;
+import pt.dinis.common.core.GameType;
 import pt.dinis.common.core.Player;
 import pt.dinis.common.messages.GenericMessage;
 import pt.dinis.common.messages.chat.ChatMessage;
@@ -52,7 +54,6 @@ public class InviteWorkerThread extends WorkerThread {
     }
 
     private boolean listOfPlayers(ListOfPlayersRequest request) {
-
         if (player == null) {
             return Dealer.sendMessage(Collections.singletonList(id),
                 new ListOfPlayersAnswer(GenericMessage.AnswerType.ERROR, "No Authentication", null));
@@ -63,12 +64,32 @@ public class InviteWorkerThread extends WorkerThread {
     }
 
     private boolean listOfInvites(ListOfInvitesRequest request) {
+        if (player == null) {
+            return Dealer.sendMessage(Collections.singletonList(id),
+                    new ListOfInvitesAnswer(GenericMessage.AnswerType.ERROR, "No Authentication", null));
+        }
         Display.alert(request.toString());
+        // TODO: Go to DB and get list
         return Dealer.sendMessage(Collections.singletonList(id),
-                new ChatMessageToClient("Not implemented yet", ChatMessage.ChatMessageType.ERROR));
+                new ListOfInvitesAnswer(GenericMessage.AnswerType.SUCCESS, null, Collections.emptySet()));
     }
 
     private boolean invite(Invite request) {
+        if (player == null) {
+            return Dealer.sendMessage(Collections.singletonList(id),
+                    new InviteAnswer(GenericMessage.AnswerType.ERROR, null, "No Authentication"));
+        }
+
+        GameType type = request.getGame();
+        // TODO create a new game into BD
+        Game game = new Game(null, null);
+        // Game = DB.createGame(player, type);
+        Boolean result = Dealer.sendMessage(Collections.singletonList(id),
+                new InviteAnswer(GenericMessage.AnswerType.SUCCESS, game, null));
+        if (request.getPlayers().isEmpty()) {
+
+        }
+
         Display.alert(request.toString());
         return Dealer.sendMessage(Collections.singletonList(id),
                 new ChatMessageToClient("Not implemented yet", ChatMessage.ChatMessageType.ERROR));

@@ -2,7 +2,7 @@ package pt.dinis.common.messages.invite;
 
 import pt.dinis.common.core.Game;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Created by tiago on 16-02-2017.
@@ -12,9 +12,9 @@ public class ListOfInvitesAnswer extends InviteMessage {
     AnswerType answer;
     // TODO: justification should be an enum
     String errorJustification;
-    List<Game> games;
+    Collection<Game> games;
 
-    public ListOfInvitesAnswer(AnswerType answer, String errorJustification, List<Game> games) {
+    public ListOfInvitesAnswer(AnswerType answer, String errorJustification, Collection<Game> games) {
         if (answer == null) {
             throw new IllegalArgumentException("Answer cannot be null");
         }
@@ -34,7 +34,7 @@ public class ListOfInvitesAnswer extends InviteMessage {
         return errorJustification;
     }
 
-    public List<Game> getGames() {
+    public Collection<Game> getGames() {
         return games;
     }
 

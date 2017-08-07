@@ -109,6 +109,7 @@ public class LoginClientScannerProtocol {
                 Display.alert("Not enough arguments");
                 return false;
             }
+
             return login(words.get(1), words.get(2));
         }
 

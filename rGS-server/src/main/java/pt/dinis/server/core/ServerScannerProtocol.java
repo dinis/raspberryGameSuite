@@ -155,7 +155,7 @@ public class ServerScannerProtocol {
                 result = false;
             }
         }
-        if(!Dealer.sendMessage(ids, new LogoutOrder())) {
+        if(!Dealer.sendMessageToConnection(ids, new LogoutOrder())) {
             result = false;
         }
         return result;
@@ -163,7 +163,7 @@ public class ServerScannerProtocol {
 
     private static boolean close(Collection<Integer> ids) {
         boolean result = true;
-        if(!Dealer.sendMessage(ids, new CloseConnectionOrder())) {
+        if(!Dealer.sendMessageToConnection(ids, new CloseConnectionOrder())) {
             result = false;
         }
         for (Integer id: ids) {
@@ -175,7 +175,7 @@ public class ServerScannerProtocol {
     }
 
     private static boolean message(Collection<Integer> ids, String message, ChatMessage.ChatMessageType type) {
-        return Dealer.sendMessage(ids, new ChatMessageToClient(message, type));
+        return Dealer.sendMessageToConnection(ids, new ChatMessageToClient(message, type));
     }
 
     private static boolean listOfGames() {
@@ -229,7 +229,7 @@ public class ServerScannerProtocol {
     }
 
     private static boolean exit() {
-        boolean result = Dealer.sendMessage(Dealer.getActiveClients(), new CloseConnectionOrder());
+        boolean result = Dealer.sendMessageToConnection(Dealer.getActiveClients(), new CloseConnectionOrder());
         Dealer.stop();
         return result;
     }

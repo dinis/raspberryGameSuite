@@ -21,6 +21,7 @@ public class InviteAnswer extends InviteMessage {
             throw new IllegalArgumentException("Answer cannot be null");
         }
         this.answer = answer;
+        this.game = game;
         this.errorJustification = errorJustification;
     }
 

@@ -6,23 +6,18 @@ import pt.dinis.common.core.Game;
 import pt.dinis.common.core.GameType;
 import pt.dinis.common.core.Player;
 import pt.dinis.common.messages.GenericMessage;
-import pt.dinis.common.messages.chat.ChatMessage;
-import pt.dinis.common.messages.chat.ChatMessageToClient;
 import pt.dinis.common.messages.invite.*;
-import pt.dinis.common.messages.user.*;
 import pt.dinis.server.core.Dealer;
 import pt.dinis.server.core.WorkerThread;
-import pt.dinis.server.data.access.User;
+import pt.dinis.server.data.access.InviteDB;
 import pt.dinis.server.exceptions.NotFoundException;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 
-/**
- * Created by diogo on 10-02-2017.
- */
 public class InviteWorkerThread extends WorkerThread {
 
     private final static Logger logger = Logger.getLogger(InviteWorkerThread.class);
@@ -44,7 +39,7 @@ public class InviteWorkerThread extends WorkerThread {
         } else if (message instanceof ListOfInvitesRequest) {
             return listOfInvites((ListOfInvitesRequest) message);
         } else if (message instanceof Invite) {
-            return invite((Invite) message);
+            return invite((Invite) message, connection);
         } else if (message instanceof RespondToInvite) {
             return respondToInvite((RespondToInvite) message);
         } else {
@@ -55,49 +50,93 @@ public class InviteWorkerThread extends WorkerThread {
 
     private boolean listOfPlayers(ListOfPlayersRequest request) {
         if (player == null) {
-            return Dealer.sendMessage(Collections.singletonList(id),
+            return Dealer.sendMessageToConnection(id,
                 new ListOfPlayersAnswer(GenericMessage.AnswerType.ERROR, "No Authentication", null));
         }
-        return Dealer.sendMessage(Collections.singletonList(id),
+        return Dealer.sendMessage(player.getId(),
                 new ListOfPlayersAnswer(GenericMessage.AnswerType.SUCCESS, null, Dealer.getActivePlayers()));
 
     }
 
     private boolean listOfInvites(ListOfInvitesRequest request) {
         if (player == null) {
-            return Dealer.sendMessage(Collections.singletonList(id),
+            return Dealer.sendMessageToConnection(id,
                     new ListOfInvitesAnswer(GenericMessage.AnswerType.ERROR, "No Authentication", null));
         }
         Display.alert(request.toString());
         // TODO: Go to DB and get list
-        return Dealer.sendMessage(Collections.singletonList(id),
+        return Dealer.sendMessage(player.getId(),
                 new ListOfInvitesAnswer(GenericMessage.AnswerType.SUCCESS, null, Collections.emptySet()));
     }
 
-    private boolean invite(Invite request) {
+    private boolean invite(Invite request, Connection connection) throws SQLException {
+        // Tests if player inviting exists
         if (player == null) {
-            return Dealer.sendMessage(Collections.singletonList(id),
+            return Dealer.sendMessageToConnection(id,
                     new InviteAnswer(GenericMessage.AnswerType.ERROR, null, "No Authentication"));
         }
 
-        GameType type = request.getGame();
-        // TODO create a new game into BD
-        Game game = new Game(null, null);
-        // Game = DB.createGame(player, type);
-        Boolean result = Dealer.sendMessage(Collections.singletonList(id),
-                new InviteAnswer(GenericMessage.AnswerType.SUCCESS, game, null));
-        if (request.getPlayers().isEmpty()) {
-
+        // Create game in DB and answer to the one inviting
+        Game game;
+        try {
+            game = InviteDB.createCompleteGame(player, request.getGame(), connection);
+        } catch (SQLException e) {
+            Display.alert("Error creating game: " + request.getGame() + " for player " + player);
+            Dealer.sendMessage(player.getId(),
+                    new InviteAnswer(GenericMessage.AnswerType.ERROR, null, "Error creating game"));
+            throw e;
         }
 
-        Display.alert(request.toString());
-        return Dealer.sendMessage(Collections.singletonList(id),
-                new ChatMessageToClient("Not implemented yet", ChatMessage.ChatMessageType.ERROR));
+        if (request.getPlayers() != null) {
+            for (Integer id: request.getPlayers()) {
+                try {
+                    InviteDB.invitePlayer(id, game, connection);
+                } catch (SQLException e) {
+                    Display.alert("Error inviting " + id + " for game: " + request.getGame());
+                    Dealer.sendMessage(player.getId(),
+                            new InviteAnswer(GenericMessage.AnswerType.ERROR, null, "Error inviting " + id));
+                    throw e;
+                }
+            }
+        }
+
+        // Alert everyone
+        Boolean result = Dealer.sendMessage(player.getId(),
+                new InviteAnswer(GenericMessage.AnswerType.SUCCESS, game, null));
+
+        // Broadcast/deliver invite
+        if (request.getPlayers().isEmpty()) {
+            result = result && Dealer.sendMessageToConnection(Dealer.getActiveClients(),
+                    new BroadcastInvite(game, player));
+        } else {
+            for (Integer pl: request.getPlayers()) {
+                result = result && Dealer.sendMessage(pl, new DeliverInvite(game, player));
+            }
+        }
+
+        return result;
     }
 
     private boolean respondToInvite(RespondToInvite request) {
-        Display.alert(request.toString());
-        return Dealer.sendMessage(Collections.singletonList(id),
-                new ChatMessageToClient("Not implemented yet", ChatMessage.ChatMessageType.ERROR));
+        if (player == null) {
+            return Dealer.sendMessageToConnection(id,
+                    new RespondToInviteAnswer(GenericMessage.AnswerType.ERROR, null, "No Authentication"));
+        }
+
+        // TODO: go to DB and register the answer and get the game
+        Game game = new Game(null, null);
+        Boolean result = Dealer.sendMessage(player.getId(),
+                new RespondToInviteAnswer(GenericMessage.AnswerType.SUCCESS, game, null));
+
+        // TODO: get all players that accepted to play
+        Collection<Player> opponents = new HashSet<> ();
+        for (Player opponent: opponents) {
+            if (opponent.getId() != player.getId()) {
+                result = result && Dealer.sendMessage(opponent.getId(),
+                        new BroadcastResponseToInvite(game, request.getAccept(), player));
+            }
+        }
+
+        return result;
     }
 }

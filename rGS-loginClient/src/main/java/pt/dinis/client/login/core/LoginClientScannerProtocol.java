@@ -3,6 +3,7 @@ package pt.dinis.client.login.core;
 import org.apache.log4j.Logger;
 import pt.dinis.common.core.Display;
 
+import pt.dinis.common.core.Tools;
 import pt.dinis.common.messages.GenericMessage;
 import pt.dinis.common.messages.basic.CloseConnectionRequest;
 import pt.dinis.common.messages.chat.ChatMessage;
@@ -12,6 +13,7 @@ import pt.dinis.common.messages.user.LogoutRequest;
 import pt.dinis.common.messages.user.ReLoginRequest;
 import pt.dinis.common.messages.user.RegisterRequest;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 /**
@@ -71,7 +73,7 @@ public class LoginClientScannerProtocol {
 
     private static Logger logger = Logger.getLogger(LoginClientScannerProtocol.class);
 
-    public static boolean protocol(String message) {
+    public static boolean protocol(String message) throws NoSuchAlgorithmException {
 
         List<String> words = splitMessage(message);
 
@@ -109,6 +111,7 @@ public class LoginClientScannerProtocol {
                 Display.alert("Not enough arguments");
                 return false;
             }
+
             return login(words.get(1), words.get(2));
         }
 
@@ -161,7 +164,7 @@ public class LoginClientScannerProtocol {
         return words;
     }
 
-    private static boolean login(String name, String password) {
+    private static boolean login(String name, String password) throws NoSuchAlgorithmException {
         if (!LoginClient.isConnected()) {
             Display.alert("No connection");
             logger.warn("Trying to log in before connect");
@@ -170,11 +173,11 @@ public class LoginClientScannerProtocol {
         if (LoginClient.isLoggedIn()) {
             logger.info("Trying to log in while already logged in.");
         }
-        return LoginClient.sendMessage(new LoginRequest(name, password));
+        return LoginClient.sendMessage(new LoginRequest(name, Tools.stringToMD5(password)));
     }
 
     // We do not accept a new registry from a logged in client
-    private static boolean register(String name, String password) {
+    private static boolean register(String name, String password) throws NoSuchAlgorithmException {
         if (!LoginClient.isConnected()) {
             Display.alert("No connection");
             logger.warn("Trying to register before connect");
@@ -183,7 +186,7 @@ public class LoginClientScannerProtocol {
         if (LoginClient.isLoggedIn()) {
             logger.info("Trying to register while already logged in.");
         }
-        return LoginClient.sendMessage(new RegisterRequest(name, password));
+        return LoginClient.sendMessage(new RegisterRequest(name, Tools.stringToMD5(password)));
     }
 
     private static boolean logout() {

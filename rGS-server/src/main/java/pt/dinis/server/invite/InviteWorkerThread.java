@@ -3,7 +3,6 @@ package pt.dinis.server.invite;
 import org.apache.log4j.Logger;
 import pt.dinis.common.core.Display;
 import pt.dinis.common.core.Game;
-import pt.dinis.common.core.GameType;
 import pt.dinis.common.core.Player;
 import pt.dinis.common.messages.GenericMessage;
 import pt.dinis.common.messages.invite.*;
@@ -15,8 +14,6 @@ import pt.dinis.server.exceptions.NotFoundException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 
 public class InviteWorkerThread extends WorkerThread {
 
@@ -37,11 +34,11 @@ public class InviteWorkerThread extends WorkerThread {
         if (message instanceof ListOfPlayersRequest) {
             return listOfPlayers((ListOfPlayersRequest) message);
         } else if (message instanceof ListOfInvitesRequest) {
-            return listOfInvites((ListOfInvitesRequest) message);
+            return listOfInvites((ListOfInvitesRequest) message, connection);
         } else if (message instanceof Invite) {
             return invite((Invite) message, connection);
         } else if (message instanceof RespondToInvite) {
-            return respondToInvite((RespondToInvite) message);
+            return respondToInvite((RespondToInvite) message, connection);
         } else {
             logger.warn("Unexpected message from client " + id + ": " + message);
             return false;
@@ -58,15 +55,23 @@ public class InviteWorkerThread extends WorkerThread {
 
     }
 
-    private boolean listOfInvites(ListOfInvitesRequest request) {
+    private boolean listOfInvites(ListOfInvitesRequest request, Connection connection) throws SQLException {
         if (player == null) {
             return Dealer.sendMessageToConnection(id,
                     new ListOfInvitesAnswer(GenericMessage.AnswerType.ERROR, "No Authentication", null));
         }
-        Display.alert(request.toString());
-        // TODO: Go to DB and get list
+
+        Collection<Game> games;
+        try {
+            games = InviteDB.getInvites(player, connection);
+        } catch (SQLException e) {
+            Dealer.sendMessage(player.getId(),
+                    new ListOfInvitesAnswer(GenericMessage.AnswerType.ERROR, "Failed to find invites", null));
+            throw e;
+        }
+
         return Dealer.sendMessage(player.getId(),
-                new ListOfInvitesAnswer(GenericMessage.AnswerType.SUCCESS, null, Collections.emptySet()));
+                new ListOfInvitesAnswer(GenericMessage.AnswerType.SUCCESS, null, games));
     }
 
     private boolean invite(Invite request, Connection connection) throws SQLException {
@@ -117,19 +122,62 @@ public class InviteWorkerThread extends WorkerThread {
         return result;
     }
 
-    private boolean respondToInvite(RespondToInvite request) {
+    private boolean respondToInvite(RespondToInvite request, Connection connection) throws SQLException {
         if (player == null) {
             return Dealer.sendMessageToConnection(id,
                     new RespondToInviteAnswer(GenericMessage.AnswerType.ERROR, null, "No Authentication"));
         }
 
-        // TODO: go to DB and register the answer and get the game
-        Game game = new Game(null, null);
+        Game game;
+        try {
+            game = InviteDB.getOpenGame(request.getGame(), connection);
+        } catch (SQLException e) {
+            Dealer.sendMessageToConnection(id,
+                    new RespondToInviteAnswer(GenericMessage.AnswerType.ERROR, null, "Game not found"));
+            throw e;
+        }
+
+        Player host;
+        try {
+            host = InviteDB.getGameHost(game, connection);
+        } catch (SQLException e) {
+            Dealer.sendMessageToConnection(id,
+                    new RespondToInviteAnswer(GenericMessage.AnswerType.ERROR, game, "Game host not found"));
+            throw e;
+        }
+
+        if (host.equals(player.getId())) {
+            if (!request.getAccept()) {
+                try {
+                    InviteDB.cancelGame(game, connection);
+                } catch (SQLException e) {
+                    Dealer.sendMessageToConnection(id,
+                            new RespondToInviteAnswer(GenericMessage.AnswerType.ERROR, game, "Could not cancel game"));
+                    throw e;
+                }
+            }
+        }
+
+        try {
+            InviteDB.registerInviteAnswer(player, game, request.getAccept(), connection);
+        } catch (SQLException e) {
+            Dealer.sendMessageToConnection(id,
+                    new RespondToInviteAnswer(GenericMessage.AnswerType.ERROR, game, "Could not register answer"));
+            throw e;
+        }
+
+        Collection<Player> opponents;
+        try {
+            opponents = InviteDB.getInvitedPlayers(game, connection);
+        } catch (SQLException e) {
+            Dealer.sendMessageToConnection(id,
+                    new RespondToInviteAnswer(GenericMessage.AnswerType.ERROR, game, "Could not find opponents"));
+            throw e;
+        }
+
         Boolean result = Dealer.sendMessage(player.getId(),
                 new RespondToInviteAnswer(GenericMessage.AnswerType.SUCCESS, game, null));
 
-        // TODO: get all players that accepted to play
-        Collection<Player> opponents = new HashSet<> ();
         for (Player opponent: opponents) {
             if (opponent.getId() != player.getId()) {
                 result = result && Dealer.sendMessage(opponent.getId(),

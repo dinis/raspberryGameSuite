@@ -11,7 +11,6 @@ import pt.dinis.common.messages.chat.ChatMessage;
 import pt.dinis.common.messages.chat.ChatMessageToClient;
 import pt.dinis.common.messages.invite.*;
 import pt.dinis.common.messages.user.*;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  * Created by tiago on 03-02-2017.
@@ -20,136 +19,122 @@ public class LoginClientCommunicationProtocol {
 
     private final static Logger logger = Logger.getLogger(LoginClientCommunicationProtocol.class);
 
-    public static boolean protocol(GenericMessage message) {
+    public static void protocol(GenericMessage message) {
 
         try {
             if (message instanceof UserMessage) {
-                return userProtocol((UserMessage) message);
+                userProtocol((UserMessage) message);
             } else if (message instanceof ChatMessage) {
-                return chatProtocol((ChatMessage) message);
+                chatProtocol((ChatMessage) message);
             } else if (message instanceof BasicMessage) {
-                return basicProtocol((BasicMessage) message);
+                basicProtocol((BasicMessage) message);
             } else if (message instanceof InviteMessage) {
-                return inviteProtocol((InviteMessage) message);
+                inviteProtocol((InviteMessage) message);
             } else {
                 Display.alert("Unexpected message: " + message);
                 logger.warn("Unexpected message from server: " + message);
-                return false;
             }
         } catch (Exception e) {
             Display.alert("error in message '" + message + "' from server.");
             logger.error("Error interpreting message '" + message + "'", e);
-            return false;
         }
     }
 
-    private static boolean userProtocol(UserMessage message) {
+    private static void userProtocol(UserMessage message) {
         if (message instanceof LoginAnswer) {
-            return login((LoginAnswer) message);
+            login((LoginAnswer) message);
+        } else if (message instanceof RegisterAnswer) {
+            register((RegisterAnswer) message);
+        } else if (message instanceof LogoutOrder) {
+            logout();
+        } else if (message instanceof ReLoginAnswer) {
+            relogin((ReLoginAnswer) message);
         }
-        if (message instanceof RegisterAnswer) {
-            return register((RegisterAnswer) message);
-        }
-        if (message instanceof LogoutOrder) {
-            return logout();
-        }
-        if (message instanceof ReLoginAnswer) {
-            return relogin((ReLoginAnswer) message);
-        }
-        return false;
     }
 
-    private static boolean basicProtocol(BasicMessage message) {
+    private static void basicProtocol(BasicMessage message) {
         if (message instanceof CloseConnectionOrder) {
-            return close();
+            close();
+        } else {
+            logger.warn("Unexpected message from server: " + message);
         }
-        logger.warn("Unexpected message from server: " + message);
-        return false;
     }
 
-    private static boolean chatProtocol(ChatMessage message) {
+    private static void chatProtocol(ChatMessage message) {
         if (message instanceof ChatMessageToClient) {
-            return message(message.getMessage(), message.getType());
+            message(message.getMessage(), message.getType());
+        } else {
+            logger.warn("Unexpected message from server: " + message);
         }
-        logger.warn("Unexpected message from server: " + message);
-        return false;
     }
 
-    private static boolean inviteProtocol(InviteMessage message) {
+    private static void inviteProtocol(InviteMessage message) {
         if (message instanceof ListOfPlayersAnswer) {
-            return listOfPlayers((ListOfPlayersAnswer) message);
+            listOfPlayers((ListOfPlayersAnswer) message);
+        } else if (message instanceof ListOfInvitesAnswer) {
+            listOfInvites((ListOfInvitesAnswer) message);
+        } else if (message instanceof BroadcastInvite) {
+            broadcastInvite((BroadcastInvite) message);
+        } else if (message instanceof DeliverInvite) {
+            deliverInvite((DeliverInvite) message);
+        } else if (message instanceof InviteAnswer) {
+            inviteAnswer((InviteAnswer) message);
+        } else if (message instanceof BroadcastResponseToInvite) {
+            broadcastAnswer((BroadcastResponseToInvite) message);
+        } else if (message instanceof RespondToInviteAnswer) {
+            responseAnswer((RespondToInviteAnswer) message);
+        } else {
+            Display.alert("Unknown message: " + message.toString());
         }
-        if (message instanceof ListOfInvitesAnswer) {
-            return listOfInvites((ListOfInvitesAnswer) message);
-        }
-        if (message instanceof BroadcastInvite) {
-            return broadcastInvite((BroadcastInvite) message);
-        }
-        if (message instanceof DeliverInvite) {
-            return deliverInvite((DeliverInvite) message);
-        }
-        if (message instanceof InviteAnswer) {
-            return inviteAnswer((InviteAnswer) message);
-        }
-        if (message instanceof BroadcastResponseToInvite) {
-            return broadcastAnswer((BroadcastResponseToInvite) message);
-        }
-        if (message instanceof RespondToInviteAnswer) {
-            return responseAnswer((RespondToInviteAnswer) message);
-        }
-
-        return Display.alert("Unknown message: " + message.toString());
     }
 
-    private static boolean login(LoginAnswer message) {
+    private static void login(LoginAnswer message) {
         switch(message.getAnswer()) {
             case SUCCESS:
                 Display.info("New token");
                 LoginClient.setMe(message.getPlayer());
-                return LoginClient.setToken(message.getToken());
+                LoginClient.setToken(message.getToken());
+                break;
             case ERROR:
                 Display.alert("Login refused: " + message.getErrorJustification());
-                return false;
+                break;
         }
-        return false;
     }
 
-    private static boolean register(RegisterAnswer message) {
+    private static void register(RegisterAnswer message) {
         switch(message.getAnswer()) {
             case SUCCESS:
                 Display.info("New token");
                 LoginClient.setMe(message.getPlayer());
-                return LoginClient.setToken(message.getToken());
+                LoginClient.setToken(message.getToken());
+                break;
             case ERROR:
                 Display.alert("Register refused: " + message.getErrorJustification());
-                return false;
         }
-        return false;
     }
 
-    private static boolean relogin(ReLoginAnswer message) {
+    private static void relogin(ReLoginAnswer message) {
         switch(message.getAnswer()) {
             case SUCCESS:
                 Display.info("Relogin success");
-                return true;
+                break;
             case ERROR:
                 Display.alert("Relogin refused: " + message.getErrorJustification());
-                return false;
+                break;
         }
-        return false;
     }
 
-    private static boolean logout() {
+    private static void logout() {
         Display.info("Logged out");
-        return LoginClient.logout();
+        LoginClient.logout();
     }
 
-    private static boolean close() {
+    private static void close() {
         Display.alert("Sent out by server");
-        return LoginClient.disconnect();
+        LoginClient.disconnect();
     }
 
-    private static boolean message(String message, ChatMessage.ChatMessageType type) {
+    private static void message(String message, ChatMessage.ChatMessageType type) {
         switch(type) {
             case NORMAL:
                 Display.display(message);
@@ -158,10 +143,9 @@ public class LoginClientCommunicationProtocol {
                 Display.alert(message);
                 break;
         }
-        return true;
     }
 
-    private static boolean listOfPlayers(ListOfPlayersAnswer message) {
+    private static void listOfPlayers(ListOfPlayersAnswer message) {
         switch (message.getAnswer()) {
             case SUCCESS:
                 Display.info("List of players: ");
@@ -173,10 +157,9 @@ public class LoginClientCommunicationProtocol {
                 failOperation(message, message.getErrorJustification(), null);
                 break;
         }
-        return true;
     }
 
-    private static boolean listOfInvites(ListOfInvitesAnswer message) {
+    private static void listOfInvites(ListOfInvitesAnswer message) {
         switch (message.getAnswer()) {
             case SUCCESS:
                 Display.info("List of invites: ");
@@ -188,10 +171,9 @@ public class LoginClientCommunicationProtocol {
                 failOperation(message, message.getErrorJustification(), null);
                 break;
         }
-        return true;
     }
 
-    private static boolean inviteAnswer(InviteAnswer message) {
+    private static void inviteAnswer(InviteAnswer message) {
         switch (message.getAnswer()) {
             case SUCCESS:
                 Display.info("New game created: " + message.getGame());
@@ -200,20 +182,17 @@ public class LoginClientCommunicationProtocol {
                 failOperation(message, message.getErrorJustification(), message.getGame());
                 break;
         }
-        return true;
     }
 
-    private static boolean deliverInvite(DeliverInvite message) {
+    private static void deliverInvite(DeliverInvite message) {
         Display.info("You've been invited to: " + message.getGame());
-        return true;
     }
 
-    private static boolean broadcastInvite(BroadcastInvite message) {
+    private static void broadcastInvite(BroadcastInvite message) {
         Display.info("A new game have been created: " + message.getGame());
-        return true;
     }
 
-    private static boolean responseAnswer(RespondToInviteAnswer message) {
+    private static void responseAnswer(RespondToInviteAnswer message) {
         switch (message.getAnswer()) {
             case SUCCESS:
                 Display.info("Answer was registered: " + message.getGame());
@@ -222,13 +201,11 @@ public class LoginClientCommunicationProtocol {
                 failOperation(message, message.getJustificationError(), message.getGame());
                 break;
         }
-        return true;
     }
 
-    private static boolean broadcastAnswer(BroadcastResponseToInvite message) {
+    private static void broadcastAnswer(BroadcastResponseToInvite message) {
         Display.info(message.getPlayer().toString() + "Answer: " + message.getAccept().toString());
         Display.cleanColor(message.getGame().toString());
-        return true;
     }
 
     private static void failOperation(GenericMessage message, String errorMessage, Object object) {

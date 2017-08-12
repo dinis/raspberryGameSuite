@@ -57,12 +57,12 @@ public class LoginClient {
     }
 
 
-    public static boolean connect(Optional<String> ip, Optional<Integer> port) {
+    public static void connect(Optional<String> ip, Optional<Integer> port) {
 
         if(isConnected()) {
             Display.alert("Trying to connect when is already connected.");
             logger.warn("It is already connected. Nevertheless, it received an order to connect.");
-            return false;
+            return;
         }
 
         try {
@@ -70,28 +70,24 @@ public class LoginClient {
                     port.orElse(Integer.parseInt(Configurations.getProperty(DEFAULT_PORT))));
             loginSocket = new LoginClientCommunication(socket);
             loginSocket.start();
+            Display.info("Connect");
+            logger.info("This client are now connected to server.");
         } catch (IOException e) {
             logger.error("Could not open a socket", e);
             Display.alert("Could not connect");
-            return false;
         }
-
-        Display.info("Connect");
-        logger.info("This client are now connected to server.");
-        return true;
     }
 
-    public static boolean disconnect() {
+    public static void disconnect() {
         if(!isConnected()) {
             logger.info("Trying to disconnect a socket that is already gone.");
             Display.alert("Already disconnected");
-            return false;
+        } else {
+            loginSocket.disconnect();
         }
-
-        return loginSocket.disconnect();
     }
 
-    public static boolean sendMessage(GenericMessage message) {
+    public static void sendMessage(GenericMessage message) {
         if (message instanceof AuthenticatedMessage) {
             logger.info("Message is already authenticated when arrived to LoginClient: " + message);
         } else {
@@ -102,7 +98,7 @@ public class LoginClient {
             message = new AuthenticatedMessage(message, tokenToSend);
         }
         logger.debug("Client is sending message: " + message);
-        return LoginClientCommunication.sendMessage(message);
+        LoginClientCommunication.sendMessage(message);
     }
 
     public static boolean isConnected() {
@@ -120,27 +116,23 @@ public class LoginClient {
        return token;
     }
 
-    public static boolean setToken(String newToken) {
+    public static void setToken(String newToken) {
         token = newToken;
-        return true;
     }
 
-    public static boolean setMe(Player player) {
-        if (player == null) {
-            return false;
+    public static void setMe(Player player) {
+        if (player != null) {
+            me = player;
         }
-        me = player;
-        return true;
     }
 
     public static Player getMe() {
         return me;
     }
 
-    public static boolean logout() {
+    public static void logout() {
         token = null;
         Display.info("Logout");
-        return !isLoggedIn();
     }
 
     public static void close() {

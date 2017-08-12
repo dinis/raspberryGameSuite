@@ -59,50 +59,42 @@ public class LoginClientCommunication extends Thread {
         return socket != null;
     }
 
-    public static boolean disconnect() {
+    public static void disconnect() {
         logger.info("Closing communication with server opened at " + time.toString());
-
-        boolean result = true;
         running = false;
 
         try {
             socket.close();
         } catch (IOException | NullPointerException e) {
             logger.info("Problem closing socket.");
-            result = false;
         }
 
         try {
             in.close();
         } catch (IOException | NullPointerException e) {
             logger.info("Problem closing socket input.");
-            result = false;
         }
 
         try {
             out.close();
         } catch (IOException | NullPointerException e) {
             logger.info("Problem closing socket output");
-            result = false;
         }
 
         socket = null;
         Display.info("Disconnect");
-
-        return result;
     }
 
-    public static boolean sendMessage(GenericMessage message) {
-        if (!isConnected()) {
-            Display.alert("Cannot send message: " + message);
-            return false;
-        }
+    public static void sendMessage(GenericMessage message) {
 
         try {
-            out.writeObject(message);
+            if (!isConnected()) {
+                Display.alert("Cannot send message: " + message);
+            } else {
+                out.writeObject(message);
+            }
         } catch (IOException e) {
             Display.alert("Error sending message: " + message);
         }
-        return true;
     }
 }

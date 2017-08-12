@@ -19,28 +19,42 @@ public class Display {
     public static final String ANSI_CYAN = "\u001B[36m";
     public static final String ANSI_WHITE = "\u001B[37m";
 
-    public static boolean display(String message) {
-        return displayWithColor(message, ANSI_GREEN);
+    /**
+     * Displays all kind of messages
+     * @param message to display
+     */
+    public static void display(String message) {
+        displayWithColor(message, ANSI_GREEN);
     }
 
-    public static boolean alert(String message) {
-        return displayWithColor(message, ANSI_RED);
+    /**
+     * Displays all error or alert messages
+     * @param message to display
+     */
+    public static void alert(String message) {
+        displayWithColor(message, ANSI_RED);
     }
 
-    public static boolean info(String message) {
-        return displayWithColor(message, ANSI_BLUE);
+    /**
+     * Displays information, like login, logout, successful operations
+     * @param message to display
+     */
+    public static void info(String message) {
+        displayWithColor(message, ANSI_BLUE);
     }
 
-    private static boolean displayWithColor(String message, String color) {
+
+    private static void displayWithColor(String message, String color) {
         DateTime time = new DateTime();
         DateTimeFormatter formatter = DateTimeFormat.shortDateTime();
         System.out.println(color + formatter.print(time) + ": " + ANSI_RESET + message);
-        return true;
     }
 
-    public static boolean cleanColor(String message) {
+    /**
+     * Displays clean text, for example, list of stuff
+     * @param message to display
+     */
+    public static void cleanColor(String message) {
         System.out.println("\t" + ANSI_PURPLE + message + ANSI_RESET);
-        return true;
     }
-
 }

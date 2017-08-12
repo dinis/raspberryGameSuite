@@ -112,10 +112,10 @@ public class InviteWorkerThread extends WorkerThread {
         // Broadcast/deliver invite
         if (request.getPlayers().isEmpty()) {
             result = result && Dealer.sendMessageToConnection(Dealer.getActiveClients(),
-                    new BroadcastInvite(game, player));
+                    new BroadcastInvite(game));
         } else {
             for (Integer pl: request.getPlayers()) {
-                result = result && Dealer.sendMessage(pl, new DeliverInvite(game, player));
+                result = result && Dealer.sendMessage(pl, new DeliverInvite(game));
             }
         }
 

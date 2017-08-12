@@ -339,9 +339,9 @@ public class LoginClientScannerProtocol {
                 return false;
             }
             if (message.isEmpty()) {
-                return LoginClient.sendMessage(new Invite(game, null));
+                return LoginClient.sendMessage(new Invite(game, Collections.emptySet()));
             }
-            List<Integer> players = new ArrayList<>();
+            Set<Integer> players = new HashSet<>();
             for (String word: message) {
                 try {
                     players.add(Integer.parseInt(word));
@@ -353,7 +353,8 @@ public class LoginClientScannerProtocol {
                 return LoginClient.sendMessage(new Invite(game, players));
             }
         } catch (NumberFormatException e) { }
-        Display.alert(gameId + " is not a number");
+
+        Display.alert("Did not found any opponent");
         return false;
     }
 

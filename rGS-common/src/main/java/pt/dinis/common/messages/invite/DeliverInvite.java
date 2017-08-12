@@ -9,25 +9,16 @@ import pt.dinis.common.core.Player;
 public class DeliverInvite extends InviteMessage {
 
     Game game;
-    Player player;
 
-    public DeliverInvite(Game game, Player player) {
+    public DeliverInvite(Game game) {
         if (game == null) {
             throw new IllegalArgumentException("Answer cannot be null");
         }
         this.game = game;
-        if (player == null) {
-            throw new IllegalArgumentException("Players cannot be null");
-        }
-        this.player = player;
     }
 
     public Game getGame() {
         return game;
-    }
-
-    public Player getPlayer() {
-        return player;
     }
 
     @Override
@@ -37,9 +28,8 @@ public class DeliverInvite extends InviteMessage {
 
     @Override
     public String toString() {
-        return "Invite{" +
+        return "DeliverInvite{" +
                 "game=" + game +
-                ", player=" + player +
                 "} " + super.toString();
     }
 }

@@ -1,5 +1,6 @@
 package pt.dinis.server.data.access;
 
+import org.joda.time.DateTime;
 import pt.dinis.common.core.Game;
 import pt.dinis.common.core.GameType;
 import pt.dinis.common.core.Player;
@@ -28,14 +29,19 @@ public class InviteDB {
 
     public static Game getOpenGame(Integer gameId, Connection connection) throws SQLException {
 
-        String queryGame = "SELECT id, game_type FROM games WHERE id = ? AND status = ?";
+        String queryGame = "SELECT g.id, g.game_type, g.user_id, u.username, g.creation_date " +
+                "FROM games AS g " +
+                "JOIN users AS u ON u.id = g.user_id " +
+                "WHERE g.id = ? AND status = ?";
         try (PreparedStatement prepSt = connection.prepareStatement(queryGame)) {
             prepSt.setInt(1, gameId);
             prepSt.setString(2, GameStatus.INVITING.name());
             ResultSet games = prepSt.executeQuery();
 
             if (games.next()) {
-                return new Game(games.getInt("id"), GameType.valueOf(games.getString("game_type")));
+                return new Game(games.getInt("id"), GameType.valueOf(games.getString("game_type")),
+                        new Player(games.getInt("user_id"), games.getString("username")),
+                        new DateTime(games.getTimestamp("creation_date")));
             } else {
                 throw new SQLException("Missing open (inviting) game");
             }
@@ -119,9 +125,10 @@ public class InviteDB {
 
     public static Collection<Game> getInvites(Player player, Connection connection) throws SQLException {
         Collection<Game> games = new HashSet<>();
-        String queryInvites = "SELECT g.id, g.game_type " +
+        String queryInvites = "SELECT g.id, g.game_type, g.user_id, u.username, g.creation_date " +
                 "FROM games AS g " +
                 "JOIN games_players AS i ON g.id = i.game_id " +
+                "JOIN users AS u ON g.user_id = u.id " +
                 "WHERE i.user_id = ? AND i.status IN (?, ?) AND g.status = ?";
         try (PreparedStatement prepSt = connection.prepareStatement(queryInvites)) {
             prepSt.setInt(1, player.getId());
@@ -131,7 +138,9 @@ public class InviteDB {
             ResultSet result = prepSt.executeQuery();
 
             while (result.next()) {
-                games.add(new Game(result.getInt("id"), GameType.valueOf(result.getString("game_type"))));
+                games.add(new Game(result.getInt("id"), GameType.valueOf(result.getString("game_type")),
+                        new Player(result.getInt("user_id"), result.getString("username")),
+                        new DateTime(result.getTimestamp("creation_date"))));
             }
         }
         return games;

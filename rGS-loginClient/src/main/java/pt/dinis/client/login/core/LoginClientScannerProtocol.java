@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import pt.dinis.common.core.Display;
 
 import pt.dinis.common.core.GameType;
+import pt.dinis.common.core.Tools;
 import pt.dinis.common.messages.GenericMessage;
 import pt.dinis.common.messages.basic.CloseConnectionRequest;
 import pt.dinis.common.messages.chat.ChatMessage;
@@ -14,6 +15,7 @@ import pt.dinis.common.messages.invite.ListOfPlayersRequest;
 import pt.dinis.common.messages.invite.RespondToInvite;
 import pt.dinis.common.messages.user.*;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 /**
@@ -83,7 +85,7 @@ public class LoginClientScannerProtocol {
 
     private static Logger logger = Logger.getLogger(LoginClientScannerProtocol.class);
 
-    public static void protocol(String message) {
+    public static void protocol(String message) throws NoSuchAlgorithmException {
 
         List<String> words = splitMessage(message);
 
@@ -169,7 +171,7 @@ public class LoginClientScannerProtocol {
         return words;
     }
 
-    private static void login(String name, String password) {
+    private static void login(String name, String password) throws NoSuchAlgorithmException {
         if (!LoginClient.isConnected()) {
             Display.alert("No connection");
             logger.warn("Trying to log in before connect");
@@ -179,11 +181,11 @@ public class LoginClientScannerProtocol {
         if (LoginClient.isLoggedIn()) {
             logger.info("Trying to log in while already logged in.");
         }
-        LoginClient.sendMessage(new LoginRequest(name, password));
+        LoginClient.sendMessage(new LoginRequest(name, Tools.stringToMD5(password)));
     }
 
     // We do not accept a new registry from a logged in client
-    private static void register(String name, String password) {
+    private static void register(String name, String password) throws NoSuchAlgorithmException {
         if (!LoginClient.isConnected()) {
             Display.alert("No connection");
             logger.warn("Trying to register before connect");
@@ -193,7 +195,7 @@ public class LoginClientScannerProtocol {
         if (LoginClient.isLoggedIn()) {
             logger.info("Trying to register while already logged in.");
         }
-        LoginClient.sendMessage(new RegisterRequest(name, password));
+        LoginClient.sendMessage(new RegisterRequest(name, Tools.stringToMD5(password)));
     }
 
     private static void logout() {

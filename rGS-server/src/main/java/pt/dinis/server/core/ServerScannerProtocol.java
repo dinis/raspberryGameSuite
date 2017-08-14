@@ -180,7 +180,7 @@ public class ServerScannerProtocol {
 
     private static boolean listOfGames() {
         for (GameType game: GameType.values()) {
-            Display.cleanColor(game.toString());
+            Display.cleanColor(game.prettyPrint());
         }
         return true;
     }

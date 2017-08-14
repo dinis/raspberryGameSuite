@@ -287,7 +287,7 @@ public class LoginClientScannerProtocol {
 
     private static void games() {
         for (GameType game: GameType.values()) {
-            Display.cleanColor(game.toString());
+            Display.cleanColor(game.prettyPrint());
         }
     }
 
@@ -314,10 +314,10 @@ public class LoginClientScannerProtocol {
                     break;
                 }
             }
-            if (!players.isEmpty()) {
+            if (players.size() == (game.getNumberOfPlayers() - 1)) {
                 LoginClient.sendMessage(new Invite(game, players));
             } else {
-                Display.alert("Did not found any opponent");
+                Display.alert("This game needs " + Integer.toString(game.getNumberOfPlayers()-1) + " opponents");
             }
         } catch (NumberFormatException e) {
             logger.info("Wrong message format: " + message.toString());

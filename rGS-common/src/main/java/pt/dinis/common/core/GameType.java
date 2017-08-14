@@ -4,14 +4,16 @@ package pt.dinis.common.core;
  * Created by tiago on 03-08-2017.
  */
 public enum GameType {
-    TIC_TAC_TOE(1, "Tic Tac Toe");
+    TIC_TAC_TOE(1, "Tic Tac Toe", 2);
 
-    private Integer id;
+    private int id;
     private String value;
+    private int numberOfPlayers;
 
-    GameType(Integer id, String value) {
+    GameType(int id, String value, int numberOfPlayers) {
         this.id = id;
         this.value = value;
+        this.numberOfPlayers = numberOfPlayers;
     }
 
     public Integer getId() {
@@ -22,9 +24,21 @@ public enum GameType {
         return value;
     }
 
+    public int getNumberOfPlayers() {
+        return numberOfPlayers;
+    }
+
+    public String prettyPrint() {
+        return this.getId().toString() + ": " + this.getValue();
+    }
+
     @Override
     public String toString() {
-        return this.getId().toString() + ": " + this.getValue();
+        return "GameType{" +
+                "id=" + id +
+                ", value='" + value + '\'' +
+                ", numberOfPlayers=" + numberOfPlayers +
+                "} " + super.toString();
     }
 
     public static GameType getEnum(String value) {

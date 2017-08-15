@@ -48,23 +48,6 @@ public class InviteDB {
         }
     }
 
-    public static Player getGameHost(Game game, Connection connection) throws SQLException {
-        String queryGameHost = "SELECT u.id, u.username " +
-                "FROM games AS g " +
-                "JOIN users AS u ON u.id = g.user_id " +
-                "WHERE g.id = ?";
-        try (PreparedStatement prepSt = connection.prepareStatement(queryGameHost)) {
-            prepSt.setInt(1, game.getId());
-            ResultSet players = prepSt.executeQuery();
-
-            if (players.next()) {
-                return new Player(players.getInt("id"), players.getString("username"));
-            } else {
-                throw new SQLException("Missing game just created");
-            }
-        }
-    }
-
     public static void cancelGame(Game game, Connection connection) throws SQLException {
         String queryCancelGame = "UPDATE games SET status = ? WHERE id = ?";
         try (PreparedStatement prepSt = connection.prepareStatement(queryCancelGame)) {

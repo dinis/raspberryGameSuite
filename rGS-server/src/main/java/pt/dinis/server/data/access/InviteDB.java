@@ -17,9 +17,9 @@ import java.util.HashSet;
  */
 public class InviteDB {
 
-    public static Game createCompleteGame(Player player, GameType type, Connection connection) throws SQLException {
-        Integer gameId = createGame(player.getId(), type, connection);
-        createInviteRow(player.getId(), gameId, InviteStatus.INVITING, connection);
+    public static Game createCompleteGame(Player player, GameType type, boolean publicGame, Connection connection) throws SQLException {
+        Integer gameId = createGame(player.getId(), type, publicGame, connection);
+        createInviteRow(player.getId(), gameId, InviteStatus.HOST, connection);
         return getOpenGame(gameId, connection);
     }
 
@@ -29,19 +29,19 @@ public class InviteDB {
 
     public static Game getOpenGame(Integer gameId, Connection connection) throws SQLException {
 
-        String queryGame = "SELECT g.id, g.game_type, g.user_id, u.username, g.creation_date " +
+        String queryGame = "SELECT g.id, g.game_type, g.user_id, u.username, g.public_game, g.creation_date " +
                 "FROM games AS g " +
                 "JOIN users AS u ON u.id = g.user_id " +
                 "WHERE g.id = ? AND status = ?";
         try (PreparedStatement prepSt = connection.prepareStatement(queryGame)) {
             prepSt.setInt(1, gameId);
-            prepSt.setString(2, GameStatus.INVITING.name());
+            prepSt.setString(2, GameStatus.OPEN.name());
             ResultSet games = prepSt.executeQuery();
 
             if (games.next()) {
                 return new Game(games.getInt("id"), GameType.valueOf(games.getString("game_type")),
                         new Player(games.getInt("user_id"), games.getString("username")),
-                        new DateTime(games.getTimestamp("creation_date")));
+                        games.getBoolean("public_game"), new DateTime(games.getTimestamp("creation_date")));
             } else {
                 throw new SQLException("Missing open (inviting) game");
             }
@@ -68,7 +68,7 @@ public class InviteDB {
     public static void cancelGame(Game game, Connection connection) throws SQLException {
         String queryCancelGame = "UPDATE games SET status = ? WHERE id = ?";
         try (PreparedStatement prepSt = connection.prepareStatement(queryCancelGame)) {
-            prepSt.setString(1, GameStatus.REJECTED.name());
+            prepSt.setString(1, GameStatus.CANCELED.name());
             prepSt.setInt(2, game.getId());
             int newRows = prepSt.executeUpdate();
 
@@ -81,7 +81,7 @@ public class InviteDB {
     public static void registerInviteAnswer(Player player, Game game, Boolean answer, Connection connection)
         throws SQLException {
 
-        InviteStatus status = answer ? InviteStatus.ACCEPT : InviteStatus.REFUSED;
+        InviteStatus status = answer ? InviteStatus.ACCEPTED : InviteStatus.REFUSED;
         try {
             Integer id = getInviteRow(player, game, connection);
             updateInviteRow(id, status, connection);
@@ -112,8 +112,8 @@ public class InviteDB {
                 "WHERE i.game_id = ? AND i.status IN (?, ?)";
         try (PreparedStatement prepSt = connection.prepareStatement(queryGamePlayers)) {
             prepSt.setInt(1, game.getId());
-            prepSt.setString(2, InviteStatus.INVITING.name());
-            prepSt.setString(3, InviteStatus.ACCEPT.name());
+            prepSt.setString(2, InviteStatus.HOST.name());
+            prepSt.setString(3, InviteStatus.ACCEPTED.name());
             ResultSet result = prepSt.executeQuery();
 
             while (result.next()) {
@@ -123,24 +123,62 @@ public class InviteDB {
         return players;
     }
 
-    public static Collection<Game> getInvites(Player player, Connection connection) throws SQLException {
+    public static boolean isPlayerInvitedToGame(Game game, Player player, Connection connection) throws SQLException {
+
+        String queryGamePlayers = "SELECT i.id " +
+                "FROM games_players AS i " +
+                "WHERE i.game_id = ? AND i.user_id = ?";
+        try (PreparedStatement prepSt = connection.prepareStatement(queryGamePlayers)) {
+            prepSt.setInt(1, game.getId());
+            prepSt.setInt(2, player.getId());
+            ResultSet result = prepSt.executeQuery();
+
+            while (result.next()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    public static Collection<Game> getPrivateInvites(Player player, Connection connection) throws SQLException {
         Collection<Game> games = new HashSet<>();
-        String queryInvites = "SELECT g.id, g.game_type, g.user_id, u.username, g.creation_date " +
+        String queryInvites = "SELECT g.id, g.game_type, g.user_id, u.username, g.public_game, g.creation_date " +
                 "FROM games AS g " +
                 "JOIN games_players AS i ON g.id = i.game_id " +
                 "JOIN users AS u ON g.user_id = u.id " +
-                "WHERE i.user_id = ? AND i.status IN (?, ?) AND g.status = ?";
+                "WHERE i.user_id = ? AND i.status IN (?, ?) AND g.status = ? AND g.public_game = ?";
         try (PreparedStatement prepSt = connection.prepareStatement(queryInvites)) {
             prepSt.setInt(1, player.getId());
-            prepSt.setString(2, InviteStatus.INVITING.name());
+            prepSt.setString(2, InviteStatus.HOST.name());
             prepSt.setString(3, InviteStatus.INVITED.name());
-            prepSt.setString(4, GameStatus.INVITING.name());
+            prepSt.setString(4, GameStatus.OPEN.name());
+            prepSt.setBoolean(5, false);
             ResultSet result = prepSt.executeQuery();
 
             while (result.next()) {
                 games.add(new Game(result.getInt("id"), GameType.valueOf(result.getString("game_type")),
                         new Player(result.getInt("user_id"), result.getString("username")),
-                        new DateTime(result.getTimestamp("creation_date"))));
+                        result.getBoolean("public_game"), new DateTime(result.getTimestamp("creation_date"))));
+            }
+        }
+        return games;
+    }
+
+    public static Collection<Game> getPublicInvites(Connection connection) throws SQLException {
+        Collection<Game> games = new HashSet<>();
+        String queryInvites = "SELECT g.id, g.game_type, g.user_id, u.username, g.public_game, g.creation_date " +
+                "FROM games AS g " +
+                "JOIN users AS u ON g.user_id = u.id " +
+                "WHERE g.status = ? AND g.public_game = ?";
+        try (PreparedStatement prepSt = connection.prepareStatement(queryInvites)) {
+            prepSt.setString(1, GameStatus.OPEN.name());
+            prepSt.setBoolean(2, true);
+            ResultSet result = prepSt.executeQuery();
+
+            while (result.next()) {
+                games.add(new Game(result.getInt("id"), GameType.valueOf(result.getString("game_type")),
+                        new Player(result.getInt("user_id"), result.getString("username")),
+                        result.getBoolean("public_game"), new DateTime(result.getTimestamp("creation_date"))));
             }
         }
         return games;
@@ -178,14 +216,15 @@ public class InviteDB {
         }
     }
 
-    private static Integer createGame(Integer playerId, GameType type, Connection connection) throws SQLException {
+    private static Integer createGame(Integer playerId, GameType type, boolean publicGame, Connection connection) throws SQLException {
 
-        String queryInsertGame = "INSERT INTO games (user_id, game_type, status) VALUES (?, ?, ?)";
+        String queryInsertGame = "INSERT INTO games (user_id, game_type, public_game, status) VALUES (?, ?, ?, ?)";
 
         try (PreparedStatement prepSt = connection.prepareStatement(queryInsertGame, Statement.RETURN_GENERATED_KEYS)) {
             prepSt.setInt(1, playerId);
             prepSt.setString(2, type.name());
-            prepSt.setString(3, GameStatus.INVITING.name());
+            prepSt.setBoolean(3, publicGame);
+            prepSt.setString(4, GameStatus.OPEN.name());
             int newRows = prepSt.executeUpdate();
 
             if (newRows == 0) {

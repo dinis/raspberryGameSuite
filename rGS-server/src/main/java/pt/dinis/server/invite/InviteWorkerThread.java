@@ -32,9 +32,9 @@ public class InviteWorkerThread extends WorkerThread {
     @Override
     protected boolean working(Connection connection) throws SQLException, NotFoundException {
         if (message instanceof ListOfPlayersRequest) {
-            return listOfPlayers((ListOfPlayersRequest) message);
+            return listOfPlayers();
         } else if (message instanceof ListOfInvitesRequest) {
-            return listOfInvites((ListOfInvitesRequest) message, connection);
+            return listOfInvites(connection);
         } else if (message instanceof Invite) {
             return invite((Invite) message, connection);
         } else if (message instanceof RespondToInvite) {
@@ -45,7 +45,7 @@ public class InviteWorkerThread extends WorkerThread {
         }
     }
 
-    private boolean listOfPlayers(ListOfPlayersRequest request) {
+    private boolean listOfPlayers() {
         if (player == null) {
             return Dealer.sendMessageToConnection(id,
                 new ListOfPlayersAnswer(GenericMessage.AnswerType.ERROR, "No Authentication", null));
@@ -55,7 +55,7 @@ public class InviteWorkerThread extends WorkerThread {
 
     }
 
-    private boolean listOfInvites(ListOfInvitesRequest request, Connection connection) throws SQLException {
+    private boolean listOfInvites(Connection connection) throws SQLException {
         if (player == null) {
             return Dealer.sendMessageToConnection(id,
                     new ListOfInvitesAnswer(GenericMessage.AnswerType.ERROR, "No Authentication", null));
@@ -63,7 +63,8 @@ public class InviteWorkerThread extends WorkerThread {
 
         Collection<Game> games;
         try {
-            games = InviteDB.getInvites(player, connection);
+            games = InviteDB.getPrivateInvites(player, connection);
+            games.addAll(InviteDB.getPublicInvites(connection));
         } catch (SQLException e) {
             Dealer.sendMessage(player.getId(),
                     new ListOfInvitesAnswer(GenericMessage.AnswerType.ERROR, "Failed to find invites", null));
@@ -75,16 +76,23 @@ public class InviteWorkerThread extends WorkerThread {
     }
 
     private boolean invite(Invite request, Connection connection) throws SQLException {
-        // Tests if player inviting exists
+        // Tests if host player exists
         if (player == null) {
             return Dealer.sendMessageToConnection(id,
                     new InviteAnswer(GenericMessage.AnswerType.ERROR, null, "No Authentication"));
         }
 
+        boolean publicGame = request.getPlayers().isEmpty();
+        if (!request.getPlayers().isEmpty() &&
+                request.getPlayers().size() != (request.getGame().getNumberOfPlayers()-1)) {
+            return Dealer.sendMessage(player.getId(),
+                    new InviteAnswer(GenericMessage.AnswerType.ERROR, null, "Wrong number of players"));
+        }
+
         // Create game in DB and answer to the one inviting
         Game game;
         try {
-            game = InviteDB.createCompleteGame(player, request.getGame(), connection);
+            game = InviteDB.createCompleteGame(player, request.getGame(), publicGame, connection);
         } catch (SQLException e) {
             Display.alert("Error creating game: " + request.getGame() + " for player " + player);
             Dealer.sendMessage(player.getId(),
@@ -92,7 +100,7 @@ public class InviteWorkerThread extends WorkerThread {
             throw e;
         }
 
-        if (request.getPlayers() != null) {
+        if (!publicGame) {
             for (Integer id: request.getPlayers()) {
                 try {
                     InviteDB.invitePlayer(id, game, connection);
@@ -110,7 +118,7 @@ public class InviteWorkerThread extends WorkerThread {
                 new InviteAnswer(GenericMessage.AnswerType.SUCCESS, game, null));
 
         // Broadcast/deliver invite
-        if (request.getPlayers().isEmpty()) {
+        if (publicGame) {
             result = result && Dealer.sendMessageToConnection(Dealer.getActiveClients(),
                     new BroadcastInvite(game));
         } else {
@@ -123,11 +131,13 @@ public class InviteWorkerThread extends WorkerThread {
     }
 
     private boolean respondToInvite(RespondToInvite request, Connection connection) throws SQLException {
+        // Checks if player exists
         if (player == null) {
             return Dealer.sendMessageToConnection(id,
                     new RespondToInviteAnswer(GenericMessage.AnswerType.ERROR, null, "No Authentication"));
         }
 
+        // Get game if open
         Game game;
         try {
             game = InviteDB.getOpenGame(request.getGame(), connection);
@@ -137,16 +147,21 @@ public class InviteWorkerThread extends WorkerThread {
             throw e;
         }
 
-        Player host;
+        // If game is private and player was not invited, we cannot continue
         try {
-            host = InviteDB.getGameHost(game, connection);
+            if (!game.isPublicGame() && !InviteDB.isPlayerInvitedToGame(game, player, connection)) {
+                return Dealer.sendMessageToConnection(id,
+                        new RespondToInviteAnswer(GenericMessage.AnswerType.ERROR, game, "Private game"));
+            }
         } catch (SQLException e) {
             Dealer.sendMessageToConnection(id,
-                    new RespondToInviteAnswer(GenericMessage.AnswerType.ERROR, game, "Game host not found"));
+                    new RespondToInviteAnswer(GenericMessage.AnswerType.ERROR, game, "Problem checking players of this game"));
             throw e;
         }
 
-        if (host.equals(player.getId())) {
+        // If hosts refuses a game, this get cancelled
+        // If some invited player refuses, game get cancelled also
+        if (game.getHost().equals(player) || !game.isPublicGame()) {
             if (!request.getAccept()) {
                 try {
                     InviteDB.cancelGame(game, connection);

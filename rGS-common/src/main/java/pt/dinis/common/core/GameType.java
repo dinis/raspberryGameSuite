@@ -34,11 +34,7 @@ public enum GameType {
 
     @Override
     public String toString() {
-        return "GameType{" +
-                "id=" + id +
-                ", value='" + value + '\'' +
-                ", numberOfPlayers=" + numberOfPlayers +
-                "} " + super.toString();
+        return getValue();
     }
 
     public static GameType getEnum(String value) {

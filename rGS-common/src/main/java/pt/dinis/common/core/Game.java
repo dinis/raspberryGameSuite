@@ -14,11 +14,13 @@ public class Game implements Serializable {
     GameType game;
     Player host;
     DateTime date;
+    boolean publicGame;
 
-    public Game(Integer id, GameType game, Player host, DateTime date) {
+    public Game(Integer id, GameType game, Player host, boolean publicGame, DateTime date) {
         this.id = id;
         this.game = game;
         this.host = host;
+        this.publicGame = publicGame;
         this.date = date;
     }
 
@@ -38,6 +40,10 @@ public class Game implements Serializable {
         return game;
     }
 
+    public boolean isPublicGame() {
+        return publicGame;
+    }
+
     @Override
     public String toString() {
         return "Game{" +
@@ -45,6 +51,7 @@ public class Game implements Serializable {
                 ", game=" + game +
                 ", host=" + host +
                 ", date=" + date +
+                ", publicGame=" + publicGame +
                 '}';
     }
 
@@ -56,11 +63,12 @@ public class Game implements Serializable {
         return Objects.equals(getId(), game1.getId()) &&
                 getGame() == game1.getGame() &&
                 Objects.equals(getHost(), game1.getHost()) &&
-                Objects.equals(getDate(), game1.getDate());
+                Objects.equals(getDate(), game1.getDate()) &&
+                Objects.equals(isPublicGame(), game1.isPublicGame());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getGame(), getHost(), getDate());
+        return Objects.hash(getId(), getGame(), getHost(), getDate(), isPublicGame());
     }
 }

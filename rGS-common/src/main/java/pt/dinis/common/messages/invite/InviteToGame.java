@@ -1,18 +1,18 @@
 package pt.dinis.common.messages.invite;
 
-import pt.dinis.common.core.GameType;
+import pt.dinis.common.objects.GameType;
 
 import java.util.Collection;
 
 /**
  * Created by tiago on 16-02-2017.
  */
-public class Invite extends InviteMessage {
+public class InviteToGame extends InviteMessage {
 
     GameType game;
     Collection<Integer> players;
 
-    public Invite(GameType game, Collection<Integer> players) {
+    public InviteToGame(GameType game, Collection<Integer> players) {
         if (game == null) {
             throw new IllegalArgumentException("Answer cannot be null");
         }
@@ -38,7 +38,7 @@ public class Invite extends InviteMessage {
 
     @Override
     public String toString() {
-        return "Invite{" +
+        return "InviteToGame{" +
                 "game=" + game +
                 ", players=" + players +
                 "} " + super.toString();

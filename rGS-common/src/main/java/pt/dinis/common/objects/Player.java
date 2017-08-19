@@ -1,4 +1,4 @@
-package pt.dinis.common.core;
+package pt.dinis.common.objects;
 
 import java.io.Serializable;
 import java.util.Objects;

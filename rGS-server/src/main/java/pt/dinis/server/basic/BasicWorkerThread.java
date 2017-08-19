@@ -1,7 +1,7 @@
 package pt.dinis.server.basic;
 
 import org.apache.log4j.Logger;
-import pt.dinis.common.core.Player;
+import pt.dinis.common.objects.Player;
 import pt.dinis.common.messages.basic.BasicMessage;
 import pt.dinis.common.messages.basic.CloseConnectionRequest;
 import pt.dinis.server.core.Dealer;

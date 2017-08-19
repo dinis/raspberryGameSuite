@@ -1,6 +1,6 @@
 package pt.dinis.server.data.access;
 
-import pt.dinis.common.core.Player;
+import pt.dinis.common.objects.Player;
 import pt.dinis.server.exceptions.NotFoundException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

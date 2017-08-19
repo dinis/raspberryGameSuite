@@ -1,6 +1,6 @@
 package pt.dinis.server.core;
 
-import pt.dinis.common.core.Player;
+import pt.dinis.common.objects.Player;
 import pt.dinis.server.exceptions.NotFoundException;
 
 import java.math.BigInteger;

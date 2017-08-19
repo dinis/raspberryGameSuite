@@ -1,25 +1,24 @@
 package pt.dinis.server.data.access;
 
 import org.joda.time.DateTime;
-import pt.dinis.common.core.Game;
-import pt.dinis.common.core.GameType;
-import pt.dinis.common.core.Player;
+import pt.dinis.common.objects.*;
 import pt.dinis.server.data.objects.GameStatus;
-import pt.dinis.server.data.objects.InviteStatus;
 import pt.dinis.server.exceptions.NotFoundException;
 
 import java.sql.*;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 /**
  * Created by tiago on 08-08-2017.
  */
 public class InviteDB {
 
-    public static Game createCompleteGame(Player player, GameType type, boolean publicGame, Connection connection) throws SQLException {
+    public static Game createGameByPlayer(Player player, GameType type, boolean publicGame, Connection connection) throws SQLException {
         Integer gameId = createGame(player.getId(), type, publicGame, connection);
-        createInviteRow(player.getId(), gameId, InviteStatus.HOST, connection);
+        createInviteRow(player.getId(), gameId, InviteStatus.ACCEPTED, connection);
         return getOpenGame(gameId, connection);
     }
 
@@ -73,7 +72,7 @@ public class InviteDB {
         }
     }
 
-    public static void updateInviteRow(Integer id, InviteStatus status, Connection connection) throws SQLException {
+    private static void updateInviteRow(Integer id, InviteStatus status, Connection connection) throws SQLException {
         String queryCancelGame = "UPDATE games_players SET status = ? WHERE id = ?";
         try (PreparedStatement prepSt = connection.prepareStatement(queryCancelGame)) {
             prepSt.setString(1, status.name());
@@ -92,11 +91,10 @@ public class InviteDB {
         String queryGamePlayers = "SELECT u.id, u.username " +
                 "FROM games_players AS i " +
                 "JOIN users AS u ON u.id = i.user_id " +
-                "WHERE i.game_id = ? AND i.status IN (?, ?)";
+                "WHERE i.game_id = ? AND i.status = ?";
         try (PreparedStatement prepSt = connection.prepareStatement(queryGamePlayers)) {
             prepSt.setInt(1, game.getId());
-            prepSt.setString(2, InviteStatus.HOST.name());
-            prepSt.setString(3, InviteStatus.ACCEPTED.name());
+            prepSt.setString(2, InviteStatus.ACCEPTED.name());
             ResultSet result = prepSt.executeQuery();
 
             while (result.next()) {
@@ -123,45 +121,72 @@ public class InviteDB {
 
         return false;
     }
-    public static Collection<Game> getPrivateInvites(Player player, Connection connection) throws SQLException {
-        Collection<Game> games = new HashSet<>();
-        String queryInvites = "SELECT g.id, g.game_type, g.user_id, u.username, g.public_game, g.creation_date " +
+
+    public static Collection<Invite> getPrivateInvites(Player player, Connection connection) throws SQLException {
+        Map<Game, InviteStatus> games = getPrivateOpenGames(player, connection);
+        Collection<Invite> invites = new HashSet<>();
+
+        for (Map.Entry<Game, InviteStatus> entry: games.entrySet()) {
+            invites.add(new Invite(entry.getKey(), entry.getValue(), getInvitedPlayers(entry.getKey(), connection)));
+        }
+
+        return invites;
+    }
+
+    public static Collection<Invite> getPublicInvites(Player player, Connection connection) throws SQLException {
+        Map<Game, InviteStatus> games = getPublicOpenGames(player, connection);
+        Collection<Invite> invites = new HashSet<>();
+
+        for (Map.Entry<Game, InviteStatus> entry: games.entrySet()) {
+            invites.add(new Invite(entry.getKey(), entry.getValue(), getInvitedPlayers(entry.getKey(), connection)));
+        }
+
+        return invites;
+    }
+
+    private static Map<Game, InviteStatus> getPrivateOpenGames(Player player, Connection connection) throws SQLException {
+        Map<Game, InviteStatus> games = new HashMap<>();
+        String queryInvites = "SELECT g.id, g.game_type, g.user_id, u.username, g.public_game, g.creation_date, i.status " +
                 "FROM games AS g " +
                 "JOIN games_players AS i ON g.id = i.game_id " +
                 "JOIN users AS u ON g.user_id = u.id " +
-                "WHERE i.user_id = ? AND i.status IN (?, ?) AND g.status = ? AND g.public_game = ?";
+                "WHERE i.user_id = ? AND g.status = ? AND g.public_game = ?";
         try (PreparedStatement prepSt = connection.prepareStatement(queryInvites)) {
             prepSt.setInt(1, player.getId());
-            prepSt.setString(2, InviteStatus.HOST.name());
-            prepSt.setString(3, InviteStatus.INVITED.name());
-            prepSt.setString(4, GameStatus.OPEN.name());
-            prepSt.setBoolean(5, false);
+            prepSt.setString(2, GameStatus.OPEN.name());
+            prepSt.setBoolean(3, false);
             ResultSet result = prepSt.executeQuery();
 
             while (result.next()) {
-                games.add(new Game(result.getInt("id"), GameType.valueOf(result.getString("game_type")),
+                Game game = new Game(result.getInt("id"), GameType.valueOf(result.getString("game_type")),
                         new Player(result.getInt("user_id"), result.getString("username")),
-                        result.getBoolean("public_game"), new DateTime(result.getTimestamp("creation_date"))));
+                        result.getBoolean("public_game"), new DateTime(result.getTimestamp("creation_date")));
+                InviteStatus status = InviteStatus.valueOf(result.getString("status"));
+                games.put(game, status);
             }
         }
         return games;
     }
 
-    public static Collection<Game> getPublicInvites(Connection connection) throws SQLException {
-        Collection<Game> games = new HashSet<>();
-        String queryInvites = "SELECT g.id, g.game_type, g.user_id, u.username, g.public_game, g.creation_date " +
+    private static Map<Game, InviteStatus> getPublicOpenGames(Player player, Connection connection) throws SQLException {
+        Map<Game, InviteStatus> games = new HashMap<>();
+        String queryInvites = "SELECT g.id, g.game_type, g.user_id, u.username, g.public_game, g.creation_date, i.status " +
                 "FROM games AS g " +
                 "JOIN users AS u ON g.user_id = u.id " +
+                "LEFT JOIN games_players AS i ON g.id = i.game_id AND i.user_id = ? " +
                 "WHERE g.status = ? AND g.public_game = ?";
         try (PreparedStatement prepSt = connection.prepareStatement(queryInvites)) {
-            prepSt.setString(1, GameStatus.OPEN.name());
-            prepSt.setBoolean(2, true);
+            prepSt.setInt(1, player.getId());
+            prepSt.setString(2, GameStatus.OPEN.name());
+            prepSt.setBoolean(3, true);
             ResultSet result = prepSt.executeQuery();
 
             while (result.next()) {
-                games.add(new Game(result.getInt("id"), GameType.valueOf(result.getString("game_type")),
+                Game game = new Game(result.getInt("id"), GameType.valueOf(result.getString("game_type")),
                         new Player(result.getInt("user_id"), result.getString("username")),
-                        result.getBoolean("public_game"), new DateTime(result.getTimestamp("creation_date"))));
+                        result.getBoolean("public_game"), new DateTime(result.getTimestamp("creation_date")));
+                InviteStatus status = InviteStatus.valueOf(result.getString("status"));
+                games.put(game, status);
             }
         }
         return games;

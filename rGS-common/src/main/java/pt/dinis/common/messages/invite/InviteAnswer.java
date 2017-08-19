@@ -1,10 +1,6 @@
 package pt.dinis.common.messages.invite;
 
-import pt.dinis.common.core.Game;
-import pt.dinis.common.core.GameType;
-import pt.dinis.common.core.Player;
-
-import java.util.List;
+import pt.dinis.common.objects.Game;
 
 /**
  * Created by tiago on 16-02-2017.

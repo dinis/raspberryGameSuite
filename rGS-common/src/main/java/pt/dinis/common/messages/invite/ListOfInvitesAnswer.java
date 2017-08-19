@@ -1,6 +1,6 @@
 package pt.dinis.common.messages.invite;
 
-import pt.dinis.common.core.Game;
+import pt.dinis.common.objects.Invite;
 
 import java.util.Collection;
 
@@ -12,15 +12,15 @@ public class ListOfInvitesAnswer extends InviteMessage {
     AnswerType answer;
     // TODO: justification should be an enum
     String errorJustification;
-    Collection<Game> games;
+    Collection<Invite> invites;
 
-    public ListOfInvitesAnswer(AnswerType answer, String errorJustification, Collection<Game> games) {
+    public ListOfInvitesAnswer(AnswerType answer, String errorJustification, Collection<Invite> invites) {
         if (answer == null) {
             throw new IllegalArgumentException("Answer cannot be null");
         }
         this.answer = answer;
         this.errorJustification = errorJustification;
-        this.games = games;
+        this.invites = invites;
     }
 
     public AnswerType getAnswer() {
@@ -31,8 +31,8 @@ public class ListOfInvitesAnswer extends InviteMessage {
         return errorJustification;
     }
 
-    public Collection<Game> getGames() {
-        return games;
+    public Collection<Invite> getInvites() {
+        return invites;
     }
 
     @Override
@@ -42,10 +42,10 @@ public class ListOfInvitesAnswer extends InviteMessage {
 
     @Override
     public String toString() {
-        return "ListOfGamesAnswer{" +
+        return "ListOfInvitesAnswer{" +
                 "answer=" + answer +
                 ", errorJustification='" + errorJustification + '\'' +
-                ", games=" + games +
+                ", invites=" + invites +
                 "} " + super.toString();
     }
 }

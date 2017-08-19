@@ -1,6 +1,6 @@
 package pt.dinis.common.messages.user;
 
-import pt.dinis.common.core.Player;
+import pt.dinis.common.objects.Player;
 
 /**
  * Created by tiago on 16-02-2017.

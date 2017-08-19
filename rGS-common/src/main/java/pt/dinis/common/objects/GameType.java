@@ -1,4 +1,4 @@
-package pt.dinis.common.core;
+package pt.dinis.common.objects;
 
 /**
  * Created by tiago on 03-08-2017.

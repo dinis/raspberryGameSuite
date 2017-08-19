@@ -2,7 +2,7 @@ package pt.dinis.server.communication;
 
 import org.apache.log4j.Logger;
 import pt.dinis.common.core.Display;
-import pt.dinis.common.core.Player;
+import pt.dinis.common.objects.Player;
 import pt.dinis.common.messages.AuthenticatedMessage;
 import pt.dinis.common.messages.GenericMessage;
 import pt.dinis.common.messages.basic.BasicMessage;

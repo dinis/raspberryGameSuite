@@ -1,7 +1,7 @@
 package pt.dinis.common.messages.invite;
 
-import pt.dinis.common.core.Game;
-import pt.dinis.common.core.Player;
+import pt.dinis.common.objects.Game;
+import pt.dinis.common.objects.Player;
 
 /**
  * Created by tiago on 16-02-2017.

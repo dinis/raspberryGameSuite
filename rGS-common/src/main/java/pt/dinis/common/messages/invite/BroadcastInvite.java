@@ -1,7 +1,6 @@
 package pt.dinis.common.messages.invite;
 
-import pt.dinis.common.core.Game;
-import pt.dinis.common.core.Player;
+import pt.dinis.common.objects.Game;
 
 /**
  * Created by tiago on 16-02-2017.
@@ -28,7 +27,7 @@ public class BroadcastInvite extends InviteMessage {
 
     @Override
     public String toString() {
-        return "Invite{" +
+        return "InviteToGame{" +
                 "game=" + game +
                 "} " + super.toString();
     }

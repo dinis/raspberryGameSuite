@@ -2,8 +2,9 @@ package pt.dinis.client.login.core;
 
 import org.apache.log4j.Logger;
 import pt.dinis.common.core.Display;
-import pt.dinis.common.core.Game;
-import pt.dinis.common.core.Player;
+import pt.dinis.common.objects.Game;
+import pt.dinis.common.objects.Invite;
+import pt.dinis.common.objects.Player;
 import pt.dinis.common.messages.GenericMessage;
 import pt.dinis.common.messages.basic.BasicMessage;
 import pt.dinis.common.messages.basic.CloseConnectionOrder;
@@ -163,8 +164,8 @@ public class LoginClientCommunicationProtocol {
         switch (message.getAnswer()) {
             case SUCCESS:
                 Display.info("List of invites: ");
-                for (Game game: message.getGames()) {
-                    Display.cleanColor(game.toString());
+                for (Invite invite: message.getInvites()) {
+                    Display.cleanColor(invite.toString());
                 }
                 break;
             case ERROR:

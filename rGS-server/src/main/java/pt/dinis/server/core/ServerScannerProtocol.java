@@ -1,8 +1,8 @@
 package pt.dinis.server.core;
 
 import pt.dinis.common.core.Display;
-import pt.dinis.common.core.GameType;
-import pt.dinis.common.core.Player;
+import pt.dinis.common.objects.GameType;
+import pt.dinis.common.objects.Player;
 import pt.dinis.common.messages.basic.CloseConnectionOrder;
 import pt.dinis.common.messages.chat.ChatMessage;
 import pt.dinis.common.messages.chat.ChatMessageToClient;

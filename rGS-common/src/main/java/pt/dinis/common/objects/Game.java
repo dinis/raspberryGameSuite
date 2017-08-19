@@ -1,4 +1,4 @@
-package pt.dinis.common.core;
+package pt.dinis.common.objects;
 
 import org.joda.time.DateTime;
 

@@ -3,13 +3,13 @@ package pt.dinis.client.login.core;
 import org.apache.log4j.Logger;
 import pt.dinis.common.core.Display;
 
-import pt.dinis.common.core.GameType;
+import pt.dinis.common.objects.GameType;
 import pt.dinis.common.core.Tools;
 import pt.dinis.common.messages.GenericMessage;
 import pt.dinis.common.messages.basic.CloseConnectionRequest;
 import pt.dinis.common.messages.chat.ChatMessage;
 import pt.dinis.common.messages.chat.ChatMessageToServer;
-import pt.dinis.common.messages.invite.Invite;
+import pt.dinis.common.messages.invite.InviteToGame;
 import pt.dinis.common.messages.invite.ListOfInvitesRequest;
 import pt.dinis.common.messages.invite.ListOfPlayersRequest;
 import pt.dinis.common.messages.invite.RespondToInvite;
@@ -52,7 +52,7 @@ public class LoginClientScannerProtocol {
                 "games", Collections.emptyList()),
         INVITES("invites", "Get a list of active invites",
                 "invites", Collections.emptyList()),
-        INVITE("invite", "Invite someone (a list)",
+        INVITE("invite", "InviteToGame someone (a list)",
                 "invite game_type_id (#)", Collections.emptyList()),
         ANSWER("answer", "Answer to an invite or cancel an invite",
                 "invite game_id [y|yes|accept|n|no|refuse]", Collections.emptyList()),
@@ -303,7 +303,7 @@ public class LoginClientScannerProtocol {
                 return;
             }
             if (message.isEmpty()) {
-                LoginClient.sendMessage(new Invite(game, Collections.emptySet()));
+                LoginClient.sendMessage(new InviteToGame(game, Collections.emptySet()));
                 return;
             }
             Set<Integer> players = new HashSet<>();
@@ -315,7 +315,7 @@ public class LoginClientScannerProtocol {
                 }
             }
             if (players.size() == (game.getNumberOfPlayers() - 1)) {
-                LoginClient.sendMessage(new Invite(game, players));
+                LoginClient.sendMessage(new InviteToGame(game, players));
             } else {
                 Display.alert("This game needs " + Integer.toString(game.getNumberOfPlayers()-1) + " opponents");
             }

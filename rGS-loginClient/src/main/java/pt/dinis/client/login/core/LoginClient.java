@@ -3,7 +3,7 @@ package pt.dinis.client.login.core;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import pt.dinis.common.core.Display;
-import pt.dinis.common.core.Player;
+import pt.dinis.common.objects.Player;
 import pt.dinis.common.messages.AuthenticatedMessage;
 import pt.dinis.common.messages.GenericMessage;
 import pt.dinis.common.core.Configurations;

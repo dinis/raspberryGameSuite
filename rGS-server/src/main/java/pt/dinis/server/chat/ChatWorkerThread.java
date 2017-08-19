@@ -2,7 +2,7 @@ package pt.dinis.server.chat;
 
 import org.apache.log4j.Logger;
 import pt.dinis.common.core.Display;
-import pt.dinis.common.core.Player;
+import pt.dinis.common.objects.Player;
 import pt.dinis.common.messages.chat.ChatMessage;
 import pt.dinis.common.messages.chat.ChatMessageToClient;
 import pt.dinis.common.messages.chat.ChatMessageToServer;

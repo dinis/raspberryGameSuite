@@ -2,8 +2,9 @@ package pt.dinis.server.invite;
 
 import org.apache.log4j.Logger;
 import pt.dinis.common.core.Display;
-import pt.dinis.common.core.Game;
-import pt.dinis.common.core.Player;
+import pt.dinis.common.objects.Game;
+import pt.dinis.common.objects.Invite;
+import pt.dinis.common.objects.Player;
 import pt.dinis.common.messages.GenericMessage;
 import pt.dinis.common.messages.invite.*;
 import pt.dinis.server.core.Dealer;
@@ -35,8 +36,8 @@ public class InviteWorkerThread extends WorkerThread {
             return listOfPlayers();
         } else if (message instanceof ListOfInvitesRequest) {
             return listOfInvites(connection);
-        } else if (message instanceof Invite) {
-            return invite((Invite) message, connection);
+        } else if (message instanceof InviteToGame) {
+            return invite((InviteToGame) message, connection);
         } else if (message instanceof RespondToInvite) {
             return respondToInvite((RespondToInvite) message, connection);
         } else {
@@ -61,10 +62,10 @@ public class InviteWorkerThread extends WorkerThread {
                     new ListOfInvitesAnswer(GenericMessage.AnswerType.ERROR, "No Authentication", null));
         }
 
-        Collection<Game> games;
+        Collection<Invite> invites;
         try {
-            games = InviteDB.getPrivateInvites(player, connection);
-            games.addAll(InviteDB.getPublicInvites(connection));
+            invites = InviteDB.getPrivateInvites(player, connection);
+            invites.addAll(InviteDB.getPublicInvites(player, connection));
         } catch (SQLException e) {
             Dealer.sendMessage(player.getId(),
                     new ListOfInvitesAnswer(GenericMessage.AnswerType.ERROR, "Failed to find invites", null));
@@ -72,10 +73,10 @@ public class InviteWorkerThread extends WorkerThread {
         }
 
         return Dealer.sendMessage(player.getId(),
-                new ListOfInvitesAnswer(GenericMessage.AnswerType.SUCCESS, null, games));
+                new ListOfInvitesAnswer(GenericMessage.AnswerType.SUCCESS, null, invites));
     }
 
-    private boolean invite(Invite request, Connection connection) throws SQLException {
+    private boolean invite(InviteToGame request, Connection connection) throws SQLException {
         // Tests if host player exists
         if (player == null) {
             return Dealer.sendMessageToConnection(id,
@@ -92,7 +93,7 @@ public class InviteWorkerThread extends WorkerThread {
         // Create game in DB and answer to the one inviting
         Game game;
         try {
-            game = InviteDB.createCompleteGame(player, request.getGame(), publicGame, connection);
+            game = InviteDB.createGameByPlayer(player, request.getGame(), publicGame, connection);
         } catch (SQLException e) {
             Display.alert("Error creating game: " + request.getGame() + " for player " + player);
             Dealer.sendMessage(player.getId(),

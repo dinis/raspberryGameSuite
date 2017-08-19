@@ -1,6 +1,6 @@
 package pt.dinis.common.messages.invite;
 
-import pt.dinis.common.core.Player;
+import pt.dinis.common.objects.Player;
 
 import java.util.Collection;
 

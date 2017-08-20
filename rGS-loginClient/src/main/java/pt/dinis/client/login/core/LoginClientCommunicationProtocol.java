@@ -2,8 +2,8 @@ package pt.dinis.client.login.core;
 
 import org.apache.log4j.Logger;
 import pt.dinis.common.core.Display;
-import pt.dinis.common.objects.Game;
 import pt.dinis.common.objects.Invite;
+import pt.dinis.common.objects.MessageObject;
 import pt.dinis.common.objects.Player;
 import pt.dinis.common.messages.GenericMessage;
 import pt.dinis.common.messages.basic.BasicMessage;
@@ -180,7 +180,7 @@ public class LoginClientCommunicationProtocol {
                 Display.info("New game created: " + message.getGame().prettyPrint());
                 break;
             case ERROR:
-                failOperation(message, message.getErrorJustification(), message.getGame().prettyPrint());
+                failOperation(message, message.getErrorJustification(), message.getGame());
                 break;
         }
     }
@@ -199,20 +199,20 @@ public class LoginClientCommunicationProtocol {
                 Display.info("Answer was registered: " + message.getGame().prettyPrint());
                 break;
             case ERROR:
-                failOperation(message, message.getJustificationError(), message.getGame().prettyPrint());
+                failOperation(message, message.getJustificationError(), message.getGame());
                 break;
         }
     }
 
     private static void broadcastAnswer(BroadcastResponseToInvite message) {
-        Display.info(message.getPlayer().prettyPrint() + "Answer: " + message.getAccept().toString());
+        Display.info(message.getPlayer().prettyPrint() + " Answer: " + message.getAccept().toString());
         Display.cleanColor(message.getGame().prettyPrint());
     }
 
-    private static void failOperation(GenericMessage message, String errorMessage, Object object) {
+    private static void failOperation(GenericMessage message, String errorMessage, MessageObject object) {
         Display.alert(message.getClass().getSimpleName() + ": " + errorMessage);
         if (object != null) {
-            Display.cleanColor(object.toString());
+            Display.cleanColor(object.prettyPrint());
         }
     }
 }

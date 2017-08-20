@@ -4,13 +4,12 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.io.Serializable;
 import java.util.Objects;
 
 /**
  * Created by tiago on 02-08-2017.
  */
-public class Game implements Serializable {
+public class Game implements MessageObject {
 
     Integer id;
     GameType game;
@@ -46,13 +45,14 @@ public class Game implements Serializable {
         return publicGame;
     }
 
+    @Override
     public String prettyPrint() {
         DateTimeFormatter formatter = DateTimeFormat.shortDateTime();
         String result = publicGame ? "Public game" : "Private game";
-        return result + " (" + id +
+        return result + "(" + id +
                 ": " + game.toString() +
                 " of " + host.prettyPrint() +
-                " at " + formatter.print(date);
+                " at " + formatter.print(date) + ")";
     }
 
     @Override

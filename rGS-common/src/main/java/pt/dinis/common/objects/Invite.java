@@ -1,12 +1,13 @@
 package pt.dinis.common.objects;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Objects;
 
 /**
  * Created by tiago on 19-08-2017.
  */
-public class Invite {
+public class Invite implements MessageObject {
     Game game;
     InviteStatus status;
     Collection<Player> opponents;
@@ -29,10 +30,11 @@ public class Invite {
         return opponents;
     }
 
+    @Override
     public String prettyPrint() {
-        String result = "Invite (" + status.toString() + ": " + game.prettyPrint();
+        String result = "Invite" + (status == null ? "" : " " + status.toString()) + ": " + game.prettyPrint();
         for (Player opponent: opponents) {
-            result += result + "\n\t" + opponent.prettyPrint();
+            result += "\n\t\t" + opponent.prettyPrint();
         }
         return result;
     }

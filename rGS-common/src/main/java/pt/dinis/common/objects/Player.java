@@ -1,12 +1,11 @@
 package pt.dinis.common.objects;
 
-import java.io.Serializable;
 import java.util.Objects;
 
 /**
  * Created by tiago on 02-08-2017.
  */
-public class Player implements Serializable {
+public class Player implements MessageObject {
 
     Integer id;
     String name;
@@ -32,6 +31,7 @@ public class Player implements Serializable {
         this.name = name;
     }
 
+    @Override
     public String prettyPrint() {
         return "Player(" + id + ": " + name + ")";
     }

@@ -120,11 +120,14 @@ public class InviteWorkerThread extends WorkerThread {
 
         // Broadcast/deliver invite
         if (publicGame) {
-            result = result && Dealer.sendMessageToConnection(Dealer.getActiveClients(),
-                    new BroadcastInvite(game));
+            if (!Dealer.sendMessageToConnection(Dealer.getActiveClients(), new BroadcastInvite(game))) {
+                result = false;
+            }
         } else {
             for (Integer pl: request.getPlayers()) {
-                result = result && Dealer.sendMessage(pl, new DeliverInvite(game));
+                if (!Dealer.sendMessage(pl, new DeliverInvite(game))) {
+                    result = false;
+                };
             }
         }
 
@@ -149,14 +152,15 @@ public class InviteWorkerThread extends WorkerThread {
         }
 
         // If game is private and player was not invited, we cannot continue
+        // if it is private, user should not know more details
         try {
             if (!game.isPublicGame() && !InviteDB.isPlayerInvitedToGame(game, player, connection)) {
                 return Dealer.sendMessageToConnection(id,
-                        new RespondToInviteAnswer(GenericMessage.AnswerType.ERROR, game, "Private game"));
+                        new RespondToInviteAnswer(GenericMessage.AnswerType.ERROR, null, "Private game"));
             }
         } catch (SQLException e) {
             Dealer.sendMessageToConnection(id,
-                    new RespondToInviteAnswer(GenericMessage.AnswerType.ERROR, game, "Problem checking players of this game"));
+                    new RespondToInviteAnswer(GenericMessage.AnswerType.ERROR, null, "Problem checking players of this game"));
             throw e;
         }
 
@@ -196,8 +200,10 @@ public class InviteWorkerThread extends WorkerThread {
 
         for (Player opponent: opponents) {
             if (opponent.getId() != player.getId()) {
-                result = result && Dealer.sendMessage(opponent.getId(),
-                        new BroadcastResponseToInvite(game, request.getAccept(), player));
+                if (!Dealer.sendMessage(opponent.getId(),
+                        new BroadcastResponseToInvite(game, request.getAccept(), player))) {
+                    result = false;
+                }
             }
         }
 

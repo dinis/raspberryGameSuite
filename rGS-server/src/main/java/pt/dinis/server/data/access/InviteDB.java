@@ -31,7 +31,7 @@ public class InviteDB {
         String queryGame = "SELECT g.id, g.game_type, g.user_id, u.username, g.public_game, g.creation_date " +
                 "FROM games AS g " +
                 "JOIN users AS u ON u.id = g.user_id " +
-                "WHERE g.id = ? AND status = ?";
+                "WHERE g.id = ? AND g.status = ?";
         try (PreparedStatement prepSt = connection.prepareStatement(queryGame)) {
             prepSt.setInt(1, gameId);
             prepSt.setString(2, GameStatus.OPEN.name());
@@ -73,8 +73,8 @@ public class InviteDB {
     }
 
     private static void updateInviteRow(Integer id, InviteStatus status, Connection connection) throws SQLException {
-        String queryCancelGame = "UPDATE games_players SET status = ? WHERE id = ?";
-        try (PreparedStatement prepSt = connection.prepareStatement(queryCancelGame)) {
+        String queryCancelInvite = "UPDATE games_players SET status = ? WHERE id = ?";
+        try (PreparedStatement prepSt = connection.prepareStatement(queryCancelInvite)) {
             prepSt.setString(1, status.name());
             prepSt.setInt(2, id);
             int newRows = prepSt.executeUpdate();
@@ -185,7 +185,7 @@ public class InviteDB {
                 Game game = new Game(result.getInt("id"), GameType.valueOf(result.getString("game_type")),
                         new Player(result.getInt("user_id"), result.getString("username")),
                         result.getBoolean("public_game"), new DateTime(result.getTimestamp("creation_date")));
-                InviteStatus status = InviteStatus.valueOf(result.getString("status"));
+                InviteStatus status = result.getString("status") == null ? null : InviteStatus.valueOf(result.getString("status"));
                 games.put(game, status);
             }
         }

@@ -151,7 +151,7 @@ public class LoginClientCommunicationProtocol {
             case SUCCESS:
                 Display.info("List of players: ");
                 for (Player player: message.getPlayers()) {
-                    Display.cleanColor(player.toString());
+                    Display.cleanColor(player.prettyPrint());
                 }
                 break;
             case ERROR:
@@ -165,7 +165,7 @@ public class LoginClientCommunicationProtocol {
             case SUCCESS:
                 Display.info("List of invites: ");
                 for (Invite invite: message.getInvites()) {
-                    Display.cleanColor(invite.toString());
+                    Display.cleanColor(invite.prettyPrint());
                 }
                 break;
             case ERROR:
@@ -177,36 +177,36 @@ public class LoginClientCommunicationProtocol {
     private static void inviteAnswer(InviteAnswer message) {
         switch (message.getAnswer()) {
             case SUCCESS:
-                Display.info("New game created: " + message.getGame());
+                Display.info("New game created: " + message.getGame().prettyPrint());
                 break;
             case ERROR:
-                failOperation(message, message.getErrorJustification(), message.getGame());
+                failOperation(message, message.getErrorJustification(), message.getGame().prettyPrint());
                 break;
         }
     }
 
     private static void deliverInvite(DeliverInvite message) {
-        Display.info("You've been invited to: " + message.getGame());
+        Display.info("You've been invited to: " + message.getGame().prettyPrint());
     }
 
     private static void broadcastInvite(BroadcastInvite message) {
-        Display.info("A new game have been created: " + message.getGame());
+        Display.info("A new game have been created: " + message.getGame().prettyPrint());
     }
 
     private static void responseAnswer(RespondToInviteAnswer message) {
         switch (message.getAnswer()) {
             case SUCCESS:
-                Display.info("Answer was registered: " + message.getGame());
+                Display.info("Answer was registered: " + message.getGame().prettyPrint());
                 break;
             case ERROR:
-                failOperation(message, message.getJustificationError(), message.getGame());
+                failOperation(message, message.getJustificationError(), message.getGame().prettyPrint());
                 break;
         }
     }
 
     private static void broadcastAnswer(BroadcastResponseToInvite message) {
-        Display.info(message.getPlayer().toString() + "Answer: " + message.getAccept().toString());
-        Display.cleanColor(message.getGame().toString());
+        Display.info(message.getPlayer().prettyPrint() + "Answer: " + message.getAccept().toString());
+        Display.cleanColor(message.getGame().prettyPrint());
     }
 
     private static void failOperation(GenericMessage message, String errorMessage, Object object) {

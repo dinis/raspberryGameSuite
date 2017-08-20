@@ -32,6 +32,10 @@ public class Player implements Serializable {
         this.name = name;
     }
 
+    public String prettyPrint() {
+        return "Player(" + id + ": " + name + ")";
+    }
+
     @Override
     public String toString() {
         return "Player{" +

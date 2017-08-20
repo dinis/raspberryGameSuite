@@ -1,6 +1,8 @@
 package pt.dinis.common.objects;
 
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -42,6 +44,15 @@ public class Game implements Serializable {
 
     public boolean isPublicGame() {
         return publicGame;
+    }
+
+    public String prettyPrint() {
+        DateTimeFormatter formatter = DateTimeFormat.shortDateTime();
+        String result = publicGame ? "Public game" : "Private game";
+        return result + " (" + id +
+                ": " + game.toString() +
+                " of " + host.prettyPrint() +
+                " at " + formatter.print(date);
     }
 
     @Override

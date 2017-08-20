@@ -29,6 +29,14 @@ public class Invite {
         return opponents;
     }
 
+    public String prettyPrint() {
+        String result = "Invite (" + status.toString() + ": " + game.prettyPrint();
+        for (Player opponent: opponents) {
+            result += result + "\n\t" + opponent.prettyPrint();
+        }
+        return result;
+    }
+
     @Override
     public String toString() {
         return "Invite{" +

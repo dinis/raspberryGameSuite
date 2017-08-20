@@ -2,6 +2,7 @@ package pt.dinis.server.chat;
 
 import org.apache.log4j.Logger;
 import pt.dinis.common.core.Display;
+import pt.dinis.common.objects.Player;
 import pt.dinis.common.messages.chat.ChatMessage;
 import pt.dinis.common.messages.chat.ChatMessageToClient;
 import pt.dinis.common.messages.chat.ChatMessageToServer;
@@ -20,13 +21,13 @@ public class ChatWorkerThread extends WorkerThread {
     private final static Logger logger = Logger.getLogger(ChatWorkerThread.class);
 
     private ChatMessage message;
-    private int id;
-    private boolean isAuthenticated;
+    private int idConnection;
+    private Player player;
 
-    public ChatWorkerThread(ChatMessage message, int id, boolean isAuthenticated) {
+    public ChatWorkerThread(ChatMessage message, int idConnection, Player player) {
         this.message = message;
-        this.id = id;
-        this.isAuthenticated = isAuthenticated;
+        this.idConnection = idConnection;
+        this.player = player;
     }
 
     @Override
@@ -34,7 +35,7 @@ public class ChatWorkerThread extends WorkerThread {
         if (message instanceof ChatMessageToServer) {
             return message((ChatMessageToServer) message);
         } else {
-            logger.warn("Unexpected message from client " + id + ": " + message);
+            logger.warn("Unexpected message from client " + idConnection + ": " + message);
             return false;
         }
     }
@@ -42,7 +43,7 @@ public class ChatWorkerThread extends WorkerThread {
     private boolean message(ChatMessageToServer message) {
 
         if(message.getMessage().isEmpty()) {
-            Display.alert("client " + id + " sent an empty message");
+            Display.alert("client " + idConnection + " sent an empty message");
             return false;
         }
 
@@ -52,33 +53,35 @@ public class ChatWorkerThread extends WorkerThread {
                 ids = Dealer.getActiveClients();
                 break;
             case ECHO:
-                ids = Collections.singleton(id);
+                ids = Collections.singleton(idConnection);
                 break;
             case SERVER:
+            case SPECIFIC:
                 break;
             case OTHERS:
                 ids = Dealer.getActiveClients();
-                ids.remove(id);
-                break;
-            case SPECIFIC:
-                ids = Collections.singleton(message.getPerson());
+                ids.remove(idConnection);
                 break;
         }
-
 
         if (message.getDestiny() == ChatMessageToServer.Destiny.SERVER) {
             switch (message.getType()) {
                 case NORMAL:
-                    Display.display("client " + id + " said: " + message.getMessage());
+                    Display.display("client " + idConnection + " said: " + message.getMessage());
                     break;
                 case ERROR:
-                    Display.alert("client " + id + " said: " + message.getMessage());
+                    Display.alert("client " + idConnection + " said: " + message.getMessage());
                     break;
             }
             return true;
         }
 
-        return Dealer.sendMessage(ids, new ChatMessageToClient(message.getMessage(), message.getType()));
+        if (message.getDestiny() == ChatMessageToServer.Destiny.SPECIFIC) {
+            return Dealer.sendMessage(message.getPerson(),
+                    new ChatMessageToClient(message.getMessage(), message.getType()));
+        }
+
+        return Dealer.sendMessageToConnection(ids, new ChatMessageToClient(message.getMessage(), message.getType()));
 
     }
 }

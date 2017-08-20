@@ -1,5 +1,6 @@
 package pt.dinis.server.data.access;
 
+import pt.dinis.common.objects.Player;
 import pt.dinis.server.exceptions.NotFoundException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -44,6 +45,22 @@ public class User {
 
             if (rs.next()) {
                 return rs.getString("password");
+            }
+        }
+
+        throw new NotFoundException();
+    }
+
+    public static Player getPlayer(String username, Connection connection) throws SQLException, NotFoundException {
+
+        String query = "SELECT id, username FROM users WHERE username = ?";
+
+        try (PreparedStatement prepSt = connection.prepareStatement(query)) {
+            prepSt.setString(1, username);
+            ResultSet rs = prepSt.executeQuery();
+
+            if (rs.next()) {
+                return new Player(rs.getInt("id"), rs.getString("username"));
             }
         }
 

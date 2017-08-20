@@ -1,42 +1,38 @@
-package pt.dinis.common.messages.user;
+package pt.dinis.common.messages.invite;
 
 import pt.dinis.common.objects.Player;
+
+import java.util.Collection;
 
 /**
  * Created by tiago on 16-02-2017.
  */
-public class LoginAnswer extends UserMessage {
+public class ListOfPlayersAnswer extends InviteMessage {
 
     AnswerType answer;
-    String token;
-    // TODO: this should be an enum
+    // TODO: justification should be an enum
     String errorJustification;
-    Player player;
+    Collection<Player> players;
 
-    public LoginAnswer(AnswerType answer, String token, Player player, String errorJustification) {
+    public ListOfPlayersAnswer(AnswerType answer, String errorJustification, Collection<Player> players) {
         if (answer == null) {
             throw new IllegalArgumentException("Answer cannot be null");
         }
         this.answer = answer;
-        this.token = token;
-        this.player = player;
         this.errorJustification = errorJustification;
+        this.players = players;
     }
 
     public AnswerType getAnswer() {
         return answer;
     }
 
-    public String getToken() {
-        return token;
-    }
-
-    public Player getPlayer() {
-        return player;
-    }
-
     public String getErrorJustification() {
         return errorJustification;
+    }
+
+    public Collection<Player> getPlayers() {
+        return players;
     }
 
     @Override
@@ -46,11 +42,10 @@ public class LoginAnswer extends UserMessage {
 
     @Override
     public String toString() {
-        return "LoginAnswer{" +
+        return "ListOfPlayersAnswer{" +
                 "answer=" + answer +
-                ", token='" + token + '\'' +
                 ", errorJustification='" + errorJustification + '\'' +
-                ", player=" + player +
+                ", players=" + players +
                 "} " + super.toString();
     }
 }
